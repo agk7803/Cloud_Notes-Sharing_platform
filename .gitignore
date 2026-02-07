@@ -2,6 +2,10 @@
 frontend/node_modules
 frontend/build
 frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.production.local
+
 
 # Backend (if you add later)
 backend/node_modules
