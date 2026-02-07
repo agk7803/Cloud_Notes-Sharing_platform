@@ -7,9 +7,9 @@ All backend services are handled using Firebase (Backend as a Service).
 
 ## Project Structure
 
-STUNOTES/
- ├── frontend/     (React application)
- ├── backend/      (Empty - Firebase is used as backend)
+STUNOTES/ <br>
+ ├── frontend/     (React application) <br>
+ ├── backend/      (Empty - Firebase is used as backend)<br>
  └── README.md
 
 Note: This project does not use a traditional Node/Express backend. Firebase handles authentication, database, and storage.
