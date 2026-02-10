@@ -1,87 +1,53 @@
-import { useState, useEffect } from "react";
-import { signInWithPopup, signOut } from "firebase/auth";
-import { auth, googleProvider } from "./firebase";
-import { addNote, getMyNotes } from "./services/notes";
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import Login from './Login';
+import Register from './Register';
+import ViewNotes from './ViewNotes';
+import FAQ from './FAQ';
+import Landing from "./Landing";
+import Layout from './Layout';
+import Dashboard from './Dashboard';
+import Calendar from './Calendar';
+import Assessments from './Assessments';
+import TestWindow from './TestWindow';
+import StudyGroups from './StudyGroups';
+import GroupWorkspace from './GroupWorkspace';
+import { NoteProvider } from './NoteContext';
+import About from "./About";
+import Contact from "./Contact";
+import Privacy from "./Privacy";
+import Terms from "./Terms";
 
 function App() {
-    const [user, setUser] = useState(null);
-    const [title, setTitle] = useState("");
-    const [content, setContent] = useState("");
-    const [notes, setNotes] = useState([]);
+  return (
+    <Routes>
+      <Route path="/" element={<Landing />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
-    useEffect(() => {
-        auth.onAuthStateChanged(u => {
-            setUser(u);
-            if (u) loadNotes();
-        });
-    }, []);
+      {/* Routes with Persistent Sidebar */}
+      <Route element={
+        <NoteProvider>
+          <Layout />
+        </NoteProvider>
+      }>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/view" element={<ViewNotes />} />
+        <Route path="/faq" element={<FAQ />} />
+        <Route path="/assessments" element={<Assessments />} />
+        <Route path="/calendar" element={<Calendar />} />
+        <Route path="/groups" element={<StudyGroups />} />
+        <Route path="/groups/:groupId" element={<GroupWorkspace />} />
+      </Route>
 
-    const loadNotes = async () => {
-        const data = await getMyNotes();
-        setNotes(data);
-    };
-
-    const login = async () => {
-        await signInWithPopup(auth, googleProvider);
-    };
-
-    const logout = async () => {
-        await signOut(auth);
-        setUser(null);
-        setNotes([]);
-    };
-
-    const save = async () => {
-        await addNote(title, content);
-        setTitle("");
-        setContent("");
-        loadNotes();
-    };
-
-    return (
-        <div style={{ padding: "40px" }}>
-            <h1>STUNOTES</h1>
-
-            {!user ? (
-                <button onClick={login}>Login</button>
-            ) : (
-                <>
-                    <p>Welcome, {user.email}</p>
-                    <button onClick={logout}>Logout</button>
-
-                    <hr />
-
-                    <input
-                        placeholder="Title"
-                        value={title}
-                        onChange={e => setTitle(e.target.value)}
-                    />
-                    <br /><br />
-
-                    <textarea
-                        placeholder="Content"
-                        value={content}
-                        onChange={e => setContent(e.target.value)}
-                    />
-                    <br /><br />
-
-                    <button onClick={save}>Save Note</button>
-
-                    <hr />
-
-                    <h3>My Notes</h3>
-
-                    {notes.map(n => (
-                        <div key={n.id}>
-                            <h4>{n.title}</h4>
-                            <p>{n.content}</p>
-                            <hr />
-                        </div>
-                    ))}
-                </>
-            )}
-        </div>
-    );
+      {/* Standalone Routes (Focus Mode) */}
+      <Route path="/test-window/:testId" element={<TestWindow />} />
+    </Routes>
+  );
 }
 
 export default App;
