@@ -12,6 +12,37 @@ import api from './api/axios';
 import { useNotes } from './NoteContext';
 
 
+/* ================= FILE VIEWER ================= */
+
+const getViewUrl = (url) => {
+  if (!url) return "";
+
+  const ext = url
+    .split(".")
+    .pop()
+    .split("?")[0]
+    .toLowerCase();
+
+  const office = ["doc", "docx", "ppt", "pptx", "xls", "xlsx"];
+
+  // Office files → Microsoft Viewer
+  if (office.includes(ext)) {
+    return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(
+      url
+    )}`;
+  }
+
+  // PDF → Google Viewer
+  if (ext === "pdf") {
+    return `https://docs.google.com/gview?url=${encodeURIComponent(
+      url
+    )}&embedded=true`;
+  }
+
+  return url;
+};
+
+
 /* ================= HEADER ================= */
 
 const Header = ({ user }) => {
@@ -187,32 +218,40 @@ const StudyStreak = ({ streak }) => (
 
 /* ================= NOTE CARD ================= */
 
-const NoteCard = ({ note }) => (
-  <div
-    onClick={() => window.open(note.fileUrl, "_blank")}
-    className="bg-white p-4 rounded-xl border shadow-sm cursor-pointer"
-  >
+const NoteCard = ({ note }) => {
 
-    <div className="flex gap-3">
+  const openNote = () => {
+    const url = getViewUrl(note.fileUrl);
+    window.open(url, "_blank");
+  };
 
-      <div className="w-10 h-10 bg-green-50 text-[#1dc962] rounded-lg flex items-center justify-center">
-        <FaFilePdf />
-      </div>
+  return (
+    <div
+      onClick={openNote}
+      className="bg-white p-4 rounded-xl border shadow-sm cursor-pointer"
+    >
 
-      <div>
-        <h4 className="font-bold text-sm">
-          {note.title}
-        </h4>
+      <div className="flex gap-3">
 
-        <p className="text-xs text-gray-400">
-          {new Date(note.createdAt).toLocaleDateString()}
-        </p>
+        <div className="w-10 h-10 bg-green-50 text-[#1dc962] rounded-lg flex items-center justify-center">
+          <FaFilePdf />
+        </div>
+
+        <div>
+          <h4 className="font-bold text-sm">
+            {note.title}
+          </h4>
+
+          <p className="text-xs text-gray-400">
+            {new Date(note.createdAt).toLocaleDateString()}
+          </p>
+        </div>
+
       </div>
 
     </div>
-
-  </div>
-);
+  );
+};
 
 
 /* ================= ASSESSMENT CARD ================= */
