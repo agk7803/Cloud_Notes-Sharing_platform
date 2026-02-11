@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
-import io from 'socket.io-client';
+import React, { useEffect, useState, useRef } from "react";
+import { io } from "socket.io-client";
 import {
     FaPaperPlane,
     FaMicrophone,
@@ -8,9 +8,9 @@ import {
     FaPen,
     FaTimes,
     FaCheck
-} from 'react-icons/fa';
+} from "react-icons/fa";
 
-import api from '../api/axios';
+import api from "../api/axios";
 
 const SOCKET_URL = "http://localhost:5050";
 
@@ -42,6 +42,8 @@ const GroupChat = ({ groupId, user }) => {
 
     useEffect(() => {
 
+        if (!groupId) return;
+
         const fetchHistory = async () => {
             try {
                 const res = await api.get(`/groups/${groupId}/chats`);
@@ -51,18 +53,17 @@ const GroupChat = ({ groupId, user }) => {
             }
         };
 
-        if (groupId) fetchHistory();
+        fetchHistory();
 
     }, [groupId]);
 
 
-    /* ================= SOCKET SETUP ================= */
+    /* ================= SOCKET ================= */
 
     useEffect(() => {
 
         if (!groupId || !user) return;
 
-        // Create socket
         const socket = io(SOCKET_URL, {
             transports: ["websocket"],
             reconnection: true
@@ -71,26 +72,37 @@ const GroupChat = ({ groupId, user }) => {
         socketRef.current = socket;
 
 
-        /* Join Group */
+        /* Join Room */
         socket.emit("join_group", groupId);
 
 
-        /* Receive Message */
+        /* New Message */
         socket.on("receive_message", (msg) => {
-            setMessages(prev => [...prev, msg]);
+
+            setMessages(prev => {
+
+                // Prevent duplicates
+                if (prev.some(m => m._id === msg._id)) return prev;
+
+                return [...prev, msg];
+            });
         });
 
 
-        /* Update Message */
+        /* Edit */
         socket.on("message_updated", (updated) => {
+
             setMessages(prev =>
-                prev.map(m => m._id === updated._id ? updated : m)
+                prev.map(m =>
+                    m._id === updated._id ? updated : m
+                )
             );
         });
 
 
-        /* Delete Message */
+        /* Delete */
         socket.on("message_deleted", (id) => {
+
             setMessages(prev =>
                 prev.filter(m => m._id !== id)
             );
@@ -102,20 +114,11 @@ const GroupChat = ({ groupId, user }) => {
             console.log("Socket Connected:", socket.id);
         });
 
-        socket.on("disconnect", () => {
-            console.log("Socket Disconnected");
-        });
-
 
         /* Cleanup */
         return () => {
 
-            socket.emit("leave_group", groupId);
-
-            socket.off("receive_message");
-            socket.off("message_updated");
-            socket.off("message_deleted");
-
+            socket.off();
             socket.disconnect();
 
             if (timerRef.current) clearInterval(timerRef.current);
@@ -127,11 +130,13 @@ const GroupChat = ({ groupId, user }) => {
     /* ================= AUTO SCROLL ================= */
 
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        messagesEndRef.current?.scrollIntoView({
+            behavior: "smooth"
+        });
     }, [messages, editingMessageId]);
 
 
-    /* ================= SEND TEXT ================= */
+    /* ================= SEND ================= */
 
     const sendMessage = () => {
 
@@ -142,8 +147,7 @@ const GroupChat = ({ groupId, user }) => {
             senderId: user.uid,
             senderName: user.displayName || user.name || "User",
             message: currentMessage,
-            messageType: "text",
-            time: new Date().toISOString()
+            messageType: "text"
         };
 
         socketRef.current.emit("send_message", data);
@@ -155,6 +159,7 @@ const GroupChat = ({ groupId, user }) => {
     /* ================= EDIT ================= */
 
     const handleEdit = (msg) => {
+
         setEditingMessageId(msg._id);
         setEditContent(msg.message);
     };
@@ -194,7 +199,8 @@ const GroupChat = ({ groupId, user }) => {
 
         try {
 
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const stream =
+                await navigator.mediaDevices.getUserMedia({ audio: true });
 
             const recorder = new MediaRecorder(stream);
 
@@ -203,7 +209,8 @@ const GroupChat = ({ groupId, user }) => {
 
 
             recorder.ondataavailable = (e) => {
-                if (e.data.size > 0) audioChunksRef.current.push(e.data);
+                if (e.data.size > 0)
+                    audioChunksRef.current.push(e.data);
             };
 
 
@@ -231,6 +238,7 @@ const GroupChat = ({ groupId, user }) => {
 
 
         } catch (err) {
+
             console.error("Mic Error:", err);
             alert("Microphone permission denied");
         }
@@ -260,20 +268,22 @@ const GroupChat = ({ groupId, user }) => {
 
             const res = await api.post("/upload/audio", form);
 
+
             const data = {
                 groupId,
                 senderId: user.uid,
                 senderName: user.displayName || user.name || "User",
                 message: "Voice Message",
                 messageType: "audio",
-                audioUrl: res.data.audioUrl,
-                time: new Date().toISOString()
+                audioUrl: res.data.audioUrl
             };
+
 
             socketRef.current.emit("send_message", data);
 
 
         } catch (err) {
+
             console.error("Upload Error:", err);
             alert("Voice upload failed");
         }
@@ -283,9 +293,11 @@ const GroupChat = ({ groupId, user }) => {
     /* ================= UTILS ================= */
 
     const formatTime = (s) => {
+
         const m = Math.floor(s / 60);
         const sec = s % 60;
-        return `${m}:${sec < 10 ? '0' : ''}${sec}`;
+
+        return `${m}:${sec < 10 ? "0" : ""}${sec}`;
     };
 
 
@@ -318,7 +330,7 @@ const GroupChat = ({ groupId, user }) => {
                 )}
 
 
-                {messages.map((msg) => {
+                {messages.map(msg => {
 
                     const own = msg.senderId === user.uid;
                     const editing = editingMessageId === msg._id;
@@ -327,14 +339,14 @@ const GroupChat = ({ groupId, user }) => {
 
                         <div
                             key={msg._id}
-                            className={`flex flex-col ${own ? "items-end" : "items-start"} group`}
+                            className={`flex ${own ? "justify-end" : "justify-start"}`}
                         >
 
                             <div
-                                className={`max-w-[85%] p-3 rounded-2xl relative
+                                className={`group max-w-[80%] p-3 rounded-2xl relative
                 ${own
-                                        ? "bg-[#1dc962] text-white rounded-tr-none"
-                                        : "bg-gray-100 text-gray-800 rounded-tl-none"
+                                        ? "bg-[#1dc962] text-white"
+                                        : "bg-gray-100 text-gray-800"
                                     }`}
                             >
 
@@ -373,11 +385,7 @@ const GroupChat = ({ groupId, user }) => {
                                     <>
                                         {msg.messageType === "audio" ? (
 
-                                            <audio
-                                                controls
-                                                src={msg.audioUrl}
-                                                className="mt-1"
-                                            />
+                                            <audio controls src={msg.audioUrl} />
 
                                         ) : (
 
@@ -391,16 +399,26 @@ const GroupChat = ({ groupId, user }) => {
                                         {/* ACTIONS */}
                                         {own && (
 
-                                            <div className="absolute -left-16 top-1/2 -translate-y-1/2 flex gap-1 opacity-0 group-hover:opacity-100 bg-white shadow p-1 rounded border">
+                                            <div className="
+                        absolute -left-16 top-1/2 -translate-y-1/2
+                        flex gap-1 opacity-0 group-hover:opacity-100
+                        bg-white shadow p-1 rounded border
+                      ">
 
                                                 {msg.messageType === "text" && (
-                                                    <button onClick={() => handleEdit(msg)}>
-                                                        <FaPen size={10} />
+                                                    <button
+                                                        className="text-blue-500 hover:bg-blue-50 p-1 rounded"
+                                                        onClick={() => handleEdit(msg)}
+                                                    >
+                                                        <FaPen size={12} />
                                                     </button>
                                                 )}
 
-                                                <button onClick={() => handleDelete(msg._id)}>
-                                                    <FaTrash size={10} />
+                                                <button
+                                                    className="text-red-500 hover:bg-red-50 p-1 rounded"
+                                                    onClick={() => handleDelete(msg._id)}
+                                                >
+                                                    <FaTrash size={12} />
                                                 </button>
 
                                             </div>
@@ -414,8 +432,10 @@ const GroupChat = ({ groupId, user }) => {
                             </div>
 
                         </div>
+
                     );
                 })}
+
 
                 <div ref={messagesEndRef} />
 
