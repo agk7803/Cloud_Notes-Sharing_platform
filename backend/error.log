@@ -1,0 +1,71 @@
+﻿node : C:\Users\ps_ke\
+Desktop\academic-notes
+-platform\backend\node
+_modules\multer-s3\ind
+ex.js:114
+At line:1 char:1
++ node index.js 2>&1 
+| Out-File -Encoding 
+UTF8 error.log
++ ~~~~~~~~~~~~~~~~~~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: (C:\Users\p   
+ s_ke\...s3\index.    
+js:114:String) []    
+, RemoteException
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+    case 'undefined': 
+throw new 
+Error('bucket is 
+required')
+                      
+^
+
+Error: bucket is 
+required
+    at new S3Storage (
+C:\Users\ps_ke\Desktop
+\academic-notes-platfo
+rm\backend\node_module
+s\multer-s3\index.js:1
+14:29)
+    at module.exports 
+(C:\Users\ps_ke\Deskto
+p\academic-notes-platf
+orm\backend\node_modul
+es\multer-s3\index.js:
+255:10)
+    at 
+Object.<anonymous> (C:
+\Users\ps_ke\Desktop\a
+cademic-notes-platform
+\backend\middleware\up
+load.js:15:14)
+    at 
+Module._compile (node:
+internal/modules/cjs/l
+oader:1706:14)
+    at Object..js (nod
+e:internal/modules/cjs
+/loader:1839:10)
+    at Module.load (no
+de:internal/modules/cj
+s/loader:1441:32)
+    at Function._load 
+(node:internal/modules
+/cjs/loader:1263:12)
+    at TracingChannel.
+traceSync (node:diagno
+stics_channel:322:14)
+    at wrapModuleLoad 
+(node:internal/modules
+/cjs/loader:237:24)
+    at Module.require 
+(node:internal/modules
+/cjs/loader:1463:12)
+
+Node.js v22.19.0

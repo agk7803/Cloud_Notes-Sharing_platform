@@ -1,0 +1,17 @@
+C:\Users\ps_ke\Desktop\academic-notes-platform\backend\node_modules\multer-s3\index.js:114
+    case 'undefined': throw new Error('bucket is required')
+                      ^
+
+Error: bucket is required
+    at new S3Storage (C:\Users\ps_ke\Desktop\academic-notes-platform\backend\node_modules\multer-s3\index.js:114:29)
+    at module.exports (C:\Users\ps_ke\Desktop\academic-notes-platform\backend\node_modules\multer-s3\index.js:255:10)
+    at Object.<anonymous> (C:\Users\ps_ke\Desktop\academic-notes-platform\backend\middleware\upload.js:15:14)
+    at Module._compile (node:internal/modules/cjs/loader:1706:14)
+    at Object..js (node:internal/modules/cjs/loader:1839:10)
+    at Module.load (node:internal/modules/cjs/loader:1441:32)
+    at Function._load (node:internal/modules/cjs/loader:1263:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+    at Module.require (node:internal/modules/cjs/loader:1463:12)
+
+Node.js v22.19.0
