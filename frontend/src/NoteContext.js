@@ -9,7 +9,7 @@ export const NoteProvider = ({ children }) => {
     const [notes, setNotes] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const fetchNotes = async (onlyMyNotes = false) => {
+    const fetchNotes = async (onlyMyNotes = true) => {
         try {
             const url = onlyMyNotes ? '/notes?onlyMyNotes=true' : '/notes';
             const res = await api.get(url);

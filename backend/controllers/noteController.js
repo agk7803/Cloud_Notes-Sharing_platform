@@ -68,19 +68,13 @@ const uploadNote = async (req, res) => {
 // @access  Public
 const getNotes = async (req, res) => {
     try {
-        const { authorId, visibility, groupId } = req.query;
-        let query = {};
+        const { visibility, groupId } = req.query;
 
-        if (authorId) {
-            query = { authorId };
-        }
+        // Default: User's own notes
+        let query = { authorId: req.user.uid };
 
         if (visibility === 'groups' && groupId) {
             query = { sharedGroups: groupId };
-        }
-
-        if (!authorId && !groupId) {
-            query = {};
         }
 
         const notes = await Note.find(query).sort({ createdAt: -1 });
@@ -99,7 +93,6 @@ const getNotes = async (req, res) => {
                     noteObj.fileUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
                 } catch (err) {
                     console.error(`Error signing URL for note ${note.id}:`, err);
-                    // Fallback to original URL if signing fails
                 }
             }
             return noteObj;

@@ -5,7 +5,7 @@ const { protect } = require('../middleware/authMiddleware');
 const upload = require('../middleware/upload');
 
 router.route('/')
-    .get(getNotes)
+    .get(protect, getNotes)
     .post(protect, upload.single('file'), uploadNote);
 
 router.route('/:id')
