@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" style="background-color: white;">
+    <defs>
+    <filter id="displacement">
+      <feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="turbulence"/>
+      <feDisplacementMap in2="turbulence" in="SourceGraphic" scale="2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <g stroke="black" stroke-width="2" fill="none" filter="url(#displacement)">
+    <!-- Browser Window -->
+    <rect x="50" y="40" width="120" height="100" rx="5" />
+    <line x1="50" y1="60" x2="170" y2="60" />
+    <circle cx="60" cy="50" r="2" fill="black" />
+    <circle cx="70" cy="50" r="2" fill="black" />
+    <circle cx="80" cy="50" r="2" fill="black" />
+    
+    <!-- Code Brackets -->
+    <path d="M220 80 L200 100 L220 120" />
+    <path d="M240 80 L260 100 L240 120" />
+    <line x1="225" y1="120" x2="235" y2="80" />
+    
+    <!-- Gear -->
+    <circle cx="320" cy="100" r="20" />
+    <circle cx="320" cy="100" r="8" />
+    <path d="M320 75 L320 85 M320 115 L320 125 M295 100 L305 100 M335 100 L345 100" />
+  </g>
+</svg>

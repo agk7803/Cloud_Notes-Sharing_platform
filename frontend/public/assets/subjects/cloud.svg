@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" style="background-color: white;">
+    <defs>
+    <filter id="displacement">
+      <feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="turbulence"/>
+      <feDisplacementMap in2="turbulence" in="SourceGraphic" scale="2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <g stroke="black" stroke-width="2" fill="none" filter="url(#displacement)">
+    <!-- Cloud 1 -->
+    <path d="M50 100 Q40 80 60 70 Q70 50 100 60 Q120 50 140 70 Q160 80 150 100 Q140 120 100 110 Q60 120 50 100" />
+    
+    <!-- Cloud 2 -->
+    <path d="M250 80 Q240 60 260 50 Q270 30 300 40 Q320 30 340 50 Q360 60 350 80 Q340 100 300 90 Q260 100 250 80" />
+    
+    <!-- Server Rack -->
+    <rect x="180" y="120" width="40" height="60" rx="5" />
+    <line x1="185" y1="130" x2="215" y2="130" />
+    <line x1="185" y1="140" x2="215" y2="140" />
+    <line x1="185" y1="150" x2="215" y2="150" />
+    
+    <!-- Wireless waves -->
+    <path d="M120 150 Q150 180 180 150" stroke-dasharray="5,5"/>
+    <path d="M220 150 Q250 180 280 150" stroke-dasharray="5,5"/>
+  </g>
+</svg>
