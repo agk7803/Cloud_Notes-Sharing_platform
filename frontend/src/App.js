@@ -17,6 +17,9 @@ import About from "./About";
 import Contact from "./Contact";
 import Privacy from "./Privacy";
 import Terms from "./Terms";
+import SearchResults from "./SearchResults";
+
+
 
 function App() {
   return (
@@ -28,6 +31,9 @@ function App() {
       <Route path="/terms" element={<Terms />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/search" element={<SearchResults />} />
+
+      
 
       {/* Routes with Persistent Sidebar */}
       <Route element={

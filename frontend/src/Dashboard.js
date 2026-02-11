@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+
 import { useOutletContext, useNavigate } from "react-router-dom";
 import {
   FaSearch,
@@ -10,6 +11,7 @@ import {
 import MiniCalendar from './MiniCalendar';
 import api from './api/axios';
 import { useNotes } from './NoteContext';
+
 
 
 /* ================= FILE VIEWER ================= */
@@ -149,24 +151,6 @@ const Header = ({ user }) => {
     </>
   );
 };
-
-
-/* ================= SEARCH ================= */
-
-const SearchBar = () => (
-  <div className="relative w-full mb-8">
-
-    <input
-      type="text"
-      placeholder="Search for notes..."
-      className="w-full pl-12 pr-4 py-4 rounded-2xl border shadow-sm"
-    />
-
-    <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-
-  </div>
-);
-
 
 /* ================= SECTION HEADER ================= */
 
@@ -308,6 +292,80 @@ const RightPanel = ({ assessments }) => (
   </aside>
 );
 
+const SearchBar = ({ notes }) => {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const navigate = useNavigate();
+  const wrapperRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (query.trim() === "") {
+      setResults([]);
+      return;
+    }
+
+    const filtered = notes.filter((note) =>
+      note.title?.toLowerCase().includes(query.toLowerCase())
+    );
+
+    setResults(filtered.slice(0, 5));
+    setShowDropdown(true);
+  }, [query, notes]);
+
+  const handleSearch = (e) => {
+    if (e.key === "Enter" && query.trim() !== "") {
+      navigate(`/search?q=${encodeURIComponent(query.trim())}`);
+      setShowDropdown(false);
+    }
+  };
+
+  return (
+    <div className="relative w-full mb-8" ref={wrapperRef}>
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={handleSearch}
+        placeholder="Search for notes..."
+        className="w-full pl-12 pr-4 py-4 rounded-2xl border shadow-sm focus:ring-2 focus:ring-[#1dc962]"
+      />
+
+      <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+
+      {showDropdown && results.length > 0 && (
+        <div className="absolute w-full bg-white border rounded-xl shadow-lg mt-2 z-50">
+          {results.map((note) => (
+            <div
+              key={note._id}
+              onClick={() => {
+                const url = getViewUrl(note.fileUrl);
+                window.open(url, "_blank");
+                setShowDropdown(false);
+              }}
+
+              className="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm"
+            >
+              {note.title}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 /* ================= MAIN DASHBOARD ================= */
 
@@ -347,7 +405,8 @@ export default function Dashboard() {
 
         <Header user={user} />
 
-        <SearchBar />
+        <SearchBar notes={notes} />
+
 
         <StudyStreak streak={streak || 0} />
 
