@@ -5,7 +5,6 @@ import {
     FaGlobe,
     FaLock,
     FaFilePdf,
-    FaDownload,
     FaTrash
 } from 'react-icons/fa';
 
@@ -21,6 +20,7 @@ const GroupPage = () => {
     const [notes, setNotes] = useState([]);
     const [loading, setLoading] = useState(true);
 
+
     /* ---------------- FETCH GROUP DATA ---------------- */
 
     useEffect(() => {
@@ -30,11 +30,9 @@ const GroupPage = () => {
             try {
                 setLoading(true);
 
-                /* Get Group */
                 const groupRes = await api.get(`/groups/${id}`);
                 setGroup(groupRes.data);
 
-                /* Get Notes only when needed */
                 if (activeTab === 'notes') {
                     const notesRes = await api.get(
                         `/notes?visibility=groups&groupId=${id}`
@@ -54,7 +52,36 @@ const GroupPage = () => {
 
     }, [id, activeTab]);
 
-    /* ---------------- LOADING STATES ---------------- */
+
+    /* ---------------- ONLINE VIEWER ---------------- */
+
+    const getViewUrl = (fileUrl) => {
+
+        if (!fileUrl) return "";
+
+        const ext = fileUrl
+            .split('.')
+            .pop()
+            .split('?')[0]
+            .toLowerCase();
+
+        const officeTypes = [
+            'doc', 'docx',
+            'ppt', 'pptx',
+            'xls', 'xlsx'
+        ];
+
+        // Office → Microsoft Viewer
+        if (officeTypes.includes(ext)) {
+            return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
+        }
+
+        // PDF / Others → Google Viewer
+        return `https://docs.google.com/gview?url=${encodeURIComponent(fileUrl)}&embedded=true`;
+    };
+
+
+    /* ---------------- LOADING ---------------- */
 
     if (loading || !user) {
         return (
@@ -72,17 +99,23 @@ const GroupPage = () => {
         );
     }
 
+
     /* ---------------- PERMISSIONS ---------------- */
 
     const isCreator =
         user && group?.createdBy === user.uid;
 
-    /* ---------------- HANDLERS ---------------- */
 
-    const handleDeleteNote = async (noteId) => {
+    /* ---------------- DELETE NOTE ---------------- */
+
+    const handleDeleteNote = async (e, noteId) => {
+
+        e.stopPropagation(); // prevent opening file
+
         if (!window.confirm('Delete this shared note?')) return;
 
         try {
+
             await api.delete(`/notes/${noteId}`);
 
             setNotes(prev =>
@@ -95,12 +128,14 @@ const GroupPage = () => {
         }
     };
 
+
     /* ---------------- UI ---------------- */
 
     return (
         <div className="min-h-screen bg-gray-50 p-4 lg:p-8">
 
             <div className="max-w-7xl mx-auto">
+
 
                 {/* ================= HEADER ================= */}
 
@@ -117,7 +152,7 @@ const GroupPage = () => {
 
                                 <span
                                     className={`px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1
-                  ${group.type === 'Public'
+                                    ${group.type === 'Public'
                                             ? 'bg-green-50 text-green-600'
                                             : 'bg-orange-50 text-orange-600'
                                         }`}
@@ -137,12 +172,14 @@ const GroupPage = () => {
                             </p>
                         </div>
 
+
                         <div className="flex items-center gap-2 text-gray-400 font-bold bg-gray-50 px-4 py-2 rounded-xl">
                             <FaUsers />
                             {group.members?.length || 0} Members
                         </div>
 
                     </div>
+
 
                     {/* ================= TABS ================= */}
 
@@ -154,7 +191,7 @@ const GroupPage = () => {
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
                                 className={`pb-3 px-4 font-bold text-sm capitalize
-                ${activeTab === tab
+                                ${activeTab === tab
                                         ? 'text-[#1dc962] border-b-2 border-[#1dc962]'
                                         : 'text-gray-400 hover:text-gray-600'
                                     }`}
@@ -181,8 +218,6 @@ const GroupPage = () => {
                     {activeTab === 'chat' && (
 
                         <>
-
-                            {/* Chat */}
 
                             <div className="lg:col-span-3 h-[55vh] lg:h-[450px]">
 
@@ -221,12 +256,10 @@ const GroupPage = () => {
                                                 </div>
 
                                                 <span className="text-sm truncate">
-
                                                     {user && m === user.uid
                                                         ? 'You'
                                                         : `User ${m.substring(0, 6)}`
                                                     }
-
                                                 </span>
 
                                             </div>
@@ -258,7 +291,13 @@ const GroupPage = () => {
 
                                         <div
                                             key={note._id}
-                                            className="bg-white p-4 rounded-xl border shadow-sm flex flex-col"
+                                            onClick={() =>
+                                                window.open(
+                                                    getViewUrl(note.fileUrl),
+                                                    '_blank'
+                                                )
+                                            }
+                                            className="bg-white p-4 rounded-xl border shadow-sm flex flex-col cursor-pointer hover:shadow-md transition"
                                         >
 
                                             <div className="flex gap-3">
@@ -281,31 +320,18 @@ const GroupPage = () => {
                                             </div>
 
 
-                                            <div className="mt-4 flex gap-2">
+                                            {/* Delete Button */}
+                                            {(isCreator ||
+                                                (user && note.authorId === user.uid)) && (
 
-                                                <a
-                                                    href={note.fileUrl}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="flex-1 py-2 bg-gray-50 rounded-lg text-xs font-bold flex justify-center gap-2"
-                                                >
-                                                    <FaDownload /> Download
-                                                </a>
+                                                    <button
+                                                        onClick={(e) => handleDeleteNote(e, note._id)}
+                                                        className="mt-4 self-end p-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100"
+                                                    >
+                                                        <FaTrash />
+                                                    </button>
 
-
-                                                {(isCreator ||
-                                                    (user && note.authorId === user.uid)) && (
-
-                                                        <button
-                                                            onClick={() => handleDeleteNote(note._id)}
-                                                            className="p-2 bg-red-50 text-red-500 rounded-lg"
-                                                        >
-                                                            <FaTrash />
-                                                        </button>
-
-                                                    )}
-
-                                            </div>
+                                                )}
 
                                         </div>
 
