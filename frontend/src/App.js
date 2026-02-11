@@ -18,12 +18,13 @@ import Contact from "./Contact";
 import Privacy from "./Privacy";
 import Terms from "./Terms";
 import SearchResults from "./SearchResults";
-
-
+import Profile from "./Profile";
 
 function App() {
   return (
     <Routes>
+
+      {/* Public Routes */}
       <Route path="/" element={<Landing />} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
@@ -33,14 +34,14 @@ function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/search" element={<SearchResults />} />
 
-      
-
-      {/* Routes with Persistent Sidebar */}
-      <Route element={
-        <NoteProvider>
-          <Layout />
-        </NoteProvider>
-      }>
+      {/* Routes with Persistent Sidebar + NoteProvider */}
+      <Route
+        element={
+          <NoteProvider>
+            <Layout />
+          </NoteProvider>
+        }
+      >
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/view" element={<ViewNotes />} />
         <Route path="/faq" element={<FAQ />} />
@@ -48,10 +49,12 @@ function App() {
         <Route path="/calendar" element={<Calendar />} />
         <Route path="/groups" element={<StudyGroups />} />
         <Route path="/groups/:id" element={<GroupPage />} />
+        <Route path="/profile" element={<Profile />} /> {/* ✅ MOVED HERE */}
       </Route>
 
       {/* Standalone Routes (Focus Mode) */}
       <Route path="/test-window/:testId" element={<TestWindow />} />
+
     </Routes>
   );
 }

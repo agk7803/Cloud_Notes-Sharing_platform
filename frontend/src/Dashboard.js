@@ -48,8 +48,8 @@ const getViewUrl = (url) => {
 /* ================= HEADER ================= */
 
 const Header = ({ user }) => {
-  const [showProfile, setShowProfile] = useState(false);
   const [showNotifs, setShowNotifs] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <>
@@ -91,7 +91,7 @@ const Header = ({ user }) => {
 
           {/* Profile */}
           <div
-            onClick={() => setShowProfile(true)}
+            onClick={() => navigate("/profile")}
             className="w-11 h-11 rounded-full bg-green-100 p-0.5 cursor-pointer"
           >
             <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
@@ -118,36 +118,7 @@ const Header = ({ user }) => {
 
       {/* Profile Modal */}
 
-      {showProfile && (
-        <div
-          className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center"
-          onClick={() => setShowProfile(false)}
-        >
-
-          <div
-            className="bg-white p-6 rounded-3xl w-full max-w-md"
-            onClick={(e) => e.stopPropagation()}
-          >
-
-            <h2 className="text-2xl font-bold mb-2">
-              {user?.name}
-            </h2>
-
-            <p className="text-gray-500 mb-4">
-              {user?.email}
-            </p>
-
-            <button
-              onClick={() => setShowProfile(false)}
-              className="w-full bg-[#1dc962] text-white py-2 rounded-xl font-bold"
-            >
-              Close
-            </button>
-
-          </div>
-
-        </div>
-      )}
+      
     </>
   );
 };

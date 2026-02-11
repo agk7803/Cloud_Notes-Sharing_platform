@@ -11,13 +11,13 @@ const noteRoutes = require('./routes/noteRoutes');
 const groupRoutes = require('./routes/groupRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const Chat = require('./models/Chat');
-
+const userRoutes = require("./routes/userRoutes");
 
 /* ================= INIT ================= */
 
 connectDB();
 
-const app = express();
+const app = express();   // ✅ app initialized BEFORE use
 const server = http.createServer(app);
 
 
@@ -42,6 +42,7 @@ app.use(express.json());
 app.use('/api/notes', noteRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/users', userRoutes);   // ✅ MOVED HERE (FIXED)
 
 
 /* ================= SOCKET LOGIC ================= */
@@ -49,7 +50,6 @@ app.use('/api/upload', uploadRoutes);
 io.on('connection', (socket) => {
 
     console.log("User Connected:", socket.id);
-
 
     /* ---- Join Group Room ---- */
     socket.on('join_group', (groupId) => {
@@ -60,7 +60,6 @@ io.on('connection', (socket) => {
 
         console.log(`User ${socket.id} joined group ${groupId}`);
     });
-
 
     /* ---- Send Message ---- */
     socket.on('send_message', async (data) => {
@@ -78,15 +77,12 @@ io.on('connection', (socket) => {
                 audioUrl: data.audioUrl || null
             });
 
-
-            // Broadcast to all users in room
             io.to(data.groupId).emit('receive_message', newChat);
 
         } catch (error) {
             console.error("Chat Send Error:", error);
         }
     });
-
 
     /* ---- Edit Message ---- */
     socket.on("edit_message", async ({ messageId, newContent, groupId }) => {
@@ -110,7 +106,6 @@ io.on('connection', (socket) => {
         }
     });
 
-
     /* ---- Delete Message ---- */
     socket.on("delete_message", async ({ messageId, groupId }) => {
 
@@ -127,7 +122,6 @@ io.on('connection', (socket) => {
         }
     });
 
-
     /* ================= VOICE SIGNALING ================= */
 
     socket.on("join_voice", (roomId) => {
@@ -139,13 +133,11 @@ io.on('connection', (socket) => {
         socket.to(roomId).emit("user_joined_voice", socket.id);
     });
 
-
     socket.on("offer", (payload) => {
         if (payload?.target) {
             io.to(payload.target).emit("offer", payload);
         }
     });
-
 
     socket.on("answer", (payload) => {
         if (payload?.target) {
@@ -153,15 +145,11 @@ io.on('connection', (socket) => {
         }
     });
 
-
     socket.on("ice-candidate", (payload) => {
         if (payload?.target) {
             io.to(payload.target).emit("ice-candidate", payload);
         }
     });
-
-
-    /* ================= DISCONNECT ================= */
 
     socket.on('disconnect', () => {
         console.log("User Disconnected:", socket.id);
