@@ -11,7 +11,6 @@ import {
 
 import api from './api/axios';
 import GroupChat from './components/GroupChat';
-import { getViewUrl } from './utils/fileViewer';
 
 const GroupPage = () => {
     const { id } = useParams();
@@ -154,9 +153,10 @@ const GroupPage = () => {
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
-                                className={`pb-3 px-4 font-bold text-sm capitalize transition-all ${activeTab === tab
-                                    ? 'text-[#1dc962] border-b-2 border-[#1dc962]'
-                                    : 'text-gray-400 hover:text-gray-600'
+                                className={`pb-3 px-4 font-bold text-sm capitalize
+                ${activeTab === tab
+                                        ? 'text-[#1dc962] border-b-2 border-[#1dc962]'
+                                        : 'text-gray-400 hover:text-gray-600'
                                     }`}
                             >
                                 {tab === 'notes'
@@ -251,16 +251,33 @@ const GroupPage = () => {
                         <div className="col-span-full">
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                                {notes.length > 0 ? notes.map(note => (
-                                    <div key={note._id} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-                                        <div className="flex items-start gap-3">
-                                            <div className="w-10 h-10 rounded-lg bg-red-50 text-red-500 flex items-center justify-center text-lg flex-shrink-0">
-                                                <FaFilePdf />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-bold text-gray-800 line-clamp-1" title={note.title}>{note.title}</h4>
-                                                <p className="text-xs text-gray-400">by {note.authorName || "Unknown"}</p>
-                                                <span className="text-[10px] text-gray-300">{new Date(note.createdAt).toLocaleDateString()}</span>
+
+                                {notes.length > 0 ? (
+
+                                    notes.map(note => (
+
+                                        <div
+                                            key={note._id}
+                                            className="bg-white p-4 rounded-xl border shadow-sm flex flex-col"
+                                        >
+
+                                            <div className="flex gap-3">
+
+                                                <div className="w-10 h-10 bg-red-50 text-red-500 rounded-lg flex items-center justify-center">
+                                                    <FaFilePdf />
+                                                </div>
+
+                                                <div>
+                                                    <h4 className="font-bold line-clamp-1">
+                                                        {note.title}
+                                                    </h4>
+
+                                                    <p className="text-xs text-gray-400">
+                                                        by {note.authorName || 'Unknown'}
+                                                    </p>
+
+                                                </div>
+
                                             </div>
 
 
@@ -292,30 +309,30 @@ const GroupPage = () => {
 
                                         </div>
 
-                                        ))
+                                    ))
 
-                                        ) : (
+                                ) : (
 
-                                        <div className="col-span-full py-12 text-center text-gray-400 bg-white rounded-xl border-dashed border">
+                                    <div className="col-span-full py-12 text-center text-gray-400 bg-white rounded-xl border-dashed border">
 
-                                            <p>No notes shared yet.</p>
+                                        <p>No notes shared yet.</p>
 
-                                        </div>
+                                    </div>
 
                                 )}
 
-                                    </div>
+                            </div>
 
                         </div>
 
                     )}
 
-                        </div>
+                </div>
 
             </div>
 
-            </div>
-            );
+        </div>
+    );
 };
 
-            export default GroupPage;
+export default GroupPage;

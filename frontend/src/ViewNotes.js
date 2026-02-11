@@ -14,8 +14,9 @@ import {
 import UploadModal from './UploadModal';
 import { useNotes } from './NoteContext';
 import { useOutletContext, useLocation } from 'react-router-dom';
-import { getViewUrl } from './utils/fileViewer';
 
+
+/* ================= CONSTANTS ================= */
 
 const SUBJECTS = [
   "Machine Learning",
@@ -33,7 +34,7 @@ const MONTHS = [
 ];
 
 
-/* ================= VIEW NOTES ================= */
+/* ================= MAIN COMPONENT ================= */
 
 export default function ViewNotes() {
 
@@ -41,6 +42,9 @@ export default function ViewNotes() {
   const location = useLocation();
 
   const { notes, addNote, deleteNote } = useNotes();
+
+
+  /* ================= STATES ================= */
 
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
@@ -60,13 +64,16 @@ export default function ViewNotes() {
   }, [location.state]);
 
 
-  /* ================= CLOSE MENU ================= */
+  /* ================= CLOSE DROPDOWN ================= */
 
   useEffect(() => {
+
     const close = () => setActiveMenu(null);
+
     document.addEventListener('click', close);
 
     return () => document.removeEventListener('click', close);
+
   }, []);
 
 
@@ -77,7 +84,7 @@ export default function ViewNotes() {
     addNote({
       ...noteData,
       authorId: user?.uid,
-      authorName: user?.displayName || 'Student'
+      authorName: user?.displayName || "Student"
     });
 
     setIsUploadOpen(false);
@@ -96,13 +103,13 @@ export default function ViewNotes() {
   };
 
 
-  /* ================= ONLINE VIEWER ================= */
+  /* ================= FILE VIEWER ================= */
 
-  const getViewUrl = (fileUrl) => {
+  const getViewUrl = (note) => {
 
-    if (!fileUrl) return "";
+    if (!note?.fileUrl) return "";
 
-    const ext = fileUrl
+    const ext = note.fileUrl
       .split('.')
       .pop()
       .split('?')[0]
@@ -112,23 +119,30 @@ export default function ViewNotes() {
       'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'
     ];
 
-    // Office → Microsoft Viewer
+    /* Office Files */
     if (officeTypes.includes(ext)) {
-      return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
+      return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(note.fileUrl)}`;
     }
 
-    // PDF / Image / Others → Google Viewer
-    return `https://docs.google.com/gview?url=${encodeURIComponent(fileUrl)}&embedded=true`;
+    /* PDF via Google Viewer */
+    if (ext === 'pdf') {
+      return `https://docs.google.com/gview?url=${encodeURIComponent(note.fileUrl)}&embedded=true`;
+    }
+
+    return note.fileUrl;
   };
 
 
-  /* ================= FILTER ================= */
+  /* ================= FILTER NOTES ================= */
 
   const filteredNotes = notes.filter(note => {
 
+    const title = (note.title || "").toLowerCase();
+    const subject = (note.subject || "").toLowerCase();
+
     const matchesSearch =
-      note.title.toLowerCase().includes(search.toLowerCase()) ||
-      note.subject.toLowerCase().includes(search.toLowerCase());
+      title.includes(search.toLowerCase()) ||
+      subject.includes(search.toLowerCase());
 
 
     let matchesFilter = true;
@@ -152,6 +166,7 @@ export default function ViewNotes() {
     let matchesMonth = true;
 
     if (monthFilter) {
+
       const d = new Date(note.createdAt);
 
       if (!isNaN(d)) {
@@ -169,7 +184,7 @@ export default function ViewNotes() {
   });
 
 
-  /* ================= VISIBILITY ================= */
+  /* ================= VISIBILITY TAG ================= */
 
   const getVisibilityIcon = (note) => {
 
@@ -184,18 +199,9 @@ export default function ViewNotes() {
     return <><FaUsers /> Group</>;
   };
 
-  const getViewUrl = (note) => {
-    // Extract file extension
-    const extension = note.s3Key ? note.s3Key.split('.').pop().toLowerCase() : note.fileUrl.split('.').pop().split('?')[0].toLowerCase();
 
-    const officeTypes = ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'];
 
-    if (officeTypes.includes(extension)) {
-      return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(note.fileUrl)}`;
-    }
-
-    return note.fileUrl;
-  };
+  /* ================= UI ================= */
 
   return (
 
@@ -210,12 +216,12 @@ export default function ViewNotes() {
 
           <div>
             <h1 className="text-3xl font-bold">My Notes</h1>
-            <p className="text-gray-500">View and manage notes</p>
+            <p className="text-gray-500">Manage and view your study materials</p>
           </div>
 
           <button
             onClick={() => setIsUploadOpen(true)}
-            className="bg-black text-white px-6 py-3 rounded-xl font-semibold"
+            className="bg-black text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2"
           >
             <FaPlus /> Upload Note
           </button>
@@ -225,9 +231,10 @@ export default function ViewNotes() {
 
         {/* TOOLBAR */}
 
-        <div className="bg-white p-4 rounded-xl shadow border mb-8 flex flex-col lg:flex-row gap-4">
+        <div className="bg-white p-4 rounded-xl shadow border mb-8 flex flex-col lg:flex-row gap-4 justify-between">
 
-          {/* Tabs */}
+
+          {/* FILTER TABS */}
 
           <div className="flex gap-2">
 
@@ -250,9 +257,10 @@ export default function ViewNotes() {
           </div>
 
 
-          {/* Filters */}
+          {/* SEARCH & DROPDOWNS */}
 
           <div className="flex gap-3 flex-wrap">
+
 
             <select
               value={subjectFilter}
@@ -260,6 +268,7 @@ export default function ViewNotes() {
               className="px-4 py-2 rounded-lg border"
             >
               <option value="">All Subjects</option>
+
               {SUBJECTS.map(s => (
                 <option key={s}>{s}</option>
               ))}
@@ -272,6 +281,7 @@ export default function ViewNotes() {
               className="px-4 py-2 rounded-lg border"
             >
               <option value="">All Months</option>
+
               {MONTHS.map(m => (
                 <option key={m}>{m}</option>
               ))}
@@ -284,7 +294,7 @@ export default function ViewNotes() {
                 type="text"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                placeholder="Search..."
+                placeholder="Search notes..."
                 className="pl-10 pr-4 py-2 rounded-lg border"
               />
 
@@ -297,101 +307,110 @@ export default function ViewNotes() {
         </div>
 
 
-        {/* GRID */}
+        {/* NOTES GRID */}
 
         {filteredNotes.length > 0 ? (
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredNotes.map(note => {
-              const theme = SUBJECT_THEMES[note.subject] || SUBJECT_THEMES["Other"];
 
-              return (
-                <div
-                  key={note._id || note.id}
-                  onClick={() => window.open(getViewUrl(note), '_blank')}
-                  className={`${theme.bg} rounded-2xl border ${theme.border} ${theme.hover} hover:shadow-xl ${theme.shadow} transition-all group flex flex-col h-64 cursor-pointer relative overflow-hidden`}
-                >
-                  {/* Pastel Header Background */}
-                  <div className={`absolute top-0 left-0 w-full h-32 ${theme.pastel}`}></div>
 
-                  <div className="p-5 flex flex-col h-full relative z-10">
-                    {/* Header */}
-                    <div className="flex justify-between items-start mb-4 relative">
-                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${theme.icon} ${theme.text} flex items-center justify-center text-xl shadow-inner`}>
-                        <FaFilePdf />
-                      </div>
+            {filteredNotes.map(note => (
 
-                      {/* 3 Dots Menu */}
-                      <div className="relative" onClick={(e) => e.stopPropagation()}>
+              <div
+                key={note._id}
+                onClick={() => window.open(getViewUrl(note), '_blank')}
+                className="bg-white rounded-2xl border shadow hover:shadow-lg transition-all cursor-pointer relative overflow-hidden p-5 flex flex-col h-60"
+              >
+
+
+                {/* HEADER */}
+
+                <div className="flex justify-between mb-4">
+
+                  <div className="w-12 h-12 rounded-xl bg-green-50 text-green-600 flex items-center justify-center text-xl">
+                    <FaFilePdf />
+                  </div>
+
+
+                  {/* MENU */}
+
+                  <div
+                    className="relative"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+
+                    <button
+                      onClick={() =>
+                        setActiveMenu(activeMenu === note._id ? null : note._id)
+                      }
+                      className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400"
+                    >
+                      <FaEllipsisV />
+                    </button>
+
+
+                    {activeMenu === note._id && (
+
+                      <div className="absolute right-0 top-8 w-40 bg-white rounded-xl shadow-xl border z-50">
+
+
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveMenu(activeMenu === note._id ? null : note._id);
-                          }}
-                          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors"
+                          onClick={() => window.open(getViewUrl(note), '_blank')}
+                          className="w-full px-4 py-3 text-xs font-bold hover:bg-gray-50 flex items-center gap-2"
                         >
-                          <FaEllipsisV />
+                          <FaEye /> View Online
                         </button>
 
-                        {/* Dropdown */}
-                        {activeMenu === note._id && (
-                          <div className="absolute right-0 top-8 w-40 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden animate-fade-in">
-                            <button onClick={() => window.open(getViewUrl(note), '_blank')} className="w-full text-left px-4 py-3 text-xs font-bold text-gray-600 hover:bg-gray-50 hover:text-gray-900 flex items-center gap-2">
-                              <FaEye /> View Online
-                            </button>
-                            <button onClick={(e) => handleDownload(e, note.fileUrl)} className="w-full text-left px-4 py-3 text-xs font-bold text-gray-600 hover:bg-gray-50 hover:text-gray-900 flex items-center gap-2">
-                              <FaDownload /> Download
-                            </button>
-                            <button onClick={(e) => handleDelete(e, note._id)} className="w-full text-left px-4 py-3 text-xs font-bold text-red-500 hover:bg-red-50 flex items-center gap-2 border-t border-gray-50">
-                              <FaTrash /> Delete
-                            </button>
-                          </div>
-                        )}
+
+                        <button
+                          onClick={(e) => handleDelete(e, note._id)}
+                          className="w-full px-4 py-3 text-xs font-bold text-red-500 hover:bg-red-50 flex items-center gap-2 border-t"
+                        >
+                          <FaTrash /> Delete
+                        </button>
+
                       </div>
-                    </div>
 
-                  )}
-
-                  </div>
-
-
-                  {/* CONTENT */}
-
-                  <div className="flex gap-3 mb-3">
-
-                    <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center text-green-600">
-                      <FaFilePdf />
-                    </div>
-
-                    <div>
-                      <h3 className="font-bold text-sm">
-                        {note.title}
-                      </h3>
-
-                      <p className="text-xs text-gray-400">
-                        {note.subject}
-                      </p>
-                    </div>
-
-                  </div>
-
-
-                  {/* FOOTER */}
-
-                  <div className="text-xs text-gray-400 flex justify-between">
-
-                    <span>
-                      {new Date(note.createdAt).toLocaleDateString()}
-                    </span>
-
-                    <span>
-                      {getVisibilityIcon(note)}
-                    </span>
+                    )}
 
                   </div>
 
                 </div>
 
-              ))}
+
+                {/* CONTENT */}
+
+                <div className="flex-1">
+
+                  <h3 className="font-bold text-sm mb-1 line-clamp-2">
+                    {note.title}
+                  </h3>
+
+                  <p className="text-xs text-gray-400">
+                    {note.subject}
+                  </p>
+
+                </div>
+
+
+                {/* FOOTER */}
+
+                <div className="text-xs text-gray-400 flex justify-between pt-3 border-t">
+
+                  <span>
+                    {new Date(note.createdAt).toLocaleDateString()}
+                  </span>
+
+                  <span className="flex items-center gap-1">
+                    {getVisibilityIcon(note)}
+                  </span>
+
+                </div>
+
+
+              </div>
+
+            ))}
 
           </div>
 
