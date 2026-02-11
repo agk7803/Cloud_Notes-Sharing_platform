@@ -36,8 +36,9 @@ function Login() {
 
     try {
       const res = await signInWithEmailAndPassword(auth, email, password);
+      const token = await res.user.getIdToken();
 
-      localStorage.setItem("user", JSON.stringify(res.user));
+      localStorage.setItem("user", JSON.stringify({ ...res.user, token }));
       navigate("/dashboard");
     } catch (err) {
       alert(err.message);
@@ -49,8 +50,9 @@ function Login() {
   const handleGoogleLogin = async () => {
     try {
       const res = await signInWithPopup(auth, googleProvider);
+      const token = await res.user.getIdToken();
 
-      localStorage.setItem("user", JSON.stringify(res.user));
+      localStorage.setItem("user", JSON.stringify({ ...res.user, token }));
       navigate("/dashboard");
     } catch (err) {
       alert(err.message);
@@ -122,8 +124,9 @@ function Login() {
   const verifyOTP = async () => {
     try {
       const res = await confirmation.confirm(otp);
+      const token = await res.user.getIdToken();
 
-      localStorage.setItem("user", JSON.stringify(res.user));
+      localStorage.setItem("user", JSON.stringify({ ...res.user, token }));
       navigate("/dashboard");
     } catch {
       alert("Invalid OTP");

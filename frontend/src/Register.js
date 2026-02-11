@@ -51,7 +51,8 @@ function Register() {
       });
 
       // Save locally
-      localStorage.setItem("user", JSON.stringify(res.user));
+      const token = await res.user.getIdToken();
+      localStorage.setItem("user", JSON.stringify({ ...res.user, token }));
 
       navigate("/dashboard");
     } catch (error) {

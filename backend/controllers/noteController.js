@@ -19,7 +19,11 @@ const uploadNote = async (req, res) => {
             return res.status(400).send({ message: 'No file uploaded' });
         }
 
-        const { title, subject, authorId, authorName, visibility, sharedGroups, size } = req.body;
+        const { title, subject, visibility, sharedGroups, size } = req.body;
+
+        // Validation for authorId is now handled by middleware (req.user)
+        const authorId = req.user.uid;
+        const authorName = req.user.name || req.user.email;
 
         const note = new Note({
             title,
