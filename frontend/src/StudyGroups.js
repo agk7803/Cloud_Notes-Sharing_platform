@@ -1,17 +1,102 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FaUsers, FaSearch, FaFilter, FaLock, FaGlobe } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useOutletContext } from 'react-router-dom';
+import { FaUsers, FaSearch, FaFilter, FaLock, FaGlobe, FaPlus } from 'react-icons/fa';
+import api from './api/axios';
 
-const MOCK_GROUPS = [
-    { id: 1, name: "Cloud Computing Study Circle", subject: "Cloud Computing", members: 142, type: "Public" },
-    { id: 2, name: "AI Hackathon Team", subject: "Artificial Intelligence", members: 56, type: "Private" },
-    { id: 3, name: "Web Dev Enthusiasts", subject: "Web Engineering", members: 89, type: "Public" },
-    { id: 4, name: "Compiler Design Lab Group", subject: "Compiler Design", members: 24, type: "Private" },
-];
+const CreateGroupModal = ({ onClose, onCreated }) => {
+    const [name, setName] = useState('');
+    const [subject, setSubject] = useState('');
+    const [description, setDescription] = useState('');
+    const [type, setType] = useState('Public');
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await api.post('/groups', { name, subject, description, type });
+            onCreated(res.data);
+            onClose();
+        } catch (error) {
+            alert(error.response?.data?.message || 'Failed to create group');
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in" onClick={onClose}>
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
+                <h3 className="text-xl font-bold mb-4">Create New Group</h3>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-1">Group Name</label>
+                        <input required type="text" value={name} onChange={e => setName(e.target.value)} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-[#1dc962] outline-none" placeholder="Ex: Cloud Computing Study Circle" />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-1">Subject</label>
+                        <input required type="text" value={subject} onChange={e => setSubject(e.target.value)} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-[#1dc962] outline-none" placeholder="Ex: Cloud Computing" />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
+                        <textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-[#1dc962] outline-none" placeholder="Brief description..." />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-1">Type</label>
+                        <select value={type} onChange={e => setType(e.target.value)} className="w-full p-2 border rounded-lg outline-none">
+                            <option value="Public">Public (Anyone can join)</option>
+                            <option value="Private">Private (Invite only)</option>
+                        </select>
+                    </div>
+                    <button type="submit" className="w-full py-3 bg-[#1dc962] text-white font-bold rounded-xl hover:bg-green-600 transition-colors">
+                        Create Group
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
+};
 
 export default function StudyGroups() {
     const navigate = useNavigate();
+    const { user } = useOutletContext();
     const [activeTab, setActiveTab] = useState('all');
+    const [groups, setGroups] = useState([]);
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [loading, setLoading] = useState(true);
+
+    const fetchGroups = async () => {
+        setLoading(true);
+        try {
+            const res = await api.get(`/groups?filter=${activeTab}`);
+            setGroups(res.data);
+        } catch (error) {
+            console.error("Failed to fetch groups", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchGroups();
+    }, [activeTab]);
+
+    const handleCreate = (newGroup) => {
+        setGroups([newGroup, ...groups]);
+    };
+
+    const handleGroupClick = async (group) => {
+        if (group.members.includes(user.uid)) {
+            navigate(`/groups/${group._id}`);
+        } else if (group.type === 'Public') {
+            if (window.confirm(`Join "${group.name}"?`)) {
+                try {
+                    await api.post(`/groups/${group._id}/join`);
+                    navigate(`/groups/${group._id}`);
+                } catch (error) {
+                    alert(error.response?.data?.message || "Failed to join group");
+                }
+            }
+        } else {
+            alert("This group is private. You need an invite to join.");
+        }
+    };
 
     return (
         <div className="min-h-screen p-8">
@@ -21,10 +106,15 @@ export default function StudyGroups() {
                         <h1 className="text-3xl font-bold text-gray-900">Study Groups</h1>
                         <p className="text-gray-500 mt-1">Collaborate, discuss, and prepare with peers.</p>
                     </div>
-                    <button className="bg-black text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-800 transition-colors shadow-sm">
-                        + Create New Group
+                    <button
+                        onClick={() => setShowCreateModal(true)}
+                        className="bg-black text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-800 transition-colors shadow-sm flex items-center gap-2"
+                    >
+                        <FaPlus /> Create New Group
                     </button>
                 </header>
+
+                {showCreateModal && <CreateGroupModal onClose={() => setShowCreateModal(false)} onCreated={handleCreate} />}
 
                 {/* Toolbar */}
                 <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-8 flex flex-col md:flex-row gap-4 justify-between items-center">
@@ -60,43 +150,45 @@ export default function StudyGroups() {
 
                 {/* Groups Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {MOCK_GROUPS.map(group => (
-                        <div key={group.id} className="bg-white p-6 rounded-2xl border border-gray-100 hover:border-green-200 hover:shadow-lg transition-all cursor-pointer group flex flex-col justify-between h-56"
-                            onClick={() => navigate(`/groups/${group.id}`)}
-                        >
-                            <div>
-                                <div className="flex justify-between items-start mb-4">
-                                    <span className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${group.type === 'Public' ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'}`}>
-                                        {group.type === 'Public' ? <FaGlobe /> : <FaLock />} {group.type}
-                                    </span>
-                                    <div className="text-gray-400 text-sm font-semibold flex items-center gap-1">
-                                        <FaUsers /> {group.members}
-                                    </div>
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-1 group-hover:text-[#1dc962] transition-colors line-clamp-2">{group.name}</h3>
-                                <p className="text-sm text-gray-500 font-medium">{group.subject}</p>
-                            </div>
-
-                            <div className="pt-4 border-t border-gray-50 flex items-center gap-3">
-                                <div className="flex -space-x-2 overflow-hidden">
-                                    {[1, 2, 3].map(i => (
-                                        <div key={i} className="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">
-                                            U{i}
+                    {loading ? (
+                        <div className="col-span-full py-12 text-center text-gray-500">Loading groups...</div>
+                    ) : groups.length > 0 ? (
+                        groups.map(group => (
+                            <div key={group._id} className="bg-white p-6 rounded-2xl border border-gray-100 hover:border-green-200 hover:shadow-lg transition-all cursor-pointer group flex flex-col justify-between h-56"
+                                onClick={() => handleGroupClick(group)}
+                            >
+                                <div>
+                                    <div className="flex justify-between items-start mb-4">
+                                        <span className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${group.type === 'Public' ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'}`}>
+                                            {group.type === 'Public' ? <FaGlobe /> : <FaLock />} {group.type}
+                                        </span>
+                                        <div className="text-gray-400 text-sm font-semibold flex items-center gap-1">
+                                            <FaUsers /> {group.members.length}
                                         </div>
-                                    ))}
+                                    </div>
+                                    <h3 className="text-xl font-bold text-gray-900 mb-1 group-hover:text-[#1dc962] transition-colors line-clamp-2">{group.name}</h3>
+                                    <p className="text-sm text-gray-500 font-medium">{group.subject}</p>
                                 </div>
-                                <span className="text-xs text-gray-400 font-medium">+ {group.members - 3} others</span>
-                            </div>
-                        </div>
-                    ))}
 
-                    {/* Create New Placeholder */}
-                    <button className="border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center p-6 text-gray-400 hover:border-green-400 hover:text-green-600 hover:bg-green-50/30 transition-all h-56">
-                        <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center mb-3 group-hover:bg-green-100">
-                            <span className="text-2xl font-light">+</span>
+                                <div className="pt-4 border-t border-gray-50 flex items-center gap-3">
+                                    <div className="flex -space-x-2 overflow-hidden">
+                                        {group.members.slice(0, 3).map((member, i) => (
+                                            <div key={i} className="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">
+                                                U{i + 1}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <span className="text-xs text-gray-400 font-medium">
+                                        {group.members.length > 3 ? `+ ${group.members.length - 3} others` : ''}
+                                    </span>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="col-span-full py-12 text-center text-gray-500">
+                            <p>No groups found. Create one to get started!</p>
                         </div>
-                        <span className="font-semibold">Create New Group</span>
-                    </button>
+                    )}
                 </div>
             </div>
         </div>

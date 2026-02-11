@@ -11,7 +11,7 @@ import Calendar from './Calendar';
 import Assessments from './Assessments';
 import TestWindow from './TestWindow';
 import StudyGroups from './StudyGroups';
-import GroupWorkspace from './GroupWorkspace';
+import GroupPage from './GroupPage';
 import { NoteProvider } from './NoteContext';
 import About from "./About";
 import Contact from "./Contact";
@@ -41,7 +41,7 @@ function App() {
         <Route path="/assessments" element={<Assessments />} />
         <Route path="/calendar" element={<Calendar />} />
         <Route path="/groups" element={<StudyGroups />} />
-        <Route path="/groups/:groupId" element={<GroupWorkspace />} />
+        <Route path="/groups/:id" element={<GroupPage />} />
       </Route>
 
       {/* Standalone Routes (Focus Mode) */}

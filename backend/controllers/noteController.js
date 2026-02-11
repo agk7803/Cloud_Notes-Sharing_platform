@@ -1,4 +1,5 @@
 const Note = require('../models/Note');
+const mongoose = require('mongoose');
 
 // @desc    Upload a new note
 // @route   POST /api/notes
@@ -35,7 +36,8 @@ const uploadNote = async (req, res) => {
             authorId,
             authorName,
             visibility,
-            sharedGroups: sharedGroups ? JSON.parse(sharedGroups) : []
+            visibility,
+            sharedGroups: sharedGroups ? JSON.parse(sharedGroups).filter(id => mongoose.Types.ObjectId.isValid(id)).map(id => new mongoose.Types.ObjectId(id)) : []
         });
 
         const createdNote = await note.save();

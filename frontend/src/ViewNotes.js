@@ -78,10 +78,12 @@ export default function ViewNotes() {
 
     let matchesFilter = true;
     if (filter === 'private') {
-      matchesFilter = note.visibility.startsWith('private');
+      matchesFilter = note.visibility === 'private';
     } else if (filter === 'shared') {
-      matchesFilter = note.visibility.startsWith('public') || note.visibility.startsWith('groups'); // Covers all shared types
+      // Show notes that are public OR shared with groups
+      matchesFilter = note.visibility === 'public' || note.visibility === 'groups' || note.visibility === 'public_group';
     }
+    // 'all' shows everything user authored (default from useNotes) or has access to (if we fetched shared ones)
 
     const matchesSubject = subjectFilter ? note.subject === subjectFilter : true;
 
@@ -276,11 +278,12 @@ export default function ViewNotes() {
           </div>
         )}
 
-        <UploadModal
-          isOpen={isUploadOpen}
-          onClose={() => setIsUploadOpen(false)}
-          onUpload={handleSubmit}
-        />
+        {isUploadOpen && (
+          <UploadModal
+            onClose={() => setIsUploadOpen(false)}
+            onUpload={handleSubmit}
+          />
+        )}
       </div>
     </div>
   );

@@ -8,12 +8,77 @@ const noteRoutes = require('./routes/noteRoutes');
 
 connectDB();
 
+const http = require('http');
+const { Server } = require('socket.io');
+const Chat = require('./models/Chat');
+const groupRoutes = require('./routes/groupRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
+
 const app = express();
+const server = http.createServer(app);
+
+// Socket.io Setup
+const io = new Server(server, {
+    cors: {
+        origin: "http://localhost:3000",
+        methods: ["GET", "POST"]
+    }
+});
 
 app.use(cors());
 app.use(express.json());
 
 app.use('/api/notes', noteRoutes);
+app.use('/api/groups', groupRoutes);
+app.use('/api/upload', uploadRoutes);
+
+// Socket Logic
+io.on('connection', (socket) => {
+    console.log(`User Connected: ${socket.id}`);
+
+    socket.on('join_group', (groupId) => {
+        socket.join(groupId);
+        console.log(`User ${socket.id} joined group: ${groupId}`);
+    });
+
+    socket.on('send_message', async (data) => {
+        // data: { groupId, senderId, senderName, message }
+        try {
+            const newChat = await Chat.create({
+                groupId: data.groupId,
+                senderId: data.senderId,
+                senderName: data.senderName,
+                message: data.message
+            });
+            // Broadcast to room including sender (for real-time update)
+            io.to(data.groupId).emit('receive_message', newChat);
+        } catch (error) {
+            console.error("Chat Error:", error);
+        }
+    });
+
+    // Voice Signaling
+    socket.on("join_voice", (roomId) => {
+        socket.join(roomId);
+        socket.to(roomId).emit("user_joined_voice", socket.id);
+    });
+
+    socket.on("offer", (payload) => {
+        io.to(payload.target).emit("offer", payload);
+    });
+
+    socket.on("answer", (payload) => {
+        io.to(payload.target).emit("answer", payload);
+    });
+
+    socket.on("ice-candidate", (payload) => {
+        io.to(payload.target).emit("ice-candidate", payload);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('User Disconnected', socket.id);
+    });
+});
 
 // Error Handling Middleware
 // Error Handling Middleware
@@ -28,4 +93,4 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5050;
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

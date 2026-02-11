@@ -14,7 +14,10 @@ const noteSchema = mongoose.Schema({
         enum: ['private', 'public', 'groups', 'private_group', 'public_group'], // Updated for new logic
         default: 'private'
     },
-    sharedGroups: [{ type: String }], // Array of Group IDs
+    sharedGroups: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Group'
+    }], // Array of Group ObjectIds
     createdAt: { type: Date, default: Date.now }
 });
 
