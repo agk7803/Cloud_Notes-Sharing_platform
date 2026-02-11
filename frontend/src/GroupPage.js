@@ -3,6 +3,7 @@ import { useParams, useOutletContext } from 'react-router-dom';
 import { FaUsers, FaGlobe, FaLock, FaFilePdf, FaDownload, FaTrash } from 'react-icons/fa';
 import api from './api/axios';
 import GroupChat from './components/GroupChat';
+import { getViewUrl } from './utils/fileViewer';
 
 const GroupPage = () => {
     const { id } = useParams();
@@ -81,8 +82,8 @@ const GroupPage = () => {
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
                                 className={`pb-3 px-4 font-bold text-sm capitalize transition-all ${activeTab === tab
-                                        ? 'text-[#1dc962] border-b-2 border-[#1dc962]'
-                                        : 'text-gray-400 hover:text-gray-600'
+                                    ? 'text-[#1dc962] border-b-2 border-[#1dc962]'
+                                    : 'text-gray-400 hover:text-gray-600'
                                     }`}
                             >
                                 {tab === 'notes' ? 'Shared Notes' : 'Group Chat'}
@@ -129,7 +130,7 @@ const GroupPage = () => {
                         <div className="col-span-full">
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                 {notes.length > 0 ? notes.map(note => (
-                                    <div key={note._id} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+                                    <div key={note._id} onClick={() => window.open(getViewUrl(note.fileUrl), '_blank')} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer">
                                         <div className="flex items-start gap-3">
                                             <div className="w-10 h-10 rounded-lg bg-red-50 text-red-500 flex items-center justify-center text-lg flex-shrink-0">
                                                 <FaFilePdf />

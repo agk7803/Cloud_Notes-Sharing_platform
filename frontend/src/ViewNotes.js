@@ -3,6 +3,7 @@ import { FaPlus, FaSearch, FaFilter, FaFilePdf, FaEllipsisV, FaLock, FaGlobe, Fa
 import UploadModal from './UploadModal';
 import { useNotes } from './NoteContext';
 import { useOutletContext, useLocation } from 'react-router-dom';
+import { getViewUrl } from './utils/fileViewer';
 
 const SUBJECTS = ["Machine Learning", "Compiler Design", "Computer Networks", "Software Engineering", "Cloud Computing", "Web Engineering", "Other"];
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -110,18 +111,7 @@ export default function ViewNotes() {
     return <><FaUsers className="text-black" /> <span className="text-[10px] text-gray-700">Group Shared</span></>;
   };
 
-  const getViewUrl = (note) => {
-    // Extract file extension
-    const extension = note.s3Key ? note.s3Key.split('.').pop().toLowerCase() : note.fileUrl.split('.').pop().split('?')[0].toLowerCase();
 
-    const officeTypes = ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'];
-
-    if (officeTypes.includes(extension)) {
-      return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(note.fileUrl)}`;
-    }
-
-    return note.fileUrl;
-  };
 
   return (
     <div className="min-h-screen p-8">
@@ -202,7 +192,7 @@ export default function ViewNotes() {
               return (
                 <div
                   key={note._id || note.id}
-                  onClick={() => window.open(getViewUrl(note), '_blank')}
+                  onClick={() => window.open(getViewUrl(note.fileUrl), '_blank')}
                   className={`${theme.bg} rounded-2xl border ${theme.border} ${theme.hover} hover:shadow-xl ${theme.shadow} transition-all group flex flex-col h-64 cursor-pointer relative overflow-hidden`}
                 >
                   {/* Pastel Header Background */}
@@ -230,7 +220,7 @@ export default function ViewNotes() {
                         {/* Dropdown */}
                         {activeMenu === note._id && (
                           <div className="absolute right-0 top-8 w-40 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden animate-fade-in">
-                            <button onClick={() => window.open(getViewUrl(note), '_blank')} className="w-full text-left px-4 py-3 text-xs font-bold text-gray-600 hover:bg-gray-50 hover:text-gray-900 flex items-center gap-2">
+                            <button onClick={() => window.open(getViewUrl(note.fileUrl), '_blank')} className="w-full text-left px-4 py-3 text-xs font-bold text-gray-600 hover:bg-gray-50 hover:text-gray-900 flex items-center gap-2">
                               <FaEye /> View Online
                             </button>
                             <button onClick={(e) => handleDownload(e, note.fileUrl)} className="w-full text-left px-4 py-3 text-xs font-bold text-gray-600 hover:bg-gray-50 hover:text-gray-900 flex items-center gap-2">
