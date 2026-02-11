@@ -18,10 +18,11 @@ router.route('/')
 router.route('/:id')
     .get(getGroupById);
 
-router.route('/:id/join')
-    .post(joinGroup);
-
 router.route('/:id/leave')
     .post(leaveGroup);
+
+// Chat Routes
+const { getGroupChats } = require('../controllers/chatController');
+router.get('/:id/chats', getGroupChats);
 
 module.exports = router;

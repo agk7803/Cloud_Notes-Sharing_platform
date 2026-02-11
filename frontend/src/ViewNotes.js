@@ -14,6 +14,7 @@ import {
 import UploadModal from './UploadModal';
 import { useNotes } from './NoteContext';
 import { useOutletContext, useLocation } from 'react-router-dom';
+import { getViewUrl } from './utils/fileViewer';
 
 
 const SUBJECTS = [
@@ -183,8 +184,18 @@ export default function ViewNotes() {
     return <><FaUsers /> Group</>;
   };
 
+  const getViewUrl = (note) => {
+    // Extract file extension
+    const extension = note.s3Key ? note.s3Key.split('.').pop().toLowerCase() : note.fileUrl.split('.').pop().split('?')[0].toLowerCase();
 
-  /* ================= UI ================= */
+    const officeTypes = ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'];
+
+    if (officeTypes.includes(extension)) {
+      return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(note.fileUrl)}`;
+    }
+
+    return note.fileUrl;
+  };
 
   return (
 
@@ -289,109 +300,98 @@ export default function ViewNotes() {
         {/* GRID */}
 
         {filteredNotes.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredNotes.map(note => {
+              const theme = SUBJECT_THEMES[note.subject] || SUBJECT_THEMES["Other"];
 
-          <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-6">
-
-            {filteredNotes.map(note => (
-
-              <div
-                key={note._id}
-                onClick={() =>
-                  window.open(
-                    getViewUrl(note.fileUrl),
-                    '_blank'
-                  )
-                }
-                className="bg-white border rounded-xl p-5 shadow hover:shadow-lg cursor-pointer relative"
-              >
-
-                {/* MENU */}
-
+              return (
                 <div
-                  className="absolute top-3 right-3"
-                  onClick={e => e.stopPropagation()}
+                  key={note._id || note.id}
+                  onClick={() => window.open(getViewUrl(note), '_blank')}
+                  className={`${theme.bg} rounded-2xl border ${theme.border} ${theme.hover} hover:shadow-xl ${theme.shadow} transition-all group flex flex-col h-64 cursor-pointer relative overflow-hidden`}
                 >
+                  {/* Pastel Header Background */}
+                  <div className={`absolute top-0 left-0 w-full h-32 ${theme.pastel}`}></div>
 
-                  <button
-                    onClick={() =>
-                      setActiveMenu(
-                        activeMenu === note._id ? null : note._id
-                      )
-                    }
-                  >
-                    <FaEllipsisV />
-                  </button>
+                  <div className="p-5 flex flex-col h-full relative z-10">
+                    {/* Header */}
+                    <div className="flex justify-between items-start mb-4 relative">
+                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${theme.icon} ${theme.text} flex items-center justify-center text-xl shadow-inner`}>
+                        <FaFilePdf />
+                      </div>
 
+                      {/* 3 Dots Menu */}
+                      <div className="relative" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveMenu(activeMenu === note._id ? null : note._id);
+                          }}
+                          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors"
+                        >
+                          <FaEllipsisV />
+                        </button>
 
-                  {activeMenu === note._id && (
-
-                    <div className="absolute right-0 mt-2 bg-white border rounded-xl shadow z-50">
-
-                      <button
-                        onClick={() =>
-                          window.open(
-                            getViewUrl(note.fileUrl),
-                            '_blank'
-                          )
-                        }
-                        className="block px-4 py-2 text-sm hover:bg-gray-100"
-                      >
-                        <FaEye /> View Online
-                      </button>
-
-
-                      <button
-                        onClick={(e) => handleDelete(e, note._id)}
-                        className="block px-4 py-2 text-sm text-red-500 hover:bg-red-50"
-                      >
-                        <FaTrash /> Delete
-                      </button>
-
+                        {/* Dropdown */}
+                        {activeMenu === note._id && (
+                          <div className="absolute right-0 top-8 w-40 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden animate-fade-in">
+                            <button onClick={() => window.open(getViewUrl(note), '_blank')} className="w-full text-left px-4 py-3 text-xs font-bold text-gray-600 hover:bg-gray-50 hover:text-gray-900 flex items-center gap-2">
+                              <FaEye /> View Online
+                            </button>
+                            <button onClick={(e) => handleDownload(e, note.fileUrl)} className="w-full text-left px-4 py-3 text-xs font-bold text-gray-600 hover:bg-gray-50 hover:text-gray-900 flex items-center gap-2">
+                              <FaDownload /> Download
+                            </button>
+                            <button onClick={(e) => handleDelete(e, note._id)} className="w-full text-left px-4 py-3 text-xs font-bold text-red-500 hover:bg-red-50 flex items-center gap-2 border-t border-gray-50">
+                              <FaTrash /> Delete
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                   )}
 
-                </div>
-
-
-                {/* CONTENT */}
-
-                <div className="flex gap-3 mb-3">
-
-                  <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center text-green-600">
-                    <FaFilePdf />
                   </div>
 
-                  <div>
-                    <h3 className="font-bold text-sm">
-                      {note.title}
-                    </h3>
 
-                    <p className="text-xs text-gray-400">
-                      {note.subject}
-                    </p>
+                  {/* CONTENT */}
+
+                  <div className="flex gap-3 mb-3">
+
+                    <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center text-green-600">
+                      <FaFilePdf />
+                    </div>
+
+                    <div>
+                      <h3 className="font-bold text-sm">
+                        {note.title}
+                      </h3>
+
+                      <p className="text-xs text-gray-400">
+                        {note.subject}
+                      </p>
+                    </div>
+
+                  </div>
+
+
+                  {/* FOOTER */}
+
+                  <div className="text-xs text-gray-400 flex justify-between">
+
+                    <span>
+                      {new Date(note.createdAt).toLocaleDateString()}
+                    </span>
+
+                    <span>
+                      {getVisibilityIcon(note)}
+                    </span>
+
                   </div>
 
                 </div>
 
-
-                {/* FOOTER */}
-
-                <div className="text-xs text-gray-400 flex justify-between">
-
-                  <span>
-                    {new Date(note.createdAt).toLocaleDateString()}
-                  </span>
-
-                  <span>
-                    {getVisibilityIcon(note)}
-                  </span>
-
-                </div>
-
-              </div>
-
-            ))}
+              ))}
 
           </div>
 

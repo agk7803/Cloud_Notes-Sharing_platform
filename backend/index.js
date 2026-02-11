@@ -42,18 +42,44 @@ io.on('connection', (socket) => {
     });
 
     socket.on('send_message', async (data) => {
-        // data: { groupId, senderId, senderName, message }
+        // data: { groupId, senderId, senderName, message, messageType, audioUrl }
         try {
             const newChat = await Chat.create({
                 groupId: data.groupId,
                 senderId: data.senderId,
                 senderName: data.senderName,
-                message: data.message
+                message: data.message,
+                messageType: data.messageType || 'text',
+                audioUrl: data.audioUrl
             });
             // Broadcast to room including sender (for real-time update)
             io.to(data.groupId).emit('receive_message', newChat);
         } catch (error) {
             console.error("Chat Error:", error);
+        }
+    });
+
+    socket.on("edit_message", async ({ messageId, newContent, groupId }) => {
+        try {
+            const updatedChat = await Chat.findByIdAndUpdate(
+                messageId,
+                { message: newContent },
+                { new: true }
+            );
+            if (updatedChat) {
+                io.to(groupId).emit("message_updated", updatedChat);
+            }
+        } catch (error) {
+            console.error("Socket Edit Error:", error);
+        }
+    });
+
+    socket.on("delete_message", async ({ messageId, groupId }) => {
+        try {
+            await Chat.findByIdAndDelete(messageId);
+            io.to(groupId).emit("message_deleted", messageId);
+        } catch (error) {
+            console.error("Socket Delete Error:", error);
         }
     });
 
