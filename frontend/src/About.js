@@ -17,29 +17,29 @@ const About = () => {
       <header className="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-b-green-200 bg-white/80 px-10 py-3 backdrop-blur-sm">
         <div className="flex items-center gap-4 text-green-900">
           <img src={logoImage} alt="Logo" style={{ height: '50px', width: '50px', objectFit: 'contain' }} />
-          <h2 className="text-xl font-bold tracking-tight text-green-900">StudyNotes</h2>
-        
- </div>
+          <h2 className="text-xl font-bold tracking-tight text-green-900">StuNotes</h2>
+
+        </div>
         <nav className="hidden items-center gap-6 md:flex">
-  <Link
-    to="/"
-    className="text-sm font-medium text-green-700 transition-colors hover:text-green-600"
-  >
-    Home
-  </Link>
-          
+          <Link
+            to="/"
+            className="text-sm font-medium text-green-700 transition-colors hover:text-green-600"
+          >
+            Home
+          </Link>
+
           <Link to="/contact" className="text-sm text-green-700 hover:text-green-600">
-    Support
-  </Link>
+            Support
+          </Link>
         </nav>
         <div className="flex items-center gap-4">
-  <Link
-    to="/login"
-    className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center rounded-md h-10 px-4 bg-green-600 text-white text-sm font-bold shadow-sm transition-all hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
-  >
-    <span className="truncate">Login</span>
-  </Link>
-</div>
+          <Link
+            to="/login"
+            className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center rounded-md h-10 px-4 bg-green-600 text-white text-sm font-bold shadow-sm transition-all hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
+          >
+            <span className="truncate">Login</span>
+          </Link>
+        </div>
       </header>
       <main className="flex-1 bg-green-50">
         <section className="py-16 md:py-24 lg:py-32">
@@ -62,7 +62,7 @@ const About = () => {
                   Our Mission
                 </h2>
                 <p className="mt-4 text-lg text-green-800">
-                  At StudyNotes, our mission is to revolutionize the way students and educators interact with academic content.
+                  At StuNotes, our mission is to revolutionize the way students and educators interact with academic content.
                   We strive to create a collaborative platform that fosters learning, creativity, and academic excellence.
                   Our tools are designed to be intuitive, accessible, and adaptable to the diverse needs of our users.
                 </p>
@@ -239,7 +239,7 @@ const About = () => {
       </main>
       <footer className="bg-green-50 border-t-2 border-green-200">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 text-center">
-          <p className="text-sm text-green-700">© 2024 StudyNotes. All rights reserved.</p>
+          <p className="text-sm text-green-700">© 2025 StuNotes. All rights reserved.</p>
         </div>
       </footer>
     </div>

@@ -16,14 +16,14 @@ const Terms = () => {
         <div className="flex items-center gap-3 text-green-900">
           <img src={logoImage} alt="Logo" style={{ height: '35px', width: '35px', objectFit: 'contain' }} />
           <h2 className="text-gray-900 text-xl font-bold leading-tight tracking-[-0.015em]">
-            StudyCentral
+            StuNotes
           </h2>
         </div>
         <nav className="flex flex-1 justify-end gap-6">
           <div className="hidden items-center gap-6 md:flex">
             <Link to="/" className="hover:text-green-700">
-                            Home
-                          </Link>
+              Home
+            </Link>
           </div>
           <div className="flex items-center gap-3">
             <a
@@ -49,7 +49,7 @@ const Terms = () => {
                 1. Agreement
               </h2>
               <p className="text-sm leading-snug text-gray-700 flex-grow">
-                By using StudyCentral, you agree to these terms. We may update them, and your continued use is acceptance. If you disagree, stop using the service.
+                By using StuNotes, you agree to these terms. We may update them, and your continued use is acceptance. If you disagree, stop using the service.
               </p>
             </div>
             <div className="space-y-2 rounded-lg border border-gray-200 p-4 h-full flex flex-col">
@@ -73,7 +73,7 @@ const Terms = () => {
                 4. Our IP
               </h2>
               <p className="text-sm leading-snug text-gray-700 flex-grow">
-                All content (software, text, logos) is owned by StudyCentral or licensors and protected by law. Don't use our brand without written permission.
+                All content (software, text, logos) is owned by StuNotes or licensors and protected by law. Don't use our brand without written permission.
               </p>
             </div>
             <div className="space-y-2 rounded-lg border border-gray-200 p-4 h-full flex flex-col">
@@ -107,9 +107,9 @@ const Terms = () => {
             <Link className="text-xs leading-5 text-gray-600 hover:text-gray-900" to="/privacy">Privacy Policy</Link>
             <Link className="text-xs leading-5 text-gray-600 hover:text-gray-900" to="/terms">Terms of Service</Link>
             <Link className="text-xs leading-5 text-gray-600 hover:text-gray-900" to="/contact">Contact Us</Link>
-            
+
           </nav>
-          <p className="mt-6 text-center text-xs leading-5 text-gray-500">© 2023 StudyCentral. All rights reserved.</p>
+          <p className="mt-6 text-center text-xs leading-5 text-gray-500">© 2025 StuNotes. All rights reserved.</p>
         </div>
       </footer>
     </div>

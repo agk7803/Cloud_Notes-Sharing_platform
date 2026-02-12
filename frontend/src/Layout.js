@@ -50,7 +50,7 @@ const Sidebar = ({ active, setActive, onLogout, navigate }) => {
 
                     {!collapsed && (
                         <span className="text-2xl font-bold text-gray-800">
-                            StudyNotes
+                            StuNotes
                         </span>
                     )}
                 </div>

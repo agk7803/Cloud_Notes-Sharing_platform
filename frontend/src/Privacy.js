@@ -21,7 +21,7 @@ const Privacy = () => {
           <div className="flex items-center gap-3 text-green-600">
             <img src={logoImage} alt="Logo" style={{ height: '35px', width: '35px', objectFit: 'contain' }} />
             <h2 className="text-green-900 text-xl font-bold leading-tight tracking-[-0.015em]">
-              StudyCentral
+              StuNotes
             </h2>
           </div>
           <div className="flex flex-1 justify-end gap-6 text-green-900 items-center">
@@ -29,7 +29,7 @@ const Privacy = () => {
               <Link to="/" className="hover:text-green-700">
                 Home
               </Link>
-             
+
               <Link to="/contact" className="hover:text-green-900">Support</Link>
             </nav>
             <Link
@@ -97,7 +97,7 @@ const Privacy = () => {
                 </h2>
                 <p className="mt-2 leading-relaxed">
                   Questions? Email us at{" "}
-                  <a href="mailto:privacy@studycentral.com" className="text-green-700 hover:underline">
+                  <a href="mailto:privacy@stunotes.com" className="text-green-700 hover:underline">
                     rgitgroup17@gmail.com
                   </a>.
                 </p>
@@ -112,13 +112,13 @@ const Privacy = () => {
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
               <div className="flex flex-wrap justify-center gap-6 md:gap-8 text-green-700 font-semibold text-sm">
                 <Link to="/terms" className="hover:text-green-900">
-  Terms of Service
-</Link>
+                  Terms of Service
+                </Link>
                 <Link to="/privacy" className="hover:text-green-900">Privacy Policy</Link>
                 <Link to="/contact" className="hover:text-green-900">Contact Us</Link>
               </div>
               <p className="text-green-700 text-sm font-normal mt-4 md:mt-0">
-                © 2024 StudyCentral. All rights reserved.
+                © 2024 StuNotes. All rights reserved.
               </p>
             </div>
           </div>

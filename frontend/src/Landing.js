@@ -26,30 +26,30 @@ function Landing() {
         {/* Header */}
         <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-gray-200 px-10 py-4">
           <div className="flex items-center gap-3 text-gray-800">
-           <img src={logoImage} alt="Logo" style={{ height: '60px', width: '60px', objectFit: 'contain' }} />
-            <h2 className="text-xl font-bold tracking-tight">StudyNotes</h2>
+            <img src={logoImage} alt="Logo" style={{ height: '60px', width: '60px', objectFit: 'contain' }} />
+            <h2 className="text-xl font-bold tracking-tight">StuNotes</h2>
           </div>
           <nav className="flex items-center gap-8">
-  <a
-    href="#home"
-    onClick={(e) => smoothScrollToId(e, 'home')}
-    className="text-sm font-medium text-gray-600 hover:text-gray-900"
-  >
-    Home
-  </a>
-  <a
-    href="#key-features"
-    onClick={(e) => smoothScrollToId(e, 'key-features')}
-    className="text-sm font-medium text-gray-600 hover:text-gray-900"
-  >
-    Features
-  </a>
-    <Link
-    to="/contact"
-    className="text-sm text-gray-600 hover:text-gray-900"
-  >
-    Contact
-  </Link>
+            <a
+              href="#home"
+              onClick={(e) => smoothScrollToId(e, 'home')}
+              className="text-sm font-medium text-gray-600 hover:text-gray-900"
+            >
+              Home
+            </a>
+            <a
+              href="#key-features"
+              onClick={(e) => smoothScrollToId(e, 'key-features')}
+              className="text-sm font-medium text-gray-600 hover:text-gray-900"
+            >
+              Features
+            </a>
+            <Link
+              to="/contact"
+              className="text-sm text-gray-600 hover:text-gray-900"
+            >
+              Contact
+            </Link>
 
 
 
@@ -171,7 +171,7 @@ function Landing() {
                   Key Features
                 </h2>
                 <p className="mt-4 max-w-2xl mx-auto text-lg text-green-100">
-                  StudyNotes offers a comprehensive suite of tools designed to enhance your learning experience.
+                  StuNotes offers a comprehensive suite of tools designed to enhance your learning experience.
                 </p>
               </div>
               <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-3">
@@ -243,7 +243,7 @@ function Landing() {
                   Stay Connected, Wherever You Are
                 </h2>
                 <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-600">
-                  With StudyNotes, your notes are always within reach, ensuring you
+                  With StuNotes, your notes are always within reach, ensuring you
                   never miss a beat.
                 </p>
               </div>
@@ -299,37 +299,37 @@ function Landing() {
           <div className="container mx-auto px-4 py-8">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
               <div className="flex items-center gap-3">
-                           <img src={logoImage} alt="Logo" style={{ height: '40px', width: '40px', objectFit: 'contain' }} />
-                <h2 className="text-lg font-bold text-gray-800">StudyNotes</h2>
+                <img src={logoImage} alt="Logo" style={{ height: '40px', width: '40px', objectFit: 'contain' }} />
+                <h2 className="text-lg font-bold text-gray-800">StuNotes</h2>
               </div>
               <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2">
-  <Link
-    to="/about"
-    className="text-sm text-gray-600 hover:text-gray-900"
-  >
-    About
-  </Link>
-  <Link
-    to="/contact"
-    className="text-sm text-gray-600 hover:text-gray-900"
-  >
-    Contact
-  </Link>
-  <Link
-    to="/privacy"
-    className="text-sm text-gray-600 hover:text-gray-900"
-  >
-    Privacy Policy
-  </Link>
-  <Link
-    to="/terms"
-    className="text-sm text-gray-600 hover:text-gray-900"
-  >
-    Terms of Service
-  </Link>
-</nav>
+                <Link
+                  to="/about"
+                  className="text-sm text-gray-600 hover:text-gray-900"
+                >
+                  About
+                </Link>
+                <Link
+                  to="/contact"
+                  className="text-sm text-gray-600 hover:text-gray-900"
+                >
+                  Contact
+                </Link>
+                <Link
+                  to="/privacy"
+                  className="text-sm text-gray-600 hover:text-gray-900"
+                >
+                  Privacy Policy
+                </Link>
+                <Link
+                  to="/terms"
+                  className="text-sm text-gray-600 hover:text-gray-900"
+                >
+                  Terms of Service
+                </Link>
+              </nav>
 
-              <p className="text-sm text-gray-500">© 2024 StudyNotes. All rights reserved.</p>
+              <p className="text-sm text-gray-500">© 2025 StuNotes. All rights reserved.</p>
             </div>
           </div>
         </footer>
