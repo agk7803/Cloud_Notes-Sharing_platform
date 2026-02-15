@@ -12,12 +12,14 @@ const groupRoutes = require('./routes/groupRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const Chat = require('./models/Chat');
 const userRoutes = require("./routes/userRoutes");
+const aiRoutes = require("./routes/aiRoutes"); // ✅ CORRECT (CommonJS)
+
 
 /* ================= INIT ================= */
 
 connectDB();
 
-const app = express();   // ✅ app initialized BEFORE use
+const app = express();
 const server = http.createServer(app);
 
 
@@ -42,7 +44,8 @@ app.use(express.json());
 app.use('/api/notes', noteRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/upload', uploadRoutes);
-app.use('/users', userRoutes);   // ✅ MOVED HERE (FIXED)
+app.use('/users', userRoutes);
+app.use('/api', aiRoutes);   // ✅ Academic AI will be /api/academic-chat
 
 
 /* ================= SOCKET LOGIC ================= */
@@ -51,21 +54,14 @@ io.on('connection', (socket) => {
 
     console.log("User Connected:", socket.id);
 
-    /* ---- Join Group Room ---- */
     socket.on('join_group', (groupId) => {
-
         if (!groupId) return;
-
         socket.join(groupId);
-
         console.log(`User ${socket.id} joined group ${groupId}`);
     });
 
-    /* ---- Send Message ---- */
     socket.on('send_message', async (data) => {
-
         try {
-
             if (!data?.groupId || !data?.message) return;
 
             const newChat = await Chat.create({
@@ -84,11 +80,8 @@ io.on('connection', (socket) => {
         }
     });
 
-    /* ---- Edit Message ---- */
     socket.on("edit_message", async ({ messageId, newContent, groupId }) => {
-
         try {
-
             if (!messageId || !groupId) return;
 
             const updatedChat = await Chat.findByIdAndUpdate(
@@ -106,15 +99,11 @@ io.on('connection', (socket) => {
         }
     });
 
-    /* ---- Delete Message ---- */
     socket.on("delete_message", async ({ messageId, groupId }) => {
-
         try {
-
             if (!messageId || !groupId) return;
 
             await Chat.findByIdAndDelete(messageId);
-
             io.to(groupId).emit("message_deleted", messageId);
 
         } catch (error) {
@@ -125,11 +114,8 @@ io.on('connection', (socket) => {
     /* ================= VOICE SIGNALING ================= */
 
     socket.on("join_voice", (roomId) => {
-
         if (!roomId) return;
-
         socket.join(roomId);
-
         socket.to(roomId).emit("user_joined_voice", socket.id);
     });
 

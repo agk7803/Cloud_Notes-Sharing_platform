@@ -10,6 +10,8 @@ import {
     FaCheck
 } from "react-icons/fa";
 
+import ReactMarkdown from "react-markdown";
+
 import api from "../api/axios";
 
 const SOCKET_URL = "http://localhost:5050";
@@ -385,15 +387,23 @@ const GroupChat = ({ groupId, user }) => {
                                     <>
                                         {msg.messageType === "audio" ? (
 
-                                            <audio controls src={msg.audioUrl} />
+    <audio controls src={msg.audioUrl} />
 
-                                        ) : (
+) : msg.isAI ? (
 
-                                            <p className="text-sm break-words">
-                                                {msg.message}
-                                            </p>
+    <div className="text-sm break-words bg-blue-50 p-3 rounded-xl border border-blue-200">
+        <ReactMarkdown>
+            {msg.message}
+        </ReactMarkdown>
+    </div>
 
-                                        )}
+) : (
+
+    <p className="text-sm break-words">
+        {msg.message}
+    </p>
+
+)}
 
 
                                         {/* ACTIONS */}

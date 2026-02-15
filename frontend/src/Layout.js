@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { FaRobot } from "react-icons/fa";
 
 import {
     FaBook,
@@ -26,6 +27,8 @@ const Sidebar = ({ active, setActive, onLogout, navigate }) => {
         { id: "notes", label: "My Notes", icon: <FaBook />, path: "/view" },
         { id: "assessments", label: "Assessments", icon: <FaClipboardList />, path: "/assessments" },
         { id: "groups", label: "Study Groups", icon: <FaUsers />, path: "/groups" },
+        { id: "academic-ai", label: "Academic AI", icon: <FaRobot />, path: "/academic-ai" },
+
     ];
 
     return (
@@ -115,6 +118,8 @@ export default function Layout() {
         else if (path.includes("/view")) setActiveTab("notes");
         else if (path.includes("/assessments")) setActiveTab("assessments");
         else if (path.includes("/groups")) setActiveTab("groups");
+        else if (path.includes("/academic-ai")) setActiveTab("academic-ai");
+
         else setActiveTab("dashboard");
     }, [location]);
 

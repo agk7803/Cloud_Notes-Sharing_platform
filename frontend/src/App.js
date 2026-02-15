@@ -19,6 +19,8 @@ import Privacy from "./Privacy";
 import Terms from "./Terms";
 import SearchResults from "./SearchResults";
 import Profile from "./Profile";
+import AcademicAI from "./ai/AcademicAI";
+
 
 function App() {
   return (
@@ -33,6 +35,7 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/search" element={<SearchResults />} />
+      
 
       {/* Routes with Persistent Sidebar + NoteProvider */}
       <Route
@@ -50,6 +53,8 @@ function App() {
         <Route path="/groups" element={<StudyGroups />} />
         <Route path="/groups/:id" element={<GroupPage />} />
         <Route path="/profile" element={<Profile />} /> {/* ✅ MOVED HERE */}
+        <Route path="/academic-ai" element={<AcademicAI />} />
+
       </Route>
 
       {/* Standalone Routes (Focus Mode) */}
