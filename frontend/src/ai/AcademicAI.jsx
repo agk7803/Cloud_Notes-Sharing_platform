@@ -1,30 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { sendAcademicMessage } from "./aiService";
 import ReactMarkdown from "react-markdown";
-
 
 function AcademicAI() {
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const messagesEndRef = useRef(null);
+  const hasStarted = chat.length > 0;
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chat, loading]);
+
   const handleSend = async () => {
     if (!message.trim()) return;
 
     const userMessage = message;
 
-    setChat((prev) => [...prev, { role: "user", content: userMessage }]);
+    setChat(prev => [...prev, { role: "user", content: userMessage }]);
     setMessage("");
     setLoading(true);
 
     try {
       const res = await sendAcademicMessage(userMessage);
-      setChat((prev) => [
+      setChat(prev => [
         ...prev,
         { role: "assistant", content: res.reply }
       ]);
-    } catch (err) {
-      setChat((prev) => [
+    } catch {
+      setChat(prev => [
         ...prev,
         { role: "assistant", content: "Error getting response." }
       ]);
@@ -34,66 +40,72 @@ function AcademicAI() {
   };
 
   return (
-    <div className="flex flex-col h-full min-h-screen bg-gradient-to-br from-[#1dc962]/30 via-white to-[#1dc962]/10">
+    <div className="relative min-h-screen w-full flex flex-col">
 
-      {/* Header */}
-      <div className="text-center pt-16">
+      {/* 🌈 Background */}
+      <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_30%_20%,#60a5fa,transparent_40%),radial-gradient(circle_at_70%_80%,#f97316,transparent_40%),radial-gradient(circle_at_50%_50%,#a78bfa,transparent_40%)] bg-gray-50" />
+
+      {/* 🔹 HEADER */}
+      <div
+        className={`px-8 pt-10 transition-all duration-500 ${
+          hasStarted ? "text-left" : "flex flex-col items-center justify-center flex-1 text-center"
+        }`}
+      >
         <h1 className="text-4xl font-bold text-gray-800">
           🎓 Academic AI
         </h1>
-        <p className="text-gray-600 mt-3 text-lg">
-          Ask doubts, generate summaries, and prepare smarter.
-        </p>
+
+        {!hasStarted && (
+          <p className="text-gray-600 mt-3">
+            Ask doubts, generate summaries, and prepare smarter.
+          </p>
+        )}
       </div>
 
-      {/* Chat Area */}
-      <div className="flex-1 mt-12 max-w-4xl mx-auto w-full px-8 space-y-6 overflow-y-auto">
+      {/* 🔹 MESSAGES */}
+      {hasStarted && (
+        <div className="flex-1 overflow-y-auto px-8 mt-6 space-y-8 pb-40 max-w-3xl mx-auto">
 
-        {chat.length === 0 ? (
-          <div className="text-center text-gray-500 mt-20">
-            <p className="text-2xl font-semibold">
-              How can I help you today?
-            </p>
-            <p className="mt-3 text-gray-400">
-              Start by asking your academic question below.
-            </p>
-          </div>
-        ) : (
-          chat.map((msg, index) => (
+          {chat.map((msg, index) => (
             <div
               key={index}
               className={`flex ${
                 msg.role === "user" ? "justify-end" : "justify-start"
               }`}
             >
-              <div
-                className={`px-6 py-3 rounded-2xl max-w-xl shadow-md ${
-                  msg.role === "user"
-                    ? "bg-[#1dc962] text-white"
-                    : "bg-white border text-gray-800"
-                }`}
-              >
-                {msg.content}
-              </div>
+              {msg.role === "user" ? (
+                <div className="bg-black text-white px-5 py-3 rounded-2xl max-w-md shadow">
+                  {msg.content}
+                </div>
+              ) : (
+                <div className="bg-white/70 backdrop-blur-md border border-white/40 px-6 py-4 rounded-2xl max-w-2xl shadow text-gray-900 text-sm leading-relaxed">
+                  <ReactMarkdown>
+                    {msg.content}
+                  </ReactMarkdown>
+                </div>
+              )}
             </div>
-          ))
-        )}
+          ))}
 
-        {loading && (
-          <div className="text-gray-400 animate-pulse">
-            AI is thinking...
-          </div>
-        )}
-      </div>
+          {loading && (
+            <div className="text-gray-600 animate-pulse">
+              AI is thinking...
+            </div>
+          )}
 
-      {/* Input Bar */}
-      <div className="w-full max-w-4xl mx-auto px-8 pb-8">
-        <div className="bg-white shadow-xl rounded-2xl px-5 py-3 flex items-center border border-gray-200">
+          <div ref={messagesEndRef} />
+
+        </div>
+      )}
+
+      {/* 🔹 INPUT (ALWAYS FIXED BOTTOM LIKE CHATGPT) */}
+      <div className="fixed bottom-8 left-0 right-0 flex justify-center px-8">
+        <div className="w-full max-w-3xl bg-white/70 backdrop-blur-xl border border-white/40 shadow-xl rounded-2xl flex items-center px-5 py-3">
 
           <input
             type="text"
             placeholder="Ask your academic doubt..."
-            className="flex-1 bg-transparent outline-none text-gray-700 text-lg"
+            className="flex-1 bg-transparent outline-none text-gray-800"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
@@ -101,7 +113,7 @@ function AcademicAI() {
 
           <button
             onClick={handleSend}
-            className="bg-[#1dc962] hover:bg-green-600 text-white px-6 py-2 rounded-xl transition shadow-md"
+            className="bg-black text-white px-5 py-2 rounded-xl ml-3 hover:opacity-80 transition"
           >
             Send
           </button>
