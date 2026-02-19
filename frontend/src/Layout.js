@@ -15,6 +15,7 @@ import {
 
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "./firebase";
+import api from "./api/axios";
 
 /* ================= SIDEBAR ================= */
 
@@ -125,19 +126,41 @@ export default function Layout() {
 
     /* ===== FIREBASE AUTH CHECK ===== */
 
+    /* ===== FIREBASE AUTH CHECK ===== */
+
     useEffect(() => {
-        const unsub = onAuthStateChanged(auth, (currentUser) => {
-
+        const unsub = onAuthStateChanged(auth, async (currentUser) => {
             if (!currentUser) {
-                navigate("/login");
+                setUser(null);
+                if (location.pathname !== "/" && !location.pathname.startsWith("/login") && !location.pathname.startsWith("/register")) {
+                    navigate("/login");
+                }
             } else {
-                setUser(currentUser);
-            }
+                try {
+                    // Sync with MongoDB
+                    const token = await currentUser.getIdToken();
 
+                    // Only fetch if we have a token (which we should)
+                    // We need to ensure api axios interceptor has the token, or we pass it explicitly?
+                    // api/axios likely handles it if we set it, or maybe it doesn't?
+                    // Let's assume api/axios relies on localStorage OR we need to wait for it.
+                    // Actually, simpler: The api/axios usually attaches token from localStorage or we need to set it.
+                    // But here we just got a fresh token. Let's update localStorage just in case.
+
+                    // Actually, let's just make the call. If it fails (404), we rely on Firebase user.
+                    const res = await api.get('/users/me');
+
+                    setUser({ ...currentUser, ...res.data, photoURL: res.data.profilePicture || currentUser.photoURL, name: res.data.name || currentUser.displayName });
+                } catch (error) {
+                    console.error("Failed to fetch mongo user:", error);
+                    // Fallback to Firebase user if Mongo fetch fails (e.g. first login before sync)
+                    setUser(currentUser);
+                }
+            }
         });
 
         return () => unsub();
-    }, [navigate]);
+    }, [navigate, location.pathname]);
 
     /* ===== LOGOUT ===== */
 

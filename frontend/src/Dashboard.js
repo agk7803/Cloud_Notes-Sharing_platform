@@ -96,17 +96,18 @@ const Header = ({ user }) => {
           >
             <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
 
-              {user?.photoURL ? (
+              {user?.profilePicture ? (
                 <img
-                  src={user.photoURL}
+                  src={user.profilePicture}
                   alt="Profile"
                   className="w-full h-full object-cover rounded-full"
                 />
               ) : (
                 <span className="text-[#1dc962] font-bold">
-                  {user?.name?.[0] || "U"}
+                  {user?.name?.[0]?.toUpperCase() || "U"}
                 </span>
               )}
+
 
             </div>
           </div>
@@ -118,7 +119,7 @@ const Header = ({ user }) => {
 
       {/* Profile Modal */}
 
-      
+
     </>
   );
 };

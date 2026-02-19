@@ -38,3 +38,34 @@ const uploadAudio = async (req, res) => {
 };
 
 module.exports = { uploadAudio };
+
+// @desc    Upload profile picture
+// @route   POST /api/upload/profile-pic
+// @access  Private
+const uploadProfilePicture = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No image file uploaded' });
+        }
+
+        const fileKey = `profile-pics/${req.user.uid}/${uuidv4()}-${req.file.originalname}`;
+
+        const command = new PutObjectCommand({
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: fileKey,
+            Body: req.file.buffer,
+            ContentType: req.file.mimetype,
+        });
+
+        await s3.send(command);
+
+        const location = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`;
+
+        res.json({ imageUrl: location });
+    } catch (error) {
+        console.error("Profile Pic Upload Error:", error);
+        res.status(500).json({ message: 'Image upload failed' });
+    }
+};
+
+module.exports = { uploadAudio, uploadProfilePicture };

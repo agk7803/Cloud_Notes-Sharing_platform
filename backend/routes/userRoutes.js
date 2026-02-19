@@ -1,31 +1,85 @@
 const express = require("express");
 const router = express.Router();
+const User = require("../models/User");
+const { protect } = require("../middleware/authMiddleware");
 
-// If you create User model later, uncomment this:
-// const User = require("../models/User");
-
-// Temporary test route (to confirm it's working)
+/*
+========================================
+TEST ROUTE
+========================================
+*/
 router.get("/test", (req, res) => {
   res.json({ message: "User routes working" });
 });
 
-// Update Profile (TEMPORARY version without DB)
-router.put("/update-profile/:id", async (req, res) => {
+/*
+========================================
+GET CURRENT USER PROFILE
+========================================
+*/
+router.get("/me", protect, async (req, res) => {
   try {
-    const { name } = req.body;
-    const { id } = req.params;
+    const { uid, email } = req.user;
 
-    // Since you are using Firebase, not Mongo users,
-    // we will just return success for now.
+    const user = await User.findOne({
+      $or: [{ firebaseUid: uid }, { email: email }]
+    });
 
-    res.json({
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(user);
+
+  } catch (error) {
+    console.error("Get Profile Error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/*
+========================================
+UPDATE PROFILE
+========================================
+*/
+router.put("/update-profile", protect, async (req, res) => {
+  try {
+    const { name, profilePicture } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ message: "Name is required" });
+    }
+
+    const uid = req.user.uid || req.user.user_id;
+    const email = req.user.email;
+
+    let user = await User.findOne({
+      $or: [{ firebaseUid: uid }, { email: email }]
+    });
+
+    if (!user) {
+      user = new User({
+        name,
+        email,
+        firebaseUid: uid,
+        profilePicture: profilePicture || ""
+      });
+    } else {
+      user.name = name; // ALWAYS set name
+      if (profilePicture !== undefined) {
+        user.profilePicture = profilePicture;
+      }
+    }
+
+    await user.save();
+
+    res.status(200).json({
       message: "Profile updated successfully",
-      userId: id,
-      updatedName: name,
+      user
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("Update Profile Error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });

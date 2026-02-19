@@ -44,7 +44,7 @@ app.use(express.json());
 app.use('/api/notes', noteRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/upload', uploadRoutes);
-app.use('/users', userRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api', aiRoutes);   // ✅ Academic AI will be /api/academic-chat
 
 
