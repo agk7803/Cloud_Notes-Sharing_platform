@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
-import { FaClock, FaArrowLeft, FaCheck, FaChevronDown, FaChevronUp, FaBookOpen, FaPlayCircle, FaFileAlt, FaTrophy, FaChartBar, FaPlus, FaTimes } from 'react-icons/fa';
+import {
+    FaClock, FaArrowLeft, FaCheck, FaChevronDown, FaChevronUp,
+    FaBookOpen, FaPlayCircle, FaFileAlt, FaTrophy,
+    FaChartBar, FaPlus, FaTimes, FaTrash
+} from 'react-icons/fa';
 import api from './api/axios';
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 
@@ -10,6 +14,7 @@ export default function Assessments() {
     const [selectedTestId, setSelectedTestId] = useState(null);
     const [showScoreModal, setShowScoreModal] = useState(false);
     const [showGenerateModal, setShowGenerateModal] = useState(false);
+    const [userNotes, setUserNotes] = useState([]);
 
     // Data State
     const [generatedTests, setGeneratedTests] = useState([]);
@@ -58,6 +63,31 @@ export default function Assessments() {
 
     const toggleExpand = (testId) => {
         setSelectedTestId(prev => prev === testId ? null : testId);
+    };
+
+    const handleDelete = async (id) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this assessment?");
+        if (!confirmDelete) return;
+
+        try {
+            await api.delete(`/assessments/${id}`);
+
+            setGeneratedTests(prev =>
+                prev.map(t =>
+                    t._id === id ? { ...t, removing: true } : t
+                )
+            );
+
+            setTimeout(() => {
+                setGeneratedTests(prev =>
+                    prev.filter(test => test._id !== id)
+                );
+            }, 300);
+
+        } catch (error) {
+            console.error(error);
+            alert("Failed to delete assessment.");
+        }
     };
 
     const handleGenerateTest = async () => {
@@ -131,7 +161,13 @@ export default function Assessments() {
                         const isExpanded = selectedTestId === test._id; // MongoDB uses _id
 
                         return (
-                            <div key={test._id} className={`bg-white rounded-2xl border transition-all overflow-hidden ${isExpanded ? 'border-green-500 shadow-lg ring-1 ring-green-100' : 'border-gray-100 hover:border-gray-300'}`}>
+                            <div
+                                key={test._id}
+                                className={`bg-white rounded-2xl border-2 transition-all duration-300 overflow-hidden hover:shadow-xl hover:-translate-y-1 ${isExpanded
+                                    ? "border-green-500 shadow-lg ring-1 ring-green-100"
+                                    : "border-transparent hover:border-green-200"
+                                    }${test.removing ? "opacity-0 scale-95" : ""}`}
+                            >
                                 <div
                                     className="p-6 cursor-pointer flex justify-between items-center"
                                     onClick={() => toggleExpand(test._id)}
@@ -139,13 +175,44 @@ export default function Assessments() {
                                     <div>
                                         <div className="flex items-center gap-3 mb-2">
                                             <span className="px-3 py-1 bg-green-50 text-green-700 text-[10px] font-bold uppercase tracking-wider rounded-lg border border-green-100">{test.subject}</span>
+                                            {/* 🤖 AI Badge */}
+                                            <span className="px-2 py-1 text-[10px] bg-purple-100 text-purple-600 rounded-md font-semibold">
+                                                🤖 AI Generated
+                                            </span>
                                             <div className="flex items-center gap-1 text-xs text-gray-400 font-medium">
                                                 <FaClock /> {test.duration} min
                                             </div>
                                             {/* For simplicity not showing createdBy name unless we populate it */}
                                         </div>
                                         <h3 className={`text-xl font-bold transition-colors ${isExpanded ? 'text-green-600' : 'text-gray-900'}`}>{test.title}</h3>
-                                        <p className="text-gray-500 text-sm">{test.questions} Questions • {test.type.toUpperCase()}</p>
+                                        {/* Row 1 - Meta Info */}
+                                        <div className="flex items-center gap-3 mt-1 text-sm text-gray-500">
+                                            <span>{test.questions?.length || 0} Questions</span>
+                                            <span>•</span>
+                                            <span className="uppercase">{test.type}</span>
+                                        </div>
+
+                                        {/* Row 2 - Badges */}
+                                        <div className="flex items-center gap-2 mt-2 flex-wrap">
+                                            <span
+                                                className={`text-xs px-3 py-1 rounded-full font-semibold ${test.difficulty === "easy"
+                                                    ? "bg-green-100 text-green-600"
+                                                    : test.difficulty === "medium"
+                                                        ? "bg-yellow-100 text-yellow-700"
+                                                        : "bg-red-100 text-red-600"
+                                                    }`}
+                                            >
+                                                {{
+                                                    easy: "🌿 Easy",
+                                                    medium: "⚡ Medium",
+                                                    hard: "🔥 Hard",
+                                                }[test.difficulty]}
+                                            </span>
+
+                                            <span className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-600 font-medium">
+                                                Not Attempted
+                                            </span>
+                                        </div>
                                     </div>
                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isExpanded ? 'bg-green-100 text-green-600' : 'bg-gray-50 text-gray-400'}`}>
                                         {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
@@ -174,7 +241,7 @@ export default function Assessments() {
                                             )}
                                         </div>
 
-                                        <div className="flex gap-4">
+                                        <div className="flex gap-4 mt-6 items-center">
                                             <button
                                                 onClick={() => handlePrepare(test.subject)}
                                                 className="flex-1 py-3 px-4 rounded-xl border-2 border-green-500 text-green-600 font-bold hover:bg-green-50 transition-colors flex items-center justify-center gap-2"
@@ -186,6 +253,13 @@ export default function Assessments() {
                                                 className="flex-1 py-3 px-4 rounded-xl bg-black text-white font-bold hover:bg-gray-800 transition-transform active:scale-[0.98] shadow-lg flex items-center justify-center gap-2"
                                             >
                                                 Start Assessment <FaArrowLeft className="rotate-180" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(test._id)}
+                                                className="p-3 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-600 transition flex items-center justify-center"
+                                                title="Delete Assessment"
+                                            >
+                                                <FaTrash size={16} />
                                             </button>
                                         </div>
                                     </div>

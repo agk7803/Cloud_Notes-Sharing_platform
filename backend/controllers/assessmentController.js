@@ -8,6 +8,7 @@ const s3 = require("../config/s3");
 
 exports.generateAssessment = async (req, res) => {
     try {
+        console.log("User from POST:", req.user);
         const file = req.file;
         const { subject, type, difficulty, questionsCount, shuffle } = req.body;
 
@@ -45,9 +46,9 @@ exports.generateAssessment = async (req, res) => {
         // =========================================
         let extractedText = "";
 
-        // PDF
         if (file.mimetype === "application/pdf") {
-            const pdfData = await pdfParse(fileBuffer);
+            const pdf = require("pdf-parse");
+            const pdfData = await pdf(fileBuffer);
             extractedText = pdfData.text;
         }
 
