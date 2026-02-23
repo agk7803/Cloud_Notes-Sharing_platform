@@ -150,26 +150,54 @@ export default function Assessments() {
     return (
         <div className="min-h-screen p-8">
             <div className="max-w-5xl mx-auto">
-                <header className="mb-12 flex flex-col md:flex-row justify-between items-end gap-4">
-                    <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Assessments</h1>
-                        <p className="text-gray-500">Test your knowledge and climb the leaderboard.</p>
+                <div className="max-w-7xl mx-auto">
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-100 p-8 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+
+                        <header className="flex flex-col md:flex-row justify-between md:items-center gap-6">
+
+                            <div className="space-y-2">
+                                <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">
+                                    Assessments
+                                </h1>
+
+                                <p className="text-gray-500 text-lg">
+                                    Test your knowledge and climb the leaderboard.
+                                </p>
+
+                                <div className="flex items-center gap-4 text-sm mt-3">
+                                    <span className="bg-white px-3 py-1 rounded-full shadow-sm font-medium">
+                                        🔥 Streak: 5
+                                    </span>
+                                    <span className="bg-white px-3 py-1 rounded-full shadow-sm font-medium">
+                                        🏆 Rank: #12
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-4">
+
+                                <button
+                                    onClick={() => setShowScoreModal(true)}
+                                    className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-white border border-gray-200 text-gray-700 font-semibold hover:border-green-400 hover:text-green-600 shadow-sm hover:shadow-md transition-all duration-200"
+                                >
+                                    <FaTrophy className="text-yellow-500 transition-transform duration-300 group-hover:scale-110" />
+                                    Scores
+                                </button>
+
+                                <button
+                                    onClick={() => setShowGenerateModal(true)}
+                                    className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-black text-white font-semibold hover:bg-gray-800 hover:shadow-xl shadow-lg active:scale-95 transition-all duration-200"
+                                >
+                                    <FaPlus className="transition-transform duration-300 group-hover:rotate-90" />
+                                    Generate Test
+                                </button>
+
+                            </div>
+
+                        </header>
+
                     </div>
-                    <div className="flex gap-3">
-                        <button
-                            onClick={() => setShowScoreModal(true)}
-                            className="flex items-center gap-2 px-5 py-3 rounded-xl bg-white border border-gray-200 text-gray-700 font-bold hover:border-green-400 hover:text-green-600 shadow-sm transition-all"
-                        >
-                            <FaTrophy className="text-yellow-500" /> Scores
-                        </button>
-                        <button
-                            onClick={() => setShowGenerateModal(true)}
-                            className="flex items-center gap-2 px-5 py-3 rounded-xl bg-black text-white font-bold hover:bg-gray-800 shadow-lg active:scale-95 transition-all"
-                        >
-                            <FaPlus /> Generate Test
-                        </button>
-                    </div>
-                </header>
+                </div>
 
                 <div className="space-y-6">
                     {generatedTests.length === 0 && (
