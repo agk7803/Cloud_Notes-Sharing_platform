@@ -13,6 +13,7 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const Chat = require('./models/Chat');
 const userRoutes = require("./routes/userRoutes");
 const aiRoutes = require("./routes/aiRoutes"); // ✅ CORRECT (CommonJS)
+const assessmentRoutes = require("./routes/assessmentRoutes");
 
 
 /* ================= INIT ================= */
@@ -46,6 +47,7 @@ app.use('/api/groups', groupRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api', aiRoutes);   // ✅ Academic AI will be /api/academic-chat
+app.use("/api/assessments", assessmentRoutes);
 
 
 /* ================= SOCKET LOGIC ================= */

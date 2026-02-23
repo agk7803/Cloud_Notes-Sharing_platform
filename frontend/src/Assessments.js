@@ -17,7 +17,11 @@ export default function Assessments() {
 
     // Generator Form
     const [genSubject, setGenSubject] = useState(SUBJECTS[0]);
-    const [genType, setGenType] = useState('mcq');
+    const [genType, setGenType] = useState("mcq");
+    const [difficulty, setDifficulty] = useState("medium");
+    const [questionsCount, setQuestionsCount] = useState(10);
+    const [shuffle, setShuffle] = useState(false);
+    const [selectedFile, setSelectedFile] = useState(null);
     const [isGenerating, setIsGenerating] = useState(false);
 
     const navigate = useNavigate();
@@ -57,23 +61,38 @@ export default function Assessments() {
     };
 
     const handleGenerateTest = async () => {
-        if (!genSubject || !genType) return;
+        if (!selectedFile) {
+            alert("Please upload a file first.");
+            return;
+        }
+
         setIsGenerating(true);
 
         try {
-            const newTest = {
-                title: `${genType.toUpperCase()}: ${genSubject} Practice`,
-                subject: genSubject,
-                type: genType,
-                duration: genType === 'mcq' ? 30 : 60,
-                questions: genType === 'mcq' ? 15 : 5
-            };
+            const formData = new FormData();
+            formData.append("file", selectedFile);
+            formData.append("subject", genSubject);
+            formData.append("type", genType);
+            formData.append("difficulty", difficulty);
+            formData.append("questionsCount", questionsCount);
+            formData.append("shuffle", shuffle);
 
-            const res = await api.post('/assessments', newTest);
-            setGeneratedTests([res.data, ...generatedTests]);
+            const res = await api.post(
+                "/assessments/generate",
+                formData,
+                {
+                    headers: { "Content-Type": "multipart/form-data" }
+                }
+            );
+
+            setGeneratedTests(prev => [res.data, ...prev]);
+
+            console.log(res.data);
+            alert("Test generated successfully!");
             setShowGenerateModal(false);
+
         } catch (error) {
-            console.error("Error generating test:", error);
+            console.error(error);
             alert("Failed to generate test.");
         } finally {
             setIsGenerating(false);
@@ -239,51 +258,161 @@ export default function Assessments() {
                     </div>
                 )}
 
-                {/* Generate Test Modal */}
                 {showGenerateModal && (
-                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                        <div className="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl animate-fade-in relative">
-                            <button onClick={() => setShowGenerateModal(false)} className="absolute top-6 right-6 text-gray-400 hover:text-gray-900"><FaTimes /></button>
+                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+                        <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl relative overflow-hidden">
 
-                            <h2 className="text-2xl font-bold text-gray-900 mb-2">Generate Test</h2>
-                            <p className="text-gray-500 mb-8">Create a custom challenge for yourself and others.</p>
-
-                            <div className="space-y-6">
+                            {/* Header */}
+                            <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-center">
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Select Subject</label>
+                                    <h2 className="text-2xl font-bold text-gray-900">
+                                        Generate AI Test
+                                    </h2>
+                                    <p className="text-sm text-gray-500">
+                                        Upload material and customize your assessment.
+                                    </p>
+                                </div>
+
+                                <button
+                                    onClick={() => setShowGenerateModal(false)}
+                                    className="text-gray-400 hover:text-gray-900 transition"
+                                >
+                                    <FaTimes size={18} />
+                                </button>
+                            </div>
+
+                            {/* Body */}
+                            <div className="px-8 py-6 space-y-6 max-h-[70vh] overflow-y-auto">
+
+                                {/* Upload */}
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Upload Material
+                                    </label>
+
+                                    <label className="flex flex-col items-center justify-center w-full p-6 border-2 border-dashed border-gray-300 rounded-2xl cursor-pointer hover:border-green-400 hover:bg-green-50 transition">
+                                        <input
+                                            type="file"
+                                            accept=".pdf,.doc,.docx,.ppt,.pptx"
+                                            className="hidden"
+                                            onChange={(e) => setSelectedFile(e.target.files[0])}
+                                        />
+
+                                        <span className="text-gray-500 text-sm">
+                                            Click to upload PDF, DOCX, PPT
+                                        </span>
+
+                                        {selectedFile && (
+                                            <span className="mt-2 text-green-600 text-xs font-medium">
+                                                {selectedFile.name}
+                                            </span>
+                                        )}
+                                    </label>
+                                </div>
+
+                                {/* Subject */}
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Subject
+                                    </label>
                                     <select
                                         value={genSubject}
                                         onChange={(e) => setGenSubject(e.target.value)}
-                                        className="w-full p-4 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500/20 font-medium bg-gray-50"
+                                        className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-green-400 outline-none"
                                     >
-                                        {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
+                                        {SUBJECTS.map((s) => (
+                                            <option key={s} value={s}>
+                                                {s}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
 
+                                {/* Test Type */}
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Test Type</label>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                                        Test Type
+                                    </label>
+
                                     <div className="grid grid-cols-2 gap-3">
                                         <button
-                                            onClick={() => setGenType('mcq')}
-                                            className={`p-4 rounded-xl border-2 font-bold transition-all ${genType === 'mcq' ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-100 text-gray-500 hover:bg-gray-50'}`}
+                                            type="button"
+                                            onClick={() => setGenType("mcq")}
+                                            className={`p-3 rounded-xl border font-semibold transition ${genType === "mcq"
+                                                ? "bg-green-100 border-green-500 text-green-700"
+                                                : "bg-white border-gray-200 text-gray-500 hover:bg-gray-50"
+                                                }`}
                                         >
                                             MCQ
                                         </button>
+
                                         <button
-                                            onClick={() => setGenType('written')}
-                                            className={`p-4 rounded-xl border-2 font-bold transition-all ${genType === 'written' ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-100 text-gray-500 hover:bg-gray-50'}`}
+                                            type="button"
+                                            onClick={() => setGenType("written")}
+                                            className={`p-3 rounded-xl border font-semibold transition ${genType === "written"
+                                                ? "bg-green-100 border-green-500 text-green-700"
+                                                : "bg-white border-gray-200 text-gray-500 hover:bg-gray-50"
+                                                }`}
                                         >
                                             Written
                                         </button>
                                     </div>
                                 </div>
 
+                                {/* Difficulty + Questions */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            Difficulty
+                                        </label>
+                                        <select
+                                            value={difficulty}
+                                            onChange={(e) => setDifficulty(e.target.value)}
+                                            className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-green-400 outline-none"
+                                        >
+                                            <option value="easy">Easy</option>
+                                            <option value="medium">Medium</option>
+                                            <option value="hard">Hard</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            Questions
+                                        </label>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            max="30"
+                                            value={questionsCount}
+                                            onChange={(e) => setQuestionsCount(e.target.value)}
+                                            className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-green-400 outline-none"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Shuffle */}
+                                <div className="flex items-center gap-3">
+                                    <input
+                                        type="checkbox"
+                                        checked={shuffle}
+                                        onChange={() => setShuffle(!shuffle)}
+                                        className="w-4 h-4"
+                                    />
+                                    <span className="text-sm text-gray-700 font-medium">
+                                        Shuffle Questions
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Footer */}
+                            <div className="px-8 py-5 border-t border-gray-100">
                                 <button
                                     onClick={handleGenerateTest}
                                     disabled={isGenerating}
-                                    className="w-full py-4 bg-black text-white rounded-xl font-bold text-lg hover:bg-gray-800 transition-all shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    className="w-full py-3 rounded-xl bg-black text-white font-bold hover:bg-gray-800 transition active:scale-95 disabled:opacity-50"
                                 >
-                                    {isGenerating ? 'Generating...' : <><FaCheck /> Create Test</>}
+                                    {isGenerating ? "Generating..." : "Generate Test"}
                                 </button>
                             </div>
                         </div>
