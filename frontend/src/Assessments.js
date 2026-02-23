@@ -5,11 +5,30 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {
     FaClock, FaArrowLeft, FaCheck, FaChevronDown, FaChevronUp,
     FaBookOpen, FaPlayCircle, FaFileAlt, FaTrophy,
-    FaChartBar, FaPlus, FaTimes, FaTrash
+    FaChartBar, FaPlus, FaTimes, FaTrash, FaChevronRight
 } from 'react-icons/fa';
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 
 const SUBJECTS = ["Machine Learning", "Compiler Design", "Computer Networks", "Software Engineering", "Cloud Computing", "Web Engineering"];
+
+const CountUp = ({ end, duration = 2000 }) => {
+    const [count, setCount] = useState(0);
+
+    useEffect(() => {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            setCount(Math.floor(progress * end));
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
+    }, [end, duration]);
+
+    return <span>{count.toLocaleString()}</span>;
+};
 
 export default function Assessments() {
     const [selectedTestId, setSelectedTestId] = useState(null);
@@ -331,61 +350,179 @@ export default function Assessments() {
 
                 {/* --- MODALS --- */}
 
-                {/* Score Modal */}
+                {/* Score Modal - High Fidelity Redesign */}
                 {showScoreModal && (
-                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                        <div className="bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl animate-fade-in flex flex-col md:flex-row overflow-hidden">
-                            {/* Left: My Stats */}
-                            <div className="flex-1 p-8 border-r border-gray-100">
-                                <div className="flex justify-between items-start mb-6">
-                                    <h2 className="text-2xl font-bold text-gray-900">Your Performance</h2>
+                    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+                        <div className="bg-white rounded-[2.5rem] w-full max-w-5xl max-h-[90vh] overflow-hidden shadow-[0_32px_128px_-16px_rgba(0,0,0,0.3)] flex flex-col md:flex-row animate-in zoom-in-95 slide-in-from-bottom-8 duration-500">
+
+                            {/* Left: Performance Analysis */}
+                            <div className="flex-2 p-10 md:p-12 border-r border-gray-100 overflow-y-auto custom-scrollbar flex-shrink-0 md:w-[60%]">
+                                <header className="mb-10">
+                                    <h2 className="text-3xl font-black text-gray-900 tracking-tight">Your Performance</h2>
+                                    <p className="text-gray-400 text-sm mt-1 font-medium">Track your learning journey and milestones</p>
+                                </header>
+
+                                {/* Rewarding Score Card */}
+                                <div className="relative overflow-hidden bg-gradient-to-br from-green-500 to-emerald-600 rounded-[2rem] p-8 text-white mb-10 shadow-xl shadow-green-200/40">
+                                    <div className="absolute top-[-20%] right-[-5%] opacity-10 rotate-12">
+                                        <FaTrophy size={180} />
+                                    </div>
+                                    <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                                        <div className="text-center md:text-left">
+                                            <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 block mb-2">Total Accumulated Score</span>
+                                            <div className="flex items-baseline gap-2 justify-center md:justify-start">
+                                                <h3 className="text-6xl font-black tracking-tighter animate-in slide-in-from-bottom-2 duration-700">
+                                                    <CountUp end={user?.totalScore || 0} />
+                                                </h3>
+                                                <span className="text-xl font-bold opacity-60">pts</span>
+                                            </div>
+                                            <div className="mt-4 flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 w-fit mx-auto md:mx-0">
+                                                <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                                                <span className="text-[10px] font-black uppercase tracking-wider text-yellow-100">+250 XP earned today</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col items-center p-6 bg-white/10 backdrop-blur-xl rounded-[1.5rem] border border-white/20 min-w-[140px]">
+                                            <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-3">
+                                                <FaTrophy className="text-yellow-400 text-2xl" />
+                                            </div>
+                                            <span className="text-[9px] font-black uppercase tracking-widest opacity-70 mb-1">Current Rank</span>
+                                            <span className="text-2xl font-black">#12</span>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div className="mb-8 text-center bg-green-50 rounded-2xl p-6 border border-green-100">
-                                    <span className="text-gray-500 text-sm font-bold uppercase tracking-wider">Total Score</span>
-                                    <div className="text-5xl font-black text-green-600 mt-2">{user?.totalScore || 0}</div>
-                                    <p className="text-green-600/70 text-sm font-medium mt-1">Points Earned</p>
-                                </div>
+                                {/* Subject Breakdown - Horizontal Progress Bars */}
+                                <div className="space-y-8">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="font-black text-gray-900 text-sm uppercase tracking-widest flex items-center gap-2">
+                                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                                            Knowledge Mastery
+                                        </h3>
+                                        <div className="px-3 py-1 bg-gray-50 rounded-lg text-gray-400 font-black text-[9px] uppercase tracking-wider border border-gray-100">
+                                            By Subject
+                                        </div>
+                                    </div>
 
-                                <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><FaChartBar className="text-green-500" /> Subject Breakdown</h3>
-                                <div className="h-64 w-full">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={user?.subjectScores ? Object.entries(user.subjectScores).map(([k, v]) => ({ name: k.split(' ')[0], score: v })) : []}>
-                                            <defs>
-                                                <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#1dc962" stopOpacity={0.8} />
-                                                    <stop offset="95%" stopColor="#1dc962" stopOpacity={0} />
-                                                </linearGradient>
-                                            </defs>
-                                            <XAxis dataKey="name" fontSize={10} tick={{ fill: '#6b7280' }} />
-                                            <YAxis fontSize={10} tick={{ fill: '#6b7280' }} />
-                                            <RechartsTooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                                            <Bar dataKey="score" fill="url(#colorScore)" radius={[4, 4, 0, 0]} />
-                                        </BarChart>
-                                    </ResponsiveContainer>
+                                    <div className="space-y-6">
+                                        {user?.subjectScores ? Object.entries(user.subjectScores).map(([subject, score]) => (
+                                            <div key={subject} className="group">
+                                                <div className="flex justify-between items-center mb-2.5">
+                                                    <span className="text-sm font-bold text-gray-700 group-hover:text-gray-900 transition-colors">{subject}</span>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-[10px] font-black text-green-600 bg-green-50 px-2 py-0.5 rounded-md border border-green-100">{score} pts</span>
+                                                    </div>
+                                                </div>
+                                                <div className="h-2.5 w-full bg-gray-50 rounded-full overflow-hidden border border-gray-100/50 relative">
+                                                    <div
+                                                        className="h-full bg-gradient-to-r from-green-400 to-emerald-500 rounded-full transition-all duration-1000 ease-out shadow-[4px_0_12px_rgba(16,185,129,0.2)]"
+                                                        style={{ width: `${Math.min((score / 500) * 100, 100)}%` }} // Normalized example
+                                                    ></div>
+                                                </div>
+                                            </div>
+                                        )) : (
+                                            <div className="p-12 text-center border-2 border-dashed border-gray-100 rounded-[2rem]">
+                                                <p className="text-gray-300 text-sm italic font-medium">Complete an assessment to see your analytics</p>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {user?.subjectScores && Object.keys(user.subjectScores).length > 0 && (
+                                        <div className="grid grid-cols-2 gap-4 mt-10">
+                                            <div className="bg-blue-50/50 p-5 rounded-2xl border border-blue-100/50">
+                                                <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest block mb-2">Strongest Subject</span>
+                                                <span className="text-sm font-bold text-blue-900">
+                                                    {Object.entries(user.subjectScores).sort((a, b) => b[1] - a[1])[0][0]}
+                                                </span>
+                                            </div>
+                                            <div className="bg-purple-50/50 p-5 rounded-2xl border border-purple-100/50">
+                                                <span className="text-[9px] font-black text-purple-400 uppercase tracking-widest block mb-2">Active Streak</span>
+                                                <span className="text-sm font-bold text-purple-900">5 Days 🔥</span>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
-                            {/* Right: Leaderboard */}
-                            <div className="w-full md:w-96 bg-gray-50 p-8 flex flex-col">
-                                <div className="flex justify-between items-center mb-6">
-                                    <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2"><FaTrophy className="text-yellow-500" /> Leaderboard</h2>
-                                    <button onClick={() => setShowScoreModal(false)} className="text-gray-400 hover:text-gray-900"><FaTimes /></button>
+                            {/* Right: Leaderboard Section */}
+                            <div className="w-full md:w-[40%] bg-[#fafbfc] p-10 md:p-12 flex flex-col relative overflow-hidden">
+                                <div className="absolute top-10 right-10 opacity-[0.03] rotate-12 pointer-events-none">
+                                    <FaTrophy size={160} />
                                 </div>
 
-                                <div className="space-y-3 overflow-y-auto flex-1 pr-2 custom-scrollbar">
-                                    {leaderboard.map((lbUser, idx) => (
-                                        <div key={lbUser._id} className={`flex items-center gap-4 p-3 rounded-xl border ${lbUser._id === user?._id ? 'bg-green-100 border-green-200 ring-1 ring-green-200' : 'bg-white border-gray-100 shadow-sm'}`}>
-                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${idx < 3 ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500'}`}>
-                                                {idx + 1}
+                                <div className="flex justify-between items-center mb-10 relative z-10">
+                                    <div>
+                                        <h2 className="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-3 italic">
+                                            <FaTrophy className="text-yellow-400 text-xl" /> HALL OF FAME
+                                        </h2>
+                                        <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mt-1">Top performers this week</p>
+                                    </div>
+                                    <button
+                                        onClick={() => setShowScoreModal(false)}
+                                        className="w-10 h-10 rounded-full bg-white border border-gray-100 text-gray-400 hover:text-red-500 flex items-center justify-center transition-all shadow-sm hover:shadow-md hover:scale-110"
+                                    >
+                                        <FaTimes />
+                                    </button>
+                                </div>
+
+                                <div className="space-y-3 overflow-y-auto flex-1 pr-1 custom-scrollbar relative z-10">
+                                    {leaderboard.map((lbUser, idx) => {
+                                        const isCurrentUser = lbUser._id === user?._id;
+                                        return (
+                                            <div
+                                                key={lbUser._id}
+                                                className={`group flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300 ${isCurrentUser
+                                                    ? 'bg-white border-green-200 shadow-xl shadow-green-100/30 ring-1 ring-green-100 ring-offset-2'
+                                                    : 'bg-white border-gray-100 hover:border-green-100 shadow-sm hover:shadow-lg'
+                                                    }`}
+                                            >
+                                                {/* Rank Badge */}
+                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs transition-transform duration-300 group-hover:scale-110 ${idx === 0 ? 'bg-yellow-100 text-yellow-600 shadow-inner' :
+                                                    idx === 1 ? 'bg-gray-100 text-gray-500 shadow-inner' :
+                                                        idx === 2 ? 'bg-orange-50 text-orange-600 shadow-inner' :
+                                                            'bg-gray-50 text-gray-300'
+                                                    }`}>
+                                                    {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : idx + 1}
+                                                </div>
+
+                                                {/* Avatar + Info */}
+                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-gray-500 font-bold text-xs ring-2 ring-white overflow-hidden shrink-0">
+                                                    {lbUser.name?.[0]?.toUpperCase() || lbUser.email?.[0]?.toUpperCase() || "?"}
+                                                </div>
+
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="font-black text-gray-900 truncate text-[13px] tracking-tight">
+                                                        {lbUser.name || lbUser.email?.split('@')[0]}
+                                                        {isCurrentUser && <span className="ml-1.5 text-[9px] text-green-500 font-black tracking-widest">(YOU)</span>}
+                                                    </h4>
+                                                    <div className="flex items-center gap-2 mt-0.5">
+                                                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{lbUser.streak || 0}d streak</span>
+                                                        <div className="w-1 h-1 bg-gray-200 rounded-full"></div>
+                                                        <span className="text-[10px] text-green-500 font-black">↑ 2 ranks</span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="text-right">
+                                                    <div className="font-black text-[14px] text-gray-900 tracking-tighter">{lbUser.totalScore || 0}</div>
+                                                    <div className="text-[8px] font-black uppercase text-gray-400 tracking-widest">PTS</div>
+                                                </div>
                                             </div>
-                                            <div className="flex-1 min-w-0">
-                                                <h4 className="font-bold text-gray-900 truncate">{lbUser.name || lbUser.email?.split('@')[0]}</h4>
-                                                <p className="text-xs text-gray-500">{lbUser.streak || 0} Day Streak</p>
-                                            </div>
-                                            <div className="font-mono font-bold text-green-600">{lbUser.totalScore || 0} pts</div>
+                                        );
+                                    })}
+                                </div>
+
+                                {/* Pinned Rank Banner */}
+                                <div className="mt-8 bg-green-500 p-5 rounded-2xl flex items-center justify-between text-white shadow-xl shadow-green-200/50">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center font-black text-sm">#12</div>
+                                        <div>
+                                            <h5 className="text-[10px] font-black uppercase tracking-widest opacity-80">Your Global Rank</h5>
+                                            <p className="text-sm font-black">Top 5% Students</p>
                                         </div>
-                                    ))}
+                                    </div>
+                                    <div className="w-10 h-10 bg-white text-green-600 rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                                        <FaChevronUp />
+                                    </div>
                                 </div>
                             </div>
                         </div>
