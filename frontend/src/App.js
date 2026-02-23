@@ -20,6 +20,7 @@ import Terms from "./Terms";
 import SearchResults from "./SearchResults";
 import Profile from "./Profile";
 import AcademicAI from "./ai/AcademicAI";
+import TakeAssessment from './pages/TakeAssessment';
 
 
 function App() {
@@ -35,7 +36,7 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/search" element={<SearchResults />} />
-      
+
 
       {/* Routes with Persistent Sidebar + NoteProvider */}
       <Route
@@ -59,6 +60,7 @@ function App() {
 
       {/* Standalone Routes (Focus Mode) */}
       <Route path="/test-window/:testId" element={<TestWindow />} />
+      <Route path="/assessment/:id" element={<TakeAssessment />} />
 
     </Routes>
   );

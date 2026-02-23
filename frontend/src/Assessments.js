@@ -70,9 +70,7 @@ export default function Assessments() {
     }, []);
 
     const handleStartTest = (testId) => {
-        // Navigate to test window (implementation needed for actual test taking)
-        alert("Test taking interface not fully implemented in this migration yet.");
-        // navigate(`/test-window/${testId}`); 
+        navigate(`/assessment/${testId}`);
     };
 
     const handlePrepare = (subject) => {
