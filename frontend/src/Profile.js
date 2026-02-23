@@ -72,18 +72,28 @@ export default function Profile() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 px-6 py-10">
+    <div className="min-h-screen bg-transparent p-8">
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-10">
+          <header className="flex flex-col md:flex-row justify-between md:items-center gap-6">
+            <div className="space-y-2">
+              <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">
+                My Profile
+              </h1>
+              <p className="text-gray-500 text-lg">
+                Manage your personal information and account settings
+              </p>
+            </div>
 
-      {/* Back Button */}
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-[#1dc962] font-semibold mb-8 hover:opacity-80"
-      >
-        <FaArrowLeft />
-        Back to Dashboard
-      </button>
-
-      <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white border border-gray-200 text-gray-700 font-semibold hover:border-green-400 hover:text-green-600 shadow-sm hover:shadow-md transition-all duration-200"
+            >
+              <FaArrowLeft className="text-gray-400 transition-transform duration-300" />
+              Back
+            </button>
+          </header>
+        </div>
 
         {/* LEFT PROFILE CARD */}
         <div className="bg-white rounded-3xl shadow-xl p-8 flex flex-col items-center text-center relative">

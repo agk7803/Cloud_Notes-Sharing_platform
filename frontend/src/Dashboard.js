@@ -52,34 +52,37 @@ const Header = ({ user }) => {
   const navigate = useNavigate();
 
   return (
-    <>
-      <header className="flex justify-between items-center mb-6 relative">
+    <div className="mb-8">
+      <header className="flex flex-col md:flex-row justify-between md:items-center gap-6">
 
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+        <div className="space-y-2">
+          <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">
             Ready to learn,{" "}
             <span className="text-[#1dc962]">
               {user?.name?.split(" ")[0] || "Student"}
             </span>
             ?
           </h1>
+          <p className="text-gray-500 text-lg">
+            Good to see you back. Let's make progress today!
+          </p>
         </div>
 
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-4">
 
           {/* Notifications */}
           <div className="relative">
 
             <button
               onClick={() => setShowNotifs(!showNotifs)}
-              className="relative p-3 bg-white/60 rounded-xl shadow-sm hover:text-[#1dc962]"
+              className="relative p-3 bg-white rounded-xl shadow-sm hover:text-[#1dc962] border border-gray-100 transition-all"
             >
               <FaBell />
               <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
 
             {showNotifs && (
-              <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border p-4 z-50">
+              <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border p-4 z-50 animate-in fade-in slide-in-from-top-2">
                 <h4 className="font-bold mb-2">Notifications</h4>
                 <p className="text-sm text-gray-600">
                   No new notifications
@@ -92,9 +95,9 @@ const Header = ({ user }) => {
           {/* Profile */}
           <div
             onClick={() => navigate("/profile")}
-            className="w-11 h-11 rounded-full bg-green-100 p-0.5 cursor-pointer"
+            className="w-11 h-11 rounded-full bg-white p-0.5 cursor-pointer shadow-sm hover:shadow-md transition-all border border-gray-100"
           >
-            <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
+            <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
 
               {user?.profilePicture ? (
                 <img
@@ -108,19 +111,13 @@ const Header = ({ user }) => {
                 </span>
               )}
 
-
             </div>
           </div>
 
         </div>
 
       </header>
-
-
-      {/* Profile Modal */}
-
-
-    </>
+    </div>
   );
 };
 
@@ -350,18 +347,20 @@ export default function Dashboard() {
 
 
   useEffect(() => {
-
     const fetchAssessments = async () => {
       try {
         const res = await api.get('/assessments');
-        setAssessments(res.data.slice(0, 3));
+        // Sort by most recent first
+        const sorted = (res.data || []).sort((a, b) =>
+          new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+        );
+        setAssessments(sorted.slice(0, 2));
       } catch (err) {
         console.error(err);
       }
     };
 
     fetchAssessments();
-
   }, []);
 
 

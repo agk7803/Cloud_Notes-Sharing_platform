@@ -28,6 +28,24 @@ router.get("/", protect, async (req, res) => {
     }
 });
 
+router.get("/:id", protect, async (req, res) => {
+    try {
+        const assessment = await Assessment.findOne({
+            _id: req.params.id,
+            createdBy: req.user.uid
+        });
+
+        if (!assessment) {
+            return res.status(404).json({ message: "Assessment not found" });
+        }
+
+        res.json(assessment);
+    } catch (error) {
+        console.error("GET ASSESSMENT ERROR:", error);
+        res.status(500).json({ message: "Failed to fetch assessment" });
+    }
+});
+
 router.delete("/:id", protect, async (req, res) => {
     try {
         const assessment = await Assessment.findOne({

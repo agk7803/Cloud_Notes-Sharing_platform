@@ -42,24 +42,19 @@ function AcademicAI() {
   return (
     <div className="relative min-h-screen w-full flex flex-col">
 
-      {/* 🌈 Background */}
-      <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_30%_20%,#60a5fa,transparent_40%),radial-gradient(circle_at_70%_80%,#f97316,transparent_40%),radial-gradient(circle_at_50%_50%,#a78bfa,transparent_40%)] bg-gray-50" />
-
       {/* 🔹 HEADER */}
-      <div
-        className={`px-8 pt-10 transition-all duration-500 ${
-          hasStarted ? "text-left" : "flex flex-col items-center justify-center flex-1 text-center"
-        }`}
-      >
-        <h1 className="text-4xl font-bold text-gray-800">
-          🎓 Academic AI
-        </h1>
+      <div className={`px-8 pt-10 transition-all duration-500 ${hasStarted ? "w-full" : "flex flex-col items-center justify-center flex-1"}`}>
+        <div className={`w-full max-w-5xl mx-auto mb-8 transition-all duration-300 ${!hasStarted ? "text-center" : ""}`}>
+          <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">
+            🎓 Academic AI
+          </h1>
 
-        {!hasStarted && (
-          <p className="text-gray-600 mt-3">
-            Ask doubts, generate summaries, and prepare smarter.
-          </p>
-        )}
+          {!hasStarted && (
+            <p className="text-gray-500 text-lg mt-3">
+              Ask doubts, generate summaries, and prepare smarter.
+            </p>
+          )}
+        </div>
       </div>
 
       {/* 🔹 MESSAGES */}
@@ -69,9 +64,8 @@ function AcademicAI() {
           {chat.map((msg, index) => (
             <div
               key={index}
-              className={`flex ${
-                msg.role === "user" ? "justify-end" : "justify-start"
-              }`}
+              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"
+                }`}
             >
               {msg.role === "user" ? (
                 <div className="bg-black text-white px-5 py-3 rounded-2xl max-w-md shadow">

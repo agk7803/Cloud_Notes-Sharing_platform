@@ -175,7 +175,7 @@ export default function Layout() {
     };
 
     return (
-        <div className="flex min-h-screen bg-gradient-to-br from-[#1dc962]/40 via-[#1dc962]/20 to-gray-200 text-gray-800">
+        <div className="flex min-h-screen bg-gradient-to-r from-green-100 to-emerald-200 text-gray-800">
 
             {/* Sidebar */}
             <Sidebar

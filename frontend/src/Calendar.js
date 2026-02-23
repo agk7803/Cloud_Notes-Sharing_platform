@@ -172,14 +172,16 @@ export default function Calendar() {
             <aside className="w-full lg:w-1/3 flex flex-col gap-6 h-full overflow-y-auto no-scrollbar">
 
                 {/* Header / Profile Context */}
-                <div className="flex items-center justify-between mb-2">
-                    <div>
-                        <h1 className="text-2xl font-black text-black tracking-tight">My Calendar</h1>
-                        <p className="text-sm text-gray-500">Don't miss scheduled events</p>
+                <div className="mb-2">
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                            <h1 className="text-xl font-extrabold tracking-tight text-gray-900">My Calendar</h1>
+                            <p className="text-xs text-gray-500">Scheduled events</p>
+                        </div>
+                        <button onClick={() => setShowAddModal(true)} className="w-10 h-10 bg-white rounded-xl shadow-sm border border-gray-100 flex items-center justify-center text-gray-600 hover:text-[#1dc962] transition-all hover:rotate-90">
+                            <FaPlus />
+                        </button>
                     </div>
-                    <button onClick={() => setShowAddModal(true)} className="w-10 h-10 bg-white rounded-xl shadow-sm border border-gray-100 flex items-center justify-center text-gray-600 hover:text-[#1dc962] transition-colors">
-                        <FaPlus />
-                    </button>
                 </div>
 
                 {showAddModal && <AddEventModal onClose={() => setShowAddModal(false)} onAdd={handleAddEvent} />}

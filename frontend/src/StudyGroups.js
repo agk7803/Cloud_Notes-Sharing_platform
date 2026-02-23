@@ -101,18 +101,23 @@ export default function StudyGroups() {
     return (
         <div className="min-h-screen p-8">
             <div className="max-w-6xl mx-auto">
-                <header className="mb-10 flex justify-between items-end">
-                    <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Study Groups</h1>
-                        <p className="text-gray-500 mt-1">Collaborate, discuss, and prepare with peers.</p>
-                    </div>
-                    <button
-                        onClick={() => setShowCreateModal(true)}
-                        className="bg-black text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-800 transition-colors shadow-sm flex items-center gap-2"
-                    >
-                        <FaPlus /> Create New Group
-                    </button>
-                </header>
+                <div className="mb-10">
+                    <header className="flex flex-col md:flex-row justify-between md:items-center gap-6">
+                        <div className="space-y-2">
+                            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">
+                                Study Groups
+                            </h1>
+                            <p className="text-gray-500 text-lg">Collaborate and prepare with peers.</p>
+                        </div>
+                        <button
+                            onClick={() => setShowCreateModal(true)}
+                            className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-black text-white font-semibold hover:bg-gray-800 hover:shadow-xl shadow-lg active:scale-95 transition-all duration-200"
+                        >
+                            <FaPlus className="transition-transform duration-300 group-hover:rotate-90" />
+                            Create New Group
+                        </button>
+                    </header>
+                </div>
 
                 {showCreateModal && <CreateGroupModal onClose={() => setShowCreateModal(false)} onCreated={handleCreate} />}
 

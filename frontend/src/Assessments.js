@@ -151,7 +151,7 @@ export default function Assessments() {
         <div className="min-h-screen p-8">
             <div className="max-w-5xl mx-auto">
                 <div className="max-w-7xl mx-auto">
-                    <div className="bg-gradient-to-r from-green-50 to-emerald-100 p-8 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                    <div className="mb-10 transition-all duration-300">
 
                         <header className="flex flex-col md:flex-row justify-between md:items-center gap-6">
 
@@ -394,162 +394,198 @@ export default function Assessments() {
                     </div>
                 )}
 
+                {/* Generate AI Test Drawer */}
                 {showGenerateModal && (
-                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-                        <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl relative overflow-hidden">
+                    <div className="fixed inset-0 z-50 overflow-hidden">
+                        {/* Backdrop */}
+                        <div
+                            className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300"
+                            onClick={() => setShowGenerateModal(false)}
+                        ></div>
 
-                            {/* Header */}
-                            <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-center">
-                                <div>
-                                    <h2 className="text-2xl font-bold text-gray-900">
-                                        Generate AI Test
-                                    </h2>
-                                    <p className="text-sm text-gray-500">
-                                        Upload material and customize your assessment.
-                                    </p>
-                                </div>
-
-                                <button
-                                    onClick={() => setShowGenerateModal(false)}
-                                    className="text-gray-400 hover:text-gray-900 transition"
-                                >
-                                    <FaTimes size={18} />
-                                </button>
-                            </div>
-
-                            {/* Body */}
-                            <div className="px-8 py-6 space-y-6 max-h-[70vh] overflow-y-auto">
-
-                                {/* Upload */}
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                        Upload Material
-                                    </label>
-
-                                    <label className="flex flex-col items-center justify-center w-full p-6 border-2 border-dashed border-gray-300 rounded-2xl cursor-pointer hover:border-green-400 hover:bg-green-50 transition">
-                                        <input
-                                            type="file"
-                                            accept=".pdf,.doc,.docx,.ppt,.pptx"
-                                            className="hidden"
-                                            onChange={(e) => setSelectedFile(e.target.files[0])}
-                                        />
-
-                                        <span className="text-gray-500 text-sm">
-                                            Click to upload PDF, DOCX, PPT
-                                        </span>
-
-                                        {selectedFile && (
-                                            <span className="mt-2 text-green-600 text-xs font-medium">
-                                                {selectedFile.name}
-                                            </span>
-                                        )}
-                                    </label>
-                                </div>
-
-                                {/* Subject */}
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                        Subject
-                                    </label>
-                                    <select
-                                        value={genSubject}
-                                        onChange={(e) => setGenSubject(e.target.value)}
-                                        className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-green-400 outline-none"
-                                    >
-                                        {SUBJECTS.map((s) => (
-                                            <option key={s} value={s}>
-                                                {s}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-
-                                {/* Test Type */}
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-3">
-                                        Test Type
-                                    </label>
-
-                                    <div className="grid grid-cols-2 gap-3">
+                        {/* Drawer Panel */}
+                        <div className="absolute inset-y-0 right-0 max-w-full flex">
+                            <div className="relative w-screen max-w-[460px] transform transition-transform duration-500 ease-in-out">
+                                <div className="h-full flex flex-col bg-white shadow-2xl">
+                                    {/* Header */}
+                                    <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
+                                        <div>
+                                            <h2 className="text-xl font-bold text-gray-900">Generate AI Test</h2>
+                                            <p className="text-xs text-gray-500 font-medium">Create an assessment with AI</p>
+                                        </div>
                                         <button
-                                            type="button"
-                                            onClick={() => setGenType("mcq")}
-                                            className={`p-3 rounded-xl border font-semibold transition ${genType === "mcq"
-                                                ? "bg-green-100 border-green-500 text-green-700"
-                                                : "bg-white border-gray-200 text-gray-500 hover:bg-gray-50"
-                                                }`}
+                                            onClick={() => setShowGenerateModal(false)}
+                                            className="p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-900 transition-colors"
                                         >
-                                            MCQ
-                                        </button>
-
-                                        <button
-                                            type="button"
-                                            onClick={() => setGenType("written")}
-                                            className={`p-3 rounded-xl border font-semibold transition ${genType === "written"
-                                                ? "bg-green-100 border-green-500 text-green-700"
-                                                : "bg-white border-gray-200 text-gray-500 hover:bg-gray-50"
-                                                }`}
-                                        >
-                                            Written
+                                            <FaTimes size={18} />
                                         </button>
                                     </div>
-                                </div>
 
-                                {/* Difficulty + Questions */}
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                            Difficulty
-                                        </label>
-                                        <select
-                                            value={difficulty}
-                                            onChange={(e) => setDifficulty(e.target.value)}
-                                            className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-green-400 outline-none"
+                                    {/* Scrollable Body */}
+                                    <div className="flex-1 overflow-y-auto px-6 py-8 custom-scrollbar">
+                                        <div className="space-y-6">
+                                            {/* Upload Section */}
+                                            <div className="space-y-3">
+                                                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                                    Source Material
+                                                </label>
+                                                <div className="relative">
+                                                    <label className="flex flex-col items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-green-400 hover:bg-green-50/50 transition-all group">
+                                                        <input
+                                                            type="file"
+                                                            accept=".pdf,.doc,.docx,.ppt,.pptx"
+                                                            className="hidden"
+                                                            onChange={(e) => setSelectedFile(e.target.files[0])}
+                                                        />
+                                                        <div className="flex flex-col items-center gap-2">
+                                                            <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-green-100 group-hover:text-green-600 transition-colors">
+                                                                <FaFileAlt size={20} />
+                                                            </div>
+                                                            <span className="text-sm font-medium text-gray-600">
+                                                                Click to upload or drag & drop
+                                                            </span>
+                                                            <span className="text-[10px] text-gray-400">
+                                                                PDF, DOCX, or PPTX (Max 20MB)
+                                                            </span>
+                                                        </div>
+                                                    </label>
+
+                                                    {selectedFile && (
+                                                        <div className="mt-3 flex items-center justify-between p-2 bg-green-50 rounded-xl border border-green-100 animate-in fade-in slide-in-from-top-1">
+                                                            <div className="flex items-center gap-2 min-w-0">
+                                                                <div className="p-1.5 bg-green-100 text-green-700 rounded-lg shrink-0">
+                                                                    <FaCheck size={10} />
+                                                                </div>
+                                                                <span className="text-xs font-medium text-green-800 truncate">
+                                                                    {selectedFile.name}
+                                                                </span>
+                                                            </div>
+                                                            <button
+                                                                onClick={() => setSelectedFile(null)}
+                                                                className="p-1 hover:bg-green-100 text-green-600 rounded-md transition-colors"
+                                                            >
+                                                                <FaTimes size={12} />
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Subject */}
+                                            <div className="space-y-2">
+                                                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                                    Subject Category
+                                                </label>
+                                                <select
+                                                    value={genSubject}
+                                                    onChange={(e) => setGenSubject(e.target.value)}
+                                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-medium focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
+                                                >
+                                                    {SUBJECTS.map((s) => (
+                                                        <option key={s} value={s}>{s}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+
+                                            {/* Test Type - Segmented Control */}
+                                            <div className="space-y-2">
+                                                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                                    Assessment Format
+                                                </label>
+                                                <div className="flex p-1 bg-gray-100 rounded-xl">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setGenType("mcq")}
+                                                        className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${genType === "mcq"
+                                                            ? "bg-white shadow-sm text-green-600"
+                                                            : "text-gray-500 hover:text-gray-700"
+                                                            }`}
+                                                    >
+                                                        Multiple Choice
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setGenType("written")}
+                                                        className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${genType === "written"
+                                                            ? "bg-white shadow-sm text-green-600"
+                                                            : "text-gray-500 hover:text-gray-700"
+                                                            }`}
+                                                    >
+                                                        Written Answer
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {/* Difficulty + Questions */}
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-2">
+                                                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                                        Difficulty
+                                                    </label>
+                                                    <select
+                                                        value={difficulty}
+                                                        onChange={(e) => setDifficulty(e.target.value)}
+                                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-medium focus:ring-2 focus:ring-green-500 outline-none transition-all"
+                                                    >
+                                                        <option value="easy">Easy</option>
+                                                        <option value="medium">Medium</option>
+                                                        <option value="hard">Hard</option>
+                                                    </select>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                                        Questions
+                                                    </label>
+                                                    <input
+                                                        type="number"
+                                                        min="1"
+                                                        max="30"
+                                                        value={questionsCount}
+                                                        onChange={(e) => setQuestionsCount(e.target.value)}
+                                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-medium focus:ring-2 focus:ring-green-500 outline-none transition-all"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            {/* Shuffle Contol */}
+                                            <label className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={shuffle}
+                                                    onChange={() => setShuffle(!shuffle)}
+                                                    className="w-4 h-4 rounded-md accent-green-600 focus:ring-green-500"
+                                                />
+                                                <span className="text-sm font-medium text-gray-700">
+                                                    Shuffle Question Order
+                                                </span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    {/* Sticky Footer */}
+                                    <div className="px-6 py-6 border-t border-gray-100 sticky bottom-0 bg-white">
+                                        <button
+                                            onClick={handleGenerateTest}
+                                            disabled={isGenerating}
+                                            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                         >
-                                            <option value="easy">Easy</option>
-                                            <option value="medium">Medium</option>
-                                            <option value="hard">Hard</option>
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                            Questions
-                                        </label>
-                                        <input
-                                            type="number"
-                                            min="1"
-                                            max="30"
-                                            value={questionsCount}
-                                            onChange={(e) => setQuestionsCount(e.target.value)}
-                                            className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-green-400 outline-none"
-                                        />
+                                            {isGenerating ? (
+                                                <>
+                                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                                    <span>Generating...</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <span>Generate Assessment</span>
+                                                    <FaPlayCircle />
+                                                </>
+                                            )}
+                                        </button>
+                                        <p className="text-[10px] text-gray-400 text-center mt-3">
+                                            AI-generated tests can take up to 30 seconds to process.
+                                        </p>
                                     </div>
                                 </div>
-
-                                {/* Shuffle */}
-                                <div className="flex items-center gap-3">
-                                    <input
-                                        type="checkbox"
-                                        checked={shuffle}
-                                        onChange={() => setShuffle(!shuffle)}
-                                        className="w-4 h-4"
-                                    />
-                                    <span className="text-sm text-gray-700 font-medium">
-                                        Shuffle Questions
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* Footer */}
-                            <div className="px-8 py-5 border-t border-gray-100">
-                                <button
-                                    onClick={handleGenerateTest}
-                                    disabled={isGenerating}
-                                    className="w-full py-3 rounded-xl bg-black text-white font-bold hover:bg-gray-800 transition active:scale-95 disabled:opacity-50"
-                                >
-                                    {isGenerating ? "Generating..." : "Generate Test"}
-                                </button>
                             </div>
                         </div>
                     </div>

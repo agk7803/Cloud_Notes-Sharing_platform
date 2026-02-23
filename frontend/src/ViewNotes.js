@@ -212,21 +212,28 @@ export default function ViewNotes() {
 
         {/* HEADER */}
 
-        <header className="mb-8 flex justify-between items-end">
+        <div className="mb-8">
+          <header className="flex flex-col md:flex-row justify-between md:items-center gap-6">
 
-          <div>
-            <h1 className="text-3xl font-bold">My Notes</h1>
-            <p className="text-gray-500">Manage and view your study materials</p>
-          </div>
+            <div className="space-y-2">
+              <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">
+                My Notes
+              </h1>
+              <p className="text-gray-500 text-lg">
+                Manage and view your study materials
+              </p>
+            </div>
 
-          <button
-            onClick={() => setIsUploadOpen(true)}
-            className="bg-black text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2"
-          >
-            <FaPlus /> Upload Note
-          </button>
+            <button
+              onClick={() => setIsUploadOpen(true)}
+              className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-black text-white font-semibold hover:bg-gray-800 hover:shadow-xl shadow-lg active:scale-95 transition-all duration-200"
+            >
+              <FaPlus className="transition-transform duration-300 group-hover:rotate-90" />
+              Upload Note
+            </button>
 
-        </header>
+          </header>
+        </div>
 
 
         {/* TOOLBAR */}
