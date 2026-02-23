@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
+import api from "./api/axios";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {
     FaClock, FaArrowLeft, FaCheck, FaChevronDown, FaChevronUp,
     FaBookOpen, FaPlayCircle, FaFileAlt, FaTrophy,
     FaChartBar, FaPlus, FaTimes, FaTrash
 } from 'react-icons/fa';
-import api from './api/axios';
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 
 const SUBJECTS = ["Machine Learning", "Compiler Design", "Computer Networks", "Software Engineering", "Cloud Computing", "Web Engineering"];
@@ -15,6 +16,7 @@ export default function Assessments() {
     const [showScoreModal, setShowScoreModal] = useState(false);
     const [showGenerateModal, setShowGenerateModal] = useState(false);
     const [userNotes, setUserNotes] = useState([]);
+
 
     // Data State
     const [generatedTests, setGeneratedTests] = useState([]);
@@ -32,23 +34,39 @@ export default function Assessments() {
     const navigate = useNavigate();
     const { user } = useOutletContext(); // Get user from Layout context
 
-    // Fetch Data
+    console.log("Tests:", generatedTests);
+    console.log("Notes:", userNotes);
+
+
     useEffect(() => {
-        const fetchData = async () => {
+        const auth = getAuth();
+
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (!user) return;
+
             try {
-                // Fetch Assessments
-                const testsRes = await api.get('/assessments');
+                const testsRes = await api.get("/assessments");
                 setGeneratedTests(testsRes.data);
-
-                // Fetch Leaderboard
-                const lbRes = await api.get('/auth/leaderboard');
-                setLeaderboard(lbRes.data);
-            } catch (error) {
-                console.error("Error fetching assessment data:", error);
+            } catch (err) {
+                console.error("Assessments error:", err);
             }
-        };
 
-        fetchData();
+            try {
+                const lbRes = await api.get("/auth/leaderboard");
+                setLeaderboard(lbRes.data);
+            } catch (err) {
+                console.error("Leaderboard error:", err);
+            }
+
+            try {
+                const notesRes = await api.get("/notes");
+                setUserNotes(notesRes.data);
+            } catch (err) {
+                console.error("Notes error:", err);
+            }
+        });
+
+        return () => unsubscribe();
     }, []);
 
     const handleStartTest = (testId) => {
@@ -225,19 +243,35 @@ export default function Assessments() {
                                             <h4 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-4">
                                                 <FaBookOpen className="text-green-500" /> Recommended Study Material
                                             </h4>
-                                            {test.materials && test.materials.length > 0 ? (
+                                            {userNotes.filter(note =>
+                                                note.subject?.toLowerCase() === test.subject?.toLowerCase()
+                                            ).length > 0 ? (
+
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                    {test.materials.map((mat, idx) => (
-                                                        <div key={idx} className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-200 hover:border-green-200 cursor-pointer transition-colors group">
-                                                            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center text-sm">
-                                                                {mat.type === 'video' ? <FaPlayCircle /> : <FaFileAlt />}
+                                                    {userNotes
+                                                        .filter(note =>
+                                                            note.subject?.toLowerCase() === test.subject?.toLowerCase()
+                                                        )
+                                                        .map(note => (
+                                                            <div
+                                                                key={note._id}
+                                                                className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-200 hover:border-green-200 transition"
+                                                            >
+                                                                <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center text-sm">
+                                                                    <FaFileAlt />
+                                                                </div>
+
+                                                                <span className="text-sm font-medium text-gray-700">
+                                                                    {note.title}
+                                                                </span>
                                                             </div>
-                                                            <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">{mat.title}</span>
-                                                        </div>
-                                                    ))}
+                                                        ))}
                                                 </div>
+
                                             ) : (
-                                                <p className="text-xs text-gray-400 italic">No specific materials linked. Check the main notes.</p>
+                                                <p className="text-xs text-gray-400 italic">
+                                                    No notes available for this subject.
+                                                </p>
                                             )}
                                         </div>
 

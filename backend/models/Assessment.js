@@ -17,8 +17,8 @@ const assessmentSchema = new mongoose.Schema(
         duration: Number,
         questions: [questionSchema],
         createdBy: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
+            type: String,
+            required: true
         },
     },
     { timestamps: true }

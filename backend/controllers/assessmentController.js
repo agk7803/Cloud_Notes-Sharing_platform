@@ -174,7 +174,7 @@ ${extractedText}
             difficulty,
             duration: type === "mcq" ? 30 : 60,
             questions,
-            createdBy: req.user._id,
+            createdBy: req.user.uid,
         });
 
         // =========================================

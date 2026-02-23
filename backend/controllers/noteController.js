@@ -79,7 +79,12 @@ const getNotes = async (req, res) => {
             query = { sharedGroups: groupId };
         }
 
-        const notes = await Note.find(query).sort({ createdAt: -1 });
+
+        const notes = await Note.find({
+            authorId: req.user.uid
+        }).sort({ createdAt: -1 });
+
+        console.log("Found notes:", notes.length);
 
         // Generate Signed URLs for each note
         const notesWithSignedUrls = await Promise.all(notes.map(async (note) => {

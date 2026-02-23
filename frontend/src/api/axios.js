@@ -2,17 +2,21 @@ import axios from "axios";
 import { getAuth } from "firebase/auth";
 
 const api = axios.create({
-    baseURL: "http://localhost:5050/api", // adjust if needed
+    baseURL: "http://localhost:5050/api",
 });
 
-// 🔥 Attach fresh Firebase token automatically
 api.interceptors.request.use(async (config) => {
     const auth = getAuth();
-    const currentUser = auth.currentUser;
+    const user = auth.currentUser;
 
-    if (currentUser) {
-        const token = await currentUser.getIdToken(true); // force refresh
+    console.log("Interceptor user:", user);
+
+    if (user) {
+        const token = await user.getIdToken();
+        console.log("Attaching token...");
         config.headers.Authorization = `Bearer ${token}`;
+    } else {
+        console.log("No user found in interceptor");
     }
 
     return config;

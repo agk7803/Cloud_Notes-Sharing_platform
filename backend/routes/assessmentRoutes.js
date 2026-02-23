@@ -18,7 +18,7 @@ router.get("/", protect, async (req, res) => {
         console.log("User from GET:", req.user);
 
         const assessments = await Assessment.find({
-            createdBy: req.user._id
+            createdBy: req.user.uid
         }).sort({ createdAt: -1 });
 
         res.json(assessments);
@@ -32,7 +32,7 @@ router.delete("/:id", protect, async (req, res) => {
     try {
         const assessment = await Assessment.findOne({
             _id: req.params.id,
-            createdBy: req.user._id
+            createdBy: req.user.uid
         });
 
         if (!assessment) {

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from './api/axios';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const NoteContext = createContext();
 
@@ -21,9 +22,19 @@ export const NoteProvider = ({ children }) => {
         }
     };
 
-    // Initial fetch of all notes (public + private)
     useEffect(() => {
-        fetchNotes();
+        const auth = getAuth();
+
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                fetchNotes();   // fetch only after user exists
+            } else {
+                setNotes([]);
+                setLoading(false);
+            }
+        });
+
+        return () => unsubscribe();
     }, []);
 
     const addNote = async (newNoteData) => {
