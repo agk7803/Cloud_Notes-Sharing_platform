@@ -58,6 +58,43 @@
 
 ---
 
+## 📁 Project Structure
+
+```
+Cloud_Notes-Sharing_platform/
+├── backend/
+│   ├── index.js                 # Express + Socket.IO entry point
+│   └── src/
+│       ├── config/              # DB, Firebase, S3, Gemini configs
+│       ├── controllers/         # Route handlers
+│       ├── middleware/          # Auth middleware, file upload
+│       ├── models/              # Mongoose schemas
+│       ├── routes/              # Express route definitions
+│       ├── services/            # AI service layer
+│       └── sockets/             # Socket.IO event handlers
+│
+├── frontend/src/
+│   ├── index.js                 # React entry point
+│   ├── app/                     # App.js (routing)
+│   ├── assets/                  # Images and static files
+│   ├── services/                # Axios API client, Firebase config
+│   ├── shared/                  # Layout, MiniCalendar
+│   ├── utils/                   # Utility functions
+│   └── features/
+│       ├── auth/                # Login, Register
+│       ├── dashboard/           # Dashboard
+│       ├── notes/               # ViewNotes, UploadModal, NoteContext
+│       ├── groups/              # StudyGroups, GroupPage, GroupChat
+│       ├── assessments/         # Assessments, TakeAssessment, TestWindow
+│       ├── calendar/            # Calendar
+│       ├── ai/                  # AcademicAI, ChatMessage, ModeSelector
+│       ├── profile/             # Profile
+│       └── landing/             # Landing, About, Contact, Privacy, Terms
+└── package.json                 # Root scripts (concurrent dev)
+```
+
+---
+
 ## 🚀 Getting Started
 
 ### Prerequisites

@@ -6,14 +6,14 @@ const cors = require('cors');
 const http = require('http');
 const { Server } = require('socket.io');
 
-const connectDB = require('./config/db');
-const noteRoutes = require('./routes/noteRoutes');
-const groupRoutes = require('./routes/groupRoutes');
-const uploadRoutes = require('./routes/uploadRoutes');
-const Chat = require('./models/Chat');
-const userRoutes = require("./routes/userRoutes");
-const aiRoutes = require("./routes/aiRoutes"); // ✅ CORRECT (CommonJS)
-const assessmentRoutes = require("./routes/assessmentRoutes");
+const connectDB = require('./src/config/db');
+const noteRoutes = require('./src/routes/noteRoutes');
+const groupRoutes = require('./src/routes/groupRoutes');
+const uploadRoutes = require('./src/routes/uploadRoutes');
+const userRoutes = require("./src/routes/userRoutes");
+const aiRoutes = require("./src/routes/aiRoutes");
+const assessmentRoutes = require("./src/routes/assessmentRoutes");
+const setupSocket = require('./src/sockets/socketHandler');
 
 
 /* ================= INIT ================= */
@@ -33,6 +33,8 @@ const io = new Server(server, {
     }
 });
 
+setupSocket(io);
+
 
 /* ================= MIDDLEWARE ================= */
 
@@ -46,104 +48,8 @@ app.use('/api/notes', noteRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api', aiRoutes);   // ✅ Academic AI will be /api/academic-chat
+app.use('/api', aiRoutes);
 app.use("/api/assessments", assessmentRoutes);
-
-
-/* ================= SOCKET LOGIC ================= */
-
-io.on('connection', (socket) => {
-
-    console.log("User Connected:", socket.id);
-
-    socket.on('join_group', (groupId) => {
-        if (!groupId) return;
-        socket.join(groupId);
-        console.log(`User ${socket.id} joined group ${groupId}`);
-    });
-
-    socket.on('send_message', async (data) => {
-        try {
-            if (!data?.groupId || !data?.message) return;
-
-            const newChat = await Chat.create({
-                groupId: data.groupId,
-                senderId: data.senderId,
-                senderName: data.senderName,
-                message: data.message,
-                messageType: data.messageType || 'text',
-                audioUrl: data.audioUrl || null
-            });
-
-            io.to(data.groupId).emit('receive_message', newChat);
-
-        } catch (error) {
-            console.error("Chat Send Error:", error);
-        }
-    });
-
-    socket.on("edit_message", async ({ messageId, newContent, groupId }) => {
-        try {
-            if (!messageId || !groupId) return;
-
-            const updatedChat = await Chat.findByIdAndUpdate(
-                messageId,
-                { message: newContent },
-                { new: true }
-            );
-
-            if (updatedChat) {
-                io.to(groupId).emit("message_updated", updatedChat);
-            }
-
-        } catch (error) {
-            console.error("Socket Edit Error:", error);
-        }
-    });
-
-    socket.on("delete_message", async ({ messageId, groupId }) => {
-        try {
-            if (!messageId || !groupId) return;
-
-            await Chat.findByIdAndDelete(messageId);
-            io.to(groupId).emit("message_deleted", messageId);
-
-        } catch (error) {
-            console.error("Socket Delete Error:", error);
-        }
-    });
-
-    /* ================= VOICE SIGNALING ================= */
-
-    socket.on("join_voice", (roomId) => {
-        if (!roomId) return;
-        socket.join(roomId);
-        socket.to(roomId).emit("user_joined_voice", socket.id);
-    });
-
-    socket.on("offer", (payload) => {
-        if (payload?.target) {
-            io.to(payload.target).emit("offer", payload);
-        }
-    });
-
-    socket.on("answer", (payload) => {
-        if (payload?.target) {
-            io.to(payload.target).emit("answer", payload);
-        }
-    });
-
-    socket.on("ice-candidate", (payload) => {
-        if (payload?.target) {
-            io.to(payload.target).emit("ice-candidate", payload);
-        }
-    });
-
-    socket.on('disconnect', () => {
-        console.log("User Disconnected:", socket.id);
-    });
-
-});
 
 
 /* ================= ERROR HANDLER ================= */
