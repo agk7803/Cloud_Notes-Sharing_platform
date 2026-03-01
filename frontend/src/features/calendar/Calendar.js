@@ -1,298 +1,414 @@
-import React, { useState } from 'react';
-import { FaChevronLeft, FaChevronRight, FaClock, FaClipboardList, FaBook, FaUsers, FaPlus } from 'react-icons/fa';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { useOutletContext } from 'react-router-dom';
+import api from '../../services/api';
+import "../../styles/Calendar.css";
 
-// Helper to format date as YYYY-MM-DD
-const formatDate = (date) => {
-    return date.toISOString().split('T')[0];
+/* ════════════════════════════════════════
+   STATIC DATA
+════════════════════════════════════════ */
+const INITIAL_EVENTS = [];
+
+const TYPES = ['study', 'exam', 'deadline', 'group'];
+const TYPE_LABEL = { exam: 'Exam', study: 'Study', group: 'Group', deadline: 'Deadline' };
+const TYPE_ICON = { exam: '📋', study: '📖', group: '👥', deadline: '⏰' };
+const TYPE_EMOJI = { study: '📖 Study', exam: '📋 Exam', deadline: '⏰ Deadline', group: '👥 Group' };
+const TYPE_BG = { exam: '#7ec8c8', study: '#7ec8c8', group: '#7ec8c8', deadline: '#7ec8c8' };
+const TYPE_FG = { exam: '#1a1a2e', study: '#1a1a2e', group: '#1a1a2e', deadline: '#1a1a2e' };
+
+const todayStr = new Date().toLocaleDateString('en-CA');
+const streakDays = [todayStr, new Date(Date.now() - 86400000).toLocaleDateString('en-CA')];
+
+function Logo({ size = 20 }) {
+    return (
+        <span className="bs-logo" style={{ fontSize: size }}>
+            <span className="bs-logo__bracket">[</span>
+            <span className="bs-logo__text">byte</span>
+            <span className="bs-logo__dot">.</span>
+            <span className="bs-logo__text">scholar</span>
+            <span className="bs-logo__bracket">]</span>
+        </span>
+    );
+}
+
+const fmt = (y, m, d) => new Date(y, m, d).toLocaleDateString('en-CA');
+const fmt12 = (t) => {
+    const [h, min] = t.split(':');
+    const hr = +h;
+    return `${hr % 12 || 12}:${min} ${hr >= 12 ? 'PM' : 'AM'}`;
 };
 
-const EVENTS = [
-    { id: 1, title: 'Cloud Computing Midterm', type: 'exam', time: '10:00 AM', duration: '90 min', date: '2026-02-12' },
-    { id: 2, title: 'AI Study Group', type: 'group', time: '2:00 PM', duration: '1h', date: '2026-02-05' },
-    { id: 3, title: 'Web Eng Project Due', type: 'deadline', time: '11:59 PM', duration: '', date: '2026-02-14' },
-    { id: 4, title: 'Compiler Design Lab', type: 'study', time: '4:00 PM', duration: '2h', date: '2026-02-18' },
-    { id: 5, title: 'Data Mining Quiz', type: 'exam', time: '1:00 PM', duration: '45 min', date: '2026-02-25' },
-    { id: 6, title: 'Soft Computing Lab', type: 'group', time: '1:00 PM', duration: '2h', date: '2026-03-05' },
-];
-
-const AddEventModal = ({ onClose, onAdd }) => {
-    const [title, setTitle] = useState('');
-    const [type, setType] = useState('study');
-    const [date, setDate] = useState('');
-    const [time, setTime] = useState('');
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onAdd({
-            id: Date.now(),
-            title,
-            type,
-            date,
-            time,
-            duration: '1h' // Default
-        });
-        onClose();
-    };
-
+/* ════════════════════════════════════════
+   ACCORDION / SWIPE-TO-DELETE ROW
+════════════════════════════════════════ */
+function AccRow({ ev, onDelete }) {
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in" onClick={onClose}>
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
-                <h3 className="text-xl font-bold mb-4">Add New Event</h3>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-1">Event Title</label>
-                        <input required type="text" value={title} onChange={e => setTitle(e.target.value)} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-[#1dc962] outline-none" placeholder="Ex: Math Final" />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-1">Type</label>
-                        <select value={type} onChange={e => setType(e.target.value)} className="w-full p-2 border rounded-lg outline-none">
-                            <option value="study">Study</option>
-                            <option value="exam">Exam</option>
-                            <option value="deadline">Deadline</option>
-                            <option value="group">Group</option>
-                        </select>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-1">Date</label>
-                            <input required type="date" value={date} onChange={e => setDate(e.target.value)} className="w-full p-2 border rounded-lg outline-none" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-1">Time</label>
-                            <input required type="time" value={time} onChange={e => setTime(e.target.value)} className="w-full p-2 border rounded-lg outline-none" />
-                        </div>
-                    </div>
-                    <button type="submit" className="w-full py-3 bg-[#1dc962] text-white font-bold rounded-xl hover:bg-green-600 transition-colors">
-                        Add Event
-                    </button>
-                </form>
+        <div className="acc-row">
+            <div className="acc-row__content">
+                <div className="acc-bar" />
+                <div className="acc-info">
+                    <div className="acc-title">{ev.title}</div>
+                    <div className="acc-sub">{ev.time}{ev.duration ? ` · ${ev.duration}` : ''}</div>
+                </div>
+                <button className="acc-inline-del" onClick={() => onDelete(ev.id)} title="Delete Event">
+                    🗑
+                </button>
             </div>
         </div>
     );
-};
+}
 
-export default function Calendar() {
-    const [currentDate, setCurrentDate] = useState(new Date());
-    const [selectedDate, setSelectedDate] = useState(new Date());
+/* ════════════════════════════════════════
+   DETAIL CARD
+════════════════════════════════════════ */
+function DetailCard({ selectedDate, events, onClear, onDelete, flashRef }) {
+    const dayEvts = selectedDate ? events.filter(e => e.date === selectedDate) : [];
 
-    // Mock Streak Data (Logic Fix: Use local date strings)
-    // In real app, this should only include past dates or today, never future.
-    const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
-    // Mock: Today and Yesterday
-    const STREAK_DAYS = [
-        todayStr,
-        new Date(Date.now() - 86400000).toLocaleDateString('en-CA')
-    ];
+    const label = selectedDate
+        ? new Date(selectedDate + 'T00:00:00').toLocaleDateString('default', {
+            weekday: 'long', month: 'long', day: 'numeric',
+        })
+        : 'Select a day';
 
-    const [events, setEvents] = useState(EVENTS);
-    const [showAddModal, setShowAddModal] = useState(false);
 
-    const handleAddEvent = (newEvent) => {
-        setEvents([...events, newEvent]);
-    };
 
-    // Calendar Navigation
-    const nextMonth = () => {
-        setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
-    };
+    return (
+        <div className="cal-detail-card" ref={flashRef}>
+            {/* Header */}
+            <div className="cal-detail-card__header">
+                <div style={{ flex: 1, minWidth: 0 }}>
+                    <span className="cal-detail-card__date">{label}</span>
+                    <div className="cal-detail-card__meta">
+                        <span className="cal-detail-card__count">
+                            {selectedDate
+                                ? `${dayEvts.length} event${dayEvts.length !== 1 ? 's' : ''}`
+                                : 'Click a date'}
+                        </span>
 
-    const prevMonth = () => {
-        setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
-    };
+                    </div>
+                </div>
+                {selectedDate && (
+                    <button className="cal-detail-card__close" onClick={onClear}>✕</button>
+                )}
+            </div>
 
-    // Grid Logic
-    const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
-    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay(); // 0 = Sun
+            {/* Body */}
+            <div className="cal-detail-body">
+                {!selectedDate && (
+                    <div className="cal-empty">
+                        <div className="cal-empty__icon">📅</div>
+                        <p className="cal-empty__text">Click any date on the calendar<br />to see its events here.</p>
+                    </div>
+                )}
+                {selectedDate && dayEvts.length === 0 && (
+                    <div className="cal-empty">
+                        <div className="cal-empty__icon">🌿</div>
+                        <p className="cal-empty__text">No events on this day.<br />Add one below!</p>
+                    </div>
+                )}
+                {selectedDate && dayEvts.length > 0 && (
+                    <>
+                        {dayEvts.map(ev => (
+                            <AccRow key={ev.id} ev={ev} onDelete={onDelete} />
+                        ))}
+                    </>
+                )}
+            </div>
+        </div>
+    );
+}
 
-    const startingEmptySlots = Array.from({ length: firstDayOfMonth }, () => null);
-    const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-    const calendarGrid = [...startingEmptySlots, ...daysArray];
+/* ════════════════════════════════════════
+   ADD EVENT CARD
+════════════════════════════════════════ */
+function AddCard({ selectedDate, onAdd }) {
+    const [title, setTitle] = useState('');
+    const [type, setType] = useState('study');
+    const [date, setDate] = useState(selectedDate || todayStr);
+    const [time, setTime] = useState('');
+    const [duration, setDuration] = useState('');
+    const [errors, setErrors] = useState({});
 
-    // Pad end to make full rows
-    const remainingSlots = 35 - calendarGrid.length;
-    if (remainingSlots > 0) {
-        const totalSlots = Math.ceil(calendarGrid.length / 7) * 7;
-        const slotsToAdd = totalSlots - calendarGrid.length;
-        for (let i = 0; i < slotsToAdd; i++) calendarGrid.push(null);
+    // Sync the date field whenever the user clicks a new day on the main calendar
+    const prevSelectedRef = useRef(selectedDate);
+    if (selectedDate && selectedDate !== prevSelectedRef.current) {
+        prevSelectedRef.current = selectedDate;
+        setDate(selectedDate);
     }
 
-    // Helper: Normalize date for comparison (strip time)
-    const normalizeDate = (date) => {
-        return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+    const validate = () => {
+        const e = {};
+        if (!title.trim()) e.title = true;
+        if (!date) e.date = true;
+        setErrors(e);
+        return !Object.keys(e).length;
     };
 
-    const getEventsForDate = (day) => {
-        if (!day) return [];
-        // Construct date for this grid cell
-        const cellDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-        // Fix: Use local formatting to match
-        const cellDateStr = cellDate.toLocaleDateString('en-CA');
-        return events.filter(e => e.date === cellDateStr);
+    const handleSubmit = () => {
+        if (!validate()) return;
+        onAdd({ id: Date.now(), title: title.trim(), type, date, time: time ? fmt12(time) : '', duration });
+        setTitle('');
+        setTime('');
+        setDuration('');
+        setErrors({});
     };
 
-    const getSelectedEvents = () => {
-        const dateStr = selectedDate.toLocaleDateString('en-CA');
-        return events.filter(e => e.date === dateStr);
-    };
+    return (
+        <div className="cal-add-card">
+            {/* Header */}
+            <div className="cal-add-card__header">
+                <span className="cal-add-card__title">+ New Event</span>
+                <span className="cal-add-card__sub">
+                    {selectedDate ? 'Adding to selected date' : 'Fill in the details below'}
+                </span>
+            </div>
 
-    const isSelected = (day) => {
-        if (!day) return false;
-        const cellDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-        return normalizeDate(cellDate) === normalizeDate(selectedDate);
-    };
+            <div className="cal-add-form">
+                {/* Title */}
+                <div className="cal-field">
+                    <label className="cal-field__label">Title</label>
+                    <input
+                        className={`cal-input${errors.title ? ' cal-input--error' : ''}`}
+                        type="text"
+                        value={title}
+                        onChange={e => { setTitle(e.target.value); setErrors(p => ({ ...p, title: false })); }}
+                        placeholder="e.g. Algorithms Final"
+                    />
+                </div>
 
-    // Fix Streak Check
-    const isStreakDay = (day) => {
-        if (!day) return false;
-        const cellDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-        const cellDateStr = cellDate.toLocaleDateString('en-CA');
+                <div className="cal-field"></div>
 
-        // Ensure no future fire (though STREAK_DAYS hopefully doesn't have them)
-        // Check if cellDate is in future relative to today
-        if (cellDate > new Date()) return false;
+                {/* Date + Time (side by side) */}
+                <div className="cal-form-row">
+                    <div className="cal-field">
+                        <label className="cal-field__label">
+                            Date
+                            {errors.date && (
+                                <span style={{ color: '#ff4d6d', fontWeight: 400, textTransform: 'none', marginLeft: 4 }}>*</span>
+                            )}
+                        </label>
+                        <input
+                            className={`cal-input${errors.date ? ' cal-input--error' : ''}`}
+                            type="date"
+                            value={date}
+                            onChange={e => { setDate(e.target.value); setErrors(p => ({ ...p, date: false })); }}
+                        />
+                    </div>
+                    <div className="cal-field">
+                        <label className="cal-field__label">
+                            Time
+                            {errors.time && (
+                                <span style={{ color: '#ff4d6d', fontWeight: 400, textTransform: 'none', marginLeft: 4 }}>*</span>
+                            )}
+                        </label>
+                        <input
+                            className={`cal-input${errors.time ? ' cal-input--error' : ''}`}
+                            type="time"
+                            value={time}
+                            onChange={e => { setTime(e.target.value); setErrors(p => ({ ...p, time: false })); }}
+                        />
+                    </div>
+                </div>
 
-        return STREAK_DAYS.includes(cellDateStr);
-    };
+                {/* Duration */}
+                <div className="cal-field">
+                    <label className="cal-field__label">Duration <span>(optional)</span></label>
+                    <input
+                        className="cal-input"
+                        type="text"
+                        value={duration}
+                        onChange={e => setDuration(e.target.value)}
+                        placeholder="e.g. 2h 30min"
+                    />
+                </div>
 
-    const handleDateClick = (day) => {
-        if (day) {
-            setSelectedDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), day));
+                <button className="cal-submit-btn" onClick={handleSubmit}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <path d="M12 5v14M5 12h14" />
+                    </svg>
+                    Add Event
+                </button>
+            </div>
+        </div>
+    );
+}
+
+/* ════════════════════════════════════════
+   MAIN CALENDAR
+════════════════════════════════════════ */
+export default function Calendar() {
+    const { user } = useOutletContext();
+    const [events, setEvents] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [currentDate, setCurrentDate] = useState(new Date());
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [activeView, setActiveView] = useState('month');
+    const [searchQuery, setSearchQuery] = useState('');
+    const detailCardRef = useRef(null);
+
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    /* Build calendar grid */
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const startOffset = (new Date(year, month, 1).getDay() + 6) % 7;
+    const prevDays = new Date(year, month, 0).getDate();
+    const totalCells = Math.ceil((startOffset + daysInMonth) / 7) * 7;
+
+    const grid = Array.from({ length: totalCells }, (_, i) => {
+        if (i < startOffset) {
+            return { day: prevDays - startOffset + i + 1, dateStr: fmt(year, month - 1, prevDays - startOffset + i + 1), other: true };
+        }
+        if (i >= startOffset + daysInMonth) {
+            const d = i - startOffset - daysInMonth + 1;
+            return { day: d, dateStr: fmt(year, month + 1, d), other: true };
+        }
+        const d = i - startOffset + 1;
+        return { day: d, dateStr: fmt(year, month, d), other: false };
+    });
+
+    /* API Operations */
+    const fetchEvents = useCallback(async () => {
+        if (!user) return;
+        try {
+            setLoading(true);
+            const res = await api.get('/events');
+            // Backend returns _id, frontend expects id for existing code compatibility
+            const normalized = res.data.map(ev => ({ ...ev, id: ev._id }));
+            setEvents(normalized);
+        } catch (error) {
+            console.error("Failed to fetch events:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, [user]);
+
+    useEffect(() => {
+        fetchEvents();
+    }, [fetchEvents]);
+
+    /* Filtered events for search */
+    const filteredEvents = searchQuery.trim()
+        ? events.filter(e => e.title.toLowerCase().includes(searchQuery.toLowerCase()))
+        : events;
+
+    /* Handlers */
+    const handleAddEvent = async (newEv) => {
+        try {
+            const res = await api.post('/events', newEv);
+            const saved = { ...res.data, id: res.data._id };
+            setEvents(prev => [...prev, saved]);
+            setSelectedDate(saved.date);
+
+            // Auto-navigate to the added event's month
+            const [y, m, d] = saved.date.split('-').map(Number);
+            setCurrentDate(new Date(y, m - 1, 1));
+
+            if (detailCardRef.current) {
+                detailCardRef.current.classList.remove('success-flash');
+                void detailCardRef.current.offsetWidth; // force reflow
+                detailCardRef.current.classList.add('success-flash');
+            }
+        } catch (error) {
+            console.error("Failed to add event:", error);
+            alert("Failed to save event. Please try again.");
         }
     };
 
-    // Formatting
-    const monthName = currentDate.toLocaleString('default', { month: 'long' });
-    const year = currentDate.getFullYear();
-    const selectedDateStr = selectedDate.toLocaleDateString('default', { weekday: 'short', month: 'short', day: 'numeric' });
+    const handleDeleteEvent = async (id) => {
+        try {
+            await api.delete(`/events/${id}`);
+            setEvents(prev => prev.filter(e => e.id !== id));
+        } catch (error) {
+            console.error("Failed to delete event:", error);
+            alert("Failed to delete event.");
+        }
+    };
+
+    const prevMonth = () => { setCurrentDate(new Date(year, month - 1, 1)); setSelectedDate(null); };
+    const nextMonth = () => { setCurrentDate(new Date(year, month + 1, 1)); setSelectedDate(null); };
+    const goToday = () => { setCurrentDate(new Date()); setSelectedDate(null); };
+    const monthLabel = currentDate.toLocaleString('default', { month: 'long' }) + ' ' + year;
 
     return (
-        <div className="flex flex-col lg:flex-row h-[calc(100vh-2rem)] gap-6 p-4 overflow-hidden">
+        <div className="cal-app">
+            <div className="cal-content">
+                {/* ── Left: Main Calendar ── */}
+                <div className="cal-pane">
+                    <div className="cal-blob cal-blob--pink" />
+                    <div className="cal-blob cal-blob--teal" />
+                    <div className="cal-blob cal-blob--sage" />
+                    <div className="cal-blob cal-blob--accent" />
 
-            {/* Left Sidebar - Upcoming & Stats */}
-            <aside className="w-full lg:w-1/3 flex flex-col gap-6 h-full overflow-y-auto no-scrollbar">
-
-                {/* Header / Profile Context */}
-                <div className="mb-2">
-                    <div className="flex items-center justify-between">
-                        <div className="space-y-1">
-                            <h1 className="text-xl font-extrabold tracking-tight text-gray-900">My Calendar</h1>
-                            <p className="text-xs text-gray-500">Scheduled events</p>
+                    {/* Toolbar */}
+                    <div className="cal-toolbar">
+                        <span className="cal-toolbar__month">{monthLabel}</span>
+                        <div className="cal-nav-group">
+                            <button className="cal-nav-btn" onClick={prevMonth}>‹</button>
+                            <button className="cal-nav-btn" onClick={nextMonth}>›</button>
                         </div>
-                        <button onClick={() => setShowAddModal(true)} className="w-10 h-10 bg-white rounded-xl shadow-sm border border-gray-100 flex items-center justify-center text-gray-600 hover:text-[#1dc962] transition-all hover:rotate-90">
-                            <FaPlus />
-                        </button>
-                    </div>
-                </div>
+                        <button className="cal-today-btn" onClick={goToday}>Today</button>
 
-                {showAddModal && <AddEventModal onClose={() => setShowAddModal(false)} onAdd={handleAddEvent} />}
-
-                {/* Selected Day Events */}
-                <div className="bg-white/70 backdrop-blur-xl p-5 rounded-3xl border border-white/60 shadow-sm transition-all hover:shadow-md flex-1">
-                    <h3 className="font-bold text-gray-800 text-lg mb-4 flex items-center gap-2">
-                        <span>Events</span>
-                        <span className="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{selectedDateStr}</span>
-                    </h3>
-
-                    <div className="space-y-3">
-                        {getSelectedEvents().length > 0 ? (
-                            getSelectedEvents().map(ev => (
-                                <div key={ev.id} className="flex gap-3 items-start p-3 rounded-2xl hover:bg-white/50 transition-colors cursor-pointer group">
-                                    <div className="flex flex-col items-center min-w-[3rem]">
-                                        <span className="text-xs font-bold text-gray-500">{ev.time.split(' ')[0]}</span>
-                                        <span className="text-[10px] text-gray-400">{ev.time.split(' ')[1]}</span>
-                                    </div>
-                                    <div className="w-1 h-8 bg-gray-200 rounded-full group-hover:bg-[#1dc962] transition-colors"></div>
-                                    <div>
-                                        <h4 className="font-bold text-gray-800 text-sm">{ev.title}</h4>
-                                        <span className="text-xs text-gray-500 flex items-center gap-1">
-                                            {ev.type === 'exam' ? <FaClipboardList className="text-black" /> : <FaBook className="text-[#1dc962]" />}
-                                            {ev.type}
-                                        </span>
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="text-center py-8 text-gray-400 text-sm">
-                                No events for this day.
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </aside>
-
-            {/* Right Main Calendar - Glassmorphism */}
-            <div className="flex-1 bg-white/70 backdrop-blur-xl rounded-[2rem] shadow-sm border border-white/60 p-8 flex flex-col h-full">
-
-                {/* Calendar Header */}
-                <header className="flex justify-between items-center mb-8">
-                    <div className="flex items-center gap-4">
-                        <div className="px-4 py-2 bg-black text-white rounded-xl text-sm font-bold shadow-lg shadow-gray-300">Month View</div>
                     </div>
 
-                    <div className="flex items-center gap-4 cursor-default">
-                        <div className="text-right hidden sm:block">
-                            <h2 className="text-2xl font-black text-gray-800 min-w-[12rem] text-right">{monthName} {year}</h2>
-                        </div>
-                        <div className="flex gap-2">
-                            <button onClick={prevMonth} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-green-50 hover:text-[#1dc962] transition-colors"><FaChevronLeft size={10} /></button>
-                            <button onClick={nextMonth} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-green-50 hover:text-[#1dc962] transition-colors"><FaChevronRight size={10} /></button>
-                        </div>
-                    </div>
-                </header>
-
-                {/* Calendar Grid */}
-                <div className="flex-1 flex flex-col">
-                    {/* Weekdays */}
-                    <div className="grid grid-cols-7 mb-4">
-                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-                            <div key={d} className="text-center py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">{d}</div>
+                    {/* Weekday headers */}
+                    <div className="cal-weekdays">
+                        {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => (
+                            <div key={d} className="cal-weekday">{d}</div>
                         ))}
                     </div>
 
-                    {/* Days */}
-                    <div className="grid grid-cols-7 flex-1 border-t border-gray-100 auto-rows-fr">
-                        {calendarGrid.map((day, idx) => {
-                            const dayEvents = getEventsForDate(day);
-                            const selected = isSelected(day);
-                            const streak = isStreakDay(day);
+                    {/* Day grid */}
+                    <div className="cal-grid" style={{ gridTemplateRows: `repeat(${totalCells / 7}, 1fr)` }}>
+                        {grid.map(({ day, dateStr, other }, idx) => {
+                            const isToday = dateStr === todayStr;
+                            const isSelected = dateStr === selectedDate;
+                            const isStreak = streakDays.includes(dateStr) && new Date(dateStr) <= new Date();
+                            const dayEvts = filteredEvents.filter(e => e.date === dateStr);
+
+                            let cls = 'cal-cell';
+                            if (other) cls += ' cal-cell--other';
+                            if (isToday) cls += ' cal-cell--today';
+                            if (isSelected) cls += ' cal-cell--selected';
 
                             return (
                                 <div
                                     key={idx}
-                                    onClick={() => handleDateClick(day)}
-                                    className={`border-b border-r border-gray-50 p-2 relative transition-all min-h-[80px] 
-                                    ${idx % 7 === 6 ? 'border-r-0' : ''} 
-                                    ${!day ? 'bg-gray-50/30' : 'hover:bg-white/50 cursor-pointer'}
-                                    ${selected ? 'bg-green-50/50 ring-2 ring-inset ring-[#1dc962] z-10' : ''}
-                                `}>
-                                    {day && (
-                                        <>
-                                            <div className="flex justify-between items-start mb-2">
-                                                <span className={`text-sm font-medium block transition-colors ${selected ? 'text-[#1dc962] font-bold' : 'text-gray-700'
-                                                    }`}>
-                                                    {day}
-                                                </span>
-                                                {streak && (
-                                                    <span className="text-[10px] text-orange-500" title="Streak Active">🔥</span>
-                                                )}
-                                            </div>
-
-                                            <div className="space-y-1">
-                                                {dayEvents.map((ev, i) => (
-                                                    <div key={i} className={`text-[10px] p-1.5 rounded-lg font-bold truncate leading-tight mb-1
-                                                        ${ev.type === 'exam' ? 'bg-black/5 text-black' :
-                                                            ev.type === 'study' ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-700'}
-                                                    `}>
-                                                        {ev.title}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </>
-                                    )}
+                                    className={cls}
+                                    onClick={() => !other && setSelectedDate(p => p === dateStr ? null : dateStr)}
+                                >
+                                    <div className="cal-cell__top">
+                                        <span className="cal-cell__num">{day}</span>
+                                        {isStreak && <span className="cal-cell__streak">🔥</span>}
+                                    </div>
+                                    <div className="cal-cell__events">
+                                        {dayEvts.slice(0, 3).map((ev, i) => (
+                                            <div key={i} className={`cal-chip`}>{ev.title}</div>
+                                        ))}
+                                        {dayEvts.length > 3 && (
+                                            <div className="cal-cell__more">+{dayEvts.length - 3}</div>
+                                        )}
+                                    </div>
                                 </div>
                             );
                         })}
                     </div>
+
+
+                </div>
+
+                {/* ── Right Panel ── */}
+                <div className="cal-right-pane">
+                    <DetailCard
+                        selectedDate={selectedDate}
+                        events={filteredEvents}
+                        onClear={() => setSelectedDate(null)}
+                        onDelete={handleDeleteEvent}
+                        flashRef={detailCardRef}
+                    />
+                    <AddCard
+                        selectedDate={selectedDate}
+                        onAdd={handleAddEvent}
+                    />
                 </div>
             </div>
         </div>

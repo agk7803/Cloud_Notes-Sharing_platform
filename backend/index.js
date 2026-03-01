@@ -13,6 +13,7 @@ const uploadRoutes = require('./src/routes/uploadRoutes');
 const userRoutes = require("./src/routes/userRoutes");
 const aiRoutes = require("./src/routes/aiRoutes");
 const assessmentRoutes = require("./src/routes/assessmentRoutes");
+const eventRoutes = require("./src/routes/eventRoutes");
 const setupSocket = require('./src/sockets/socketHandler');
 
 
@@ -50,6 +51,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api', aiRoutes);
 app.use("/api/assessments", assessmentRoutes);
+app.use("/api/events", eventRoutes);
 
 
 /* ================= ERROR HANDLER ================= */
