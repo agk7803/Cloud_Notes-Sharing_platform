@@ -1,97 +1,266 @@
-# STUNOTES
+<p align="center">
+  <h1 align="center">📚 StuNotes — Cloud Notes & Study Platform</h1>
+  <p align="center">
+    A full-stack collaborative platform for students to upload, share, and organize notes — powered by AI, real-time chat, and smart assessments.
+  </p>
+</p>
 
-STUNOTES is a notes-sharing web application built using React and Firebase.  
-All backend services are handled using Firebase (Backend as a Service).
-
----
-
-## Project Structure
-
-STUNOTES/ <br>
- ├── frontend/     (React application) <br>
- ├── backend/      (Empty - Firebase is used as backend)<br>
- └── README.md
-
-Note: This project does not use a traditional Node/Express backend. Firebase handles authentication, database, and storage.
-
----
-
-## Backend (Firebase)
-
-Firebase is used for:
-
-- Authentication (Google Sign-In)
-- Firestore Database
-- Cloud Storage (Optional)
-
-The backend folder is currently empty and is reserved for future use.
+<p align="center">
+  <img src="https://img.shields.io/badge/React-19.x-61DAFB?logo=react&logoColor=white" alt="React" />
+  <img src="https://img.shields.io/badge/Node.js-Express_5-339933?logo=node.js&logoColor=white" alt="Node.js" />
+  <img src="https://img.shields.io/badge/MongoDB-Mongoose_9-47A248?logo=mongodb&logoColor=white" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/Firebase-Auth-FFCA28?logo=firebase&logoColor=black" alt="Firebase" />
+  <img src="https://img.shields.io/badge/AWS_S3-Storage-FF9900?logo=amazon-s3&logoColor=white" alt="AWS S3" />
+  <img src="https://img.shields.io/badge/Socket.IO-Real--time-010101?logo=socket.io&logoColor=white" alt="Socket.IO" />
+  <img src="https://img.shields.io/badge/Google_Gemini-AI-4285F4?logo=google&logoColor=white" alt="Google AI" />
+</p>
 
 ---
 
-## Environment Setup
+## ✨ Features
 
-Firebase configuration is stored in environment variables.
-
-An example file is provided at:
-
-frontend/.env.example
-
-To run the project:
-
-1. Go to frontend folder
-
-cd frontend
-
-2. Copy example file
-
-cp .env.example .env
-
-3. Open .env and add your Firebase API keys
-
-REACT_APP_FIREBASE_API_KEY=your_api_key_here  
-REACT_APP_FIREBASE_AUTH_DOMAIN=your_auth_domain_here  
-REACT_APP_FIREBASE_PROJECT_ID=your_project_id_here  
-REACT_APP_FIREBASE_STORAGE_BUCKET=your_storage_bucket_here  
-REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_sender_id_here  
-REACT_APP_FIREBASE_APP_ID=your_app_id_here  
-
-Do NOT upload .env to GitHub. It is ignored for security.
+| Category | Feature | Description |
+|----------|---------|-------------|
+| 📝 **Notes** | Upload & Share | Upload notes (PDF, DOCX, PPTX) and share with the community |
+| 📝 **Notes** | View & Search | Browse, search, and filter shared notes |
+| 🤖 **AI** | Academic AI Chat | AI-powered study assistant using Google Gemini for academic Q&A |
+| 📊 **AI** | AI Insights | Intelligent analytics and study recommendations via Recharts |
+| 📝 **Assessments** | Create & Take Quizzes | Create assessments with multiple question types, take tests in focus mode |
+| 👥 **Collaboration** | Study Groups | Create/join study groups with shared workspaces |
+| 💬 **Collaboration** | Real-time Chat | Instant messaging within study groups via Socket.IO |
+| 🎙️ **Collaboration** | Voice Chat | WebRTC-based peer-to-peer voice calls in groups |
+| 📅 **Productivity** | Calendar | Track deadlines, events, and study schedules |
+| 👤 **User** | Profiles & Auth | Firebase-powered authentication with user profiles |
+| 🔔 **User** | Dashboard | Personalized dashboard with alerts, recent activity, and quick actions |
 
 ---
 
-## How to Run
+## 🏗️ Architecture
 
-1. Install dependencies
+```
+Cloud_Notes-Sharing_platform/
+│
+├── frontend/                 # React 19 SPA (Create React App)
+│   ├── src/
+│   │   ├── ai/               # Academic AI chat components & service
+│   │   ├── api/               # API client utilities
+│   │   ├── components/        # Reusable UI components
+│   │   ├── pages/             # Standalone page components
+│   │   ├── utils/             # Helper utilities
+│   │   ├── App.js             # Route definitions
+│   │   ├── Dashboard.js       # Main dashboard
+│   │   ├── StudyGroups.js     # Group management
+│   │   ├── Assessments.js     # Quiz & assessment engine
+│   │   ├── Calendar.js        # Event calendar
+│   │   ├── ViewNotes.js       # Notes viewer
+│   │   └── firebase.js        # Firebase client config
+│   └── public/
+│
+├── backend/                  # Node.js + Express 5 API server
+│   ├── config/               # Database & service configuration
+│   ├── controllers/          # Route handler logic
+│   ├── middleware/            # Auth & request middleware
+│   ├── models/               # Mongoose schemas (User, Note, Group, Chat, Assessment)
+│   ├── routes/               # REST API endpoints
+│   │   ├── noteRoutes.js     # CRUD for notes
+│   │   ├── groupRoutes.js    # Study group management
+│   │   ├── uploadRoutes.js   # File upload to AWS S3
+│   │   ├── userRoutes.js     # User profile operations
+│   │   ├── aiRoutes.js       # AI chat endpoints
+│   │   └── assessmentRoutes.js # Quiz management
+│   └── index.js              # Express + Socket.IO server entry
+│
+└── package.json              # Root scripts for running both services
+```
 
-cd frontend  
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **React 19** — Modern UI with hooks and functional components
+- **React Router 7** — Client-side routing with nested layouts
+- **Recharts** — Data visualization and analytics charts
+- **Socket.IO Client** — Real-time bidirectional communication
+- **React Markdown** — Render AI responses with rich formatting
+- **React Icons** — Comprehensive icon library
+- **Firebase SDK** — Authentication (Google Sign-In, Email/Password)
+
+### Backend
+- **Node.js + Express 5** — RESTful API server
+- **MongoDB + Mongoose 9** — NoSQL database with schema validation
+- **Socket.IO** — Real-time chat and voice signaling
+- **Firebase Admin SDK** — Server-side token verification
+- **AWS S3** — Cloud file storage for uploaded notes
+- **Google Generative AI (Gemini)** — AI-powered academic assistant
+- **Multer + Multer-S3** — Multipart file upload handling
+- **pdf-parse / Mammoth / pptx-parser** — Document content extraction
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- **Node.js** ≥ 18.x
+- **npm** ≥ 9.x
+- **MongoDB** — Local instance or [MongoDB Atlas](https://www.mongodb.com/atlas) cloud cluster
+- **Firebase Project** — [Create one here](https://console.firebase.google.com/)
+- **AWS Account** — S3 bucket for file storage
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/your-username/Cloud_Notes-Sharing_platform.git
+cd Cloud_Notes-Sharing_platform
+```
+
+### 2. Backend Setup
+
+```bash
+cd backend
 npm install
+```
 
-2. Start project
+Create a `.env` file in the `backend/` directory:
 
-npm start
+```env
+PORT=5050
+MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/stunotes
+AWS_ACCESS_KEY_ID=your_aws_access_key
+AWS_SECRET_ACCESS_KEY=your_aws_secret_key
+AWS_REGION=your_aws_region
+AWS_BUCKET_NAME=your_s3_bucket_name
+```
 
-The app will run on:
+> 💡 A `.env.example` file is provided for reference.
 
-http://localhost:3000
+### 3. Frontend Setup
+
+```bash
+cd frontend
+npm install
+```
+
+Create a `.env` file in the `frontend/` directory:
+
+```env
+REACT_APP_FIREBASE_API_KEY=your_api_key
+REACT_APP_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+REACT_APP_FIREBASE_PROJECT_ID=your_project_id
+REACT_APP_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+REACT_APP_FIREBASE_APP_ID=your_app_id
+```
+
+### 4. Run the Application
+
+**Start both services** (from root directory):
+
+```bash
+# Terminal 1 — Backend
+npm run backend
+
+# Terminal 2 — Frontend
+npm run frontend
+```
+
+| Service  | URL                          |
+|----------|------------------------------|
+| Frontend | http://localhost:3000         |
+| Backend  | http://localhost:5050         |
 
 ---
 
-## Tech Stack
+## 📡 API Endpoints
 
-Frontend: React  
-Backend: Firebase (Auth, Firestore, Storage)  
-Database: Firestore  
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET/POST` | `/api/notes` | Notes CRUD operations |
+| `GET/POST` | `/api/groups` | Study group management |
+| `POST` | `/api/upload` | File upload to S3 |
+| `GET/PUT` | `/api/users` | User profile operations |
+| `POST` | `/api/academic-chat` | AI academic assistant |
+| `GET/POST` | `/api/assessments` | Assessment & quiz management |
+
+### Real-time Events (Socket.IO)
+
+| Event | Direction | Description |
+|-------|-----------|-------------|
+| `join_group` | Client → Server | Join a group's chat room |
+| `send_message` | Client → Server | Send a chat message |
+| `receive_message` | Server → Client | Receive a new message |
+| `edit_message` | Client → Server | Edit an existing message |
+| `delete_message` | Client → Server | Delete a message |
+| `join_voice` | Client → Server | Join a voice call room |
+| `offer` / `answer` / `ice-candidate` | Peer ↔ Peer | WebRTC voice signaling |
 
 ---
 
-## Notes
+## 🔐 Environment Variables
 
-- No custom backend server is used.
-- Firebase handles all backend functionality.
-- Backend folder is kept for future scalability.
+> ⚠️ **Never commit `.env` files to version control.** Both `.env` files are included in `.gitignore`.
+
+<details>
+<summary><strong>Backend Variables</strong></summary>
+
+| Variable | Description |
+|----------|-------------|
+| `PORT` | Server port (default: `5050`) |
+| `MONGO_URI` | MongoDB connection string |
+| `AWS_ACCESS_KEY_ID` | AWS IAM access key |
+| `AWS_SECRET_ACCESS_KEY` | AWS IAM secret key |
+| `AWS_REGION` | AWS S3 bucket region |
+| `AWS_BUCKET_NAME` | S3 bucket name for file storage |
+
+</details>
+
+<details>
+<summary><strong>Frontend Variables</strong></summary>
+
+| Variable | Description |
+|----------|-------------|
+| `REACT_APP_FIREBASE_API_KEY` | Firebase API key |
+| `REACT_APP_FIREBASE_AUTH_DOMAIN` | Firebase auth domain |
+| `REACT_APP_FIREBASE_PROJECT_ID` | Firebase project ID |
+| `REACT_APP_FIREBASE_STORAGE_BUCKET` | Firebase storage bucket |
+| `REACT_APP_FIREBASE_MESSAGING_SENDER_ID` | Firebase messaging sender ID |
+| `REACT_APP_FIREBASE_APP_ID` | Firebase app ID |
+
+</details>
 
 ---
 
-## License
+## 📂 Data Models
 
-This project is created for educational purposes.
+| Model | Key Fields | Purpose |
+|-------|------------|---------|
+| **User** | `uid`, `name`, `email` | User account information |
+| **Note** | `title`, `subject`, `fileUrl`, `uploadedBy` | Uploaded study notes |
+| **Group** | `name`, `members`, `createdBy` | Study group metadata |
+| **Chat** | `groupId`, `senderId`, `message`, `messageType` | Group chat messages (text & audio) |
+| **Assessment** | `title`, `questions`, `createdBy` | Quizzes and assessments |
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Here's how to get started:
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
+
+---
+
+## 📄 License
+
+This project is created for **educational purposes**.
+
+---
+
+<p align="center">
+  Made with ❤️ for students, by students
+</p>
