@@ -35,46 +35,6 @@
 
 ---
 
-## 🏗️ Architecture
-
-```
-Cloud_Notes-Sharing_platform/
-│
-├── frontend/                 # React 19 SPA (Create React App)
-│   ├── src/
-│   │   ├── ai/               # Academic AI chat components & service
-│   │   ├── api/               # API client utilities
-│   │   ├── components/        # Reusable UI components
-│   │   ├── pages/             # Standalone page components
-│   │   ├── utils/             # Helper utilities
-│   │   ├── App.js             # Route definitions
-│   │   ├── Dashboard.js       # Main dashboard
-│   │   ├── StudyGroups.js     # Group management
-│   │   ├── Assessments.js     # Quiz & assessment engine
-│   │   ├── Calendar.js        # Event calendar
-│   │   ├── ViewNotes.js       # Notes viewer
-│   │   └── firebase.js        # Firebase client config
-│   └── public/
-│
-├── backend/                  # Node.js + Express 5 API server
-│   ├── config/               # Database & service configuration
-│   ├── controllers/          # Route handler logic
-│   ├── middleware/            # Auth & request middleware
-│   ├── models/               # Mongoose schemas (User, Note, Group, Chat, Assessment)
-│   ├── routes/               # REST API endpoints
-│   │   ├── noteRoutes.js     # CRUD for notes
-│   │   ├── groupRoutes.js    # Study group management
-│   │   ├── uploadRoutes.js   # File upload to AWS S3
-│   │   ├── userRoutes.js     # User profile operations
-│   │   ├── aiRoutes.js       # AI chat endpoints
-│   │   └── assessmentRoutes.js # Quiz management
-│   └── index.js              # Express + Socket.IO server entry
-│
-└── package.json              # Root scripts for running both services
-```
-
----
-
 ## 🛠️ Tech Stack
 
 ### Frontend
