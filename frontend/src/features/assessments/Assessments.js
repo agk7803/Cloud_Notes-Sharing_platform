@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useOutletContext } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import api from "../../services/api";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {
     FaClock, FaArrowLeft, FaCheck, FaChevronDown, FaChevronUp,
     FaBookOpen, FaPlayCircle, FaFileAlt, FaTrophy,
-    FaChartBar, FaPlus, FaTimes, FaTrash, FaChevronRight
+    FaPlus, FaTimes, FaTrash
 } from 'react-icons/fa';
+import { useUser } from '../../shared/UserContext';
 
 const SUBJECTS = ["Machine Learning", "Compiler Design", "Computer Networks", "Software Engineering", "Cloud Computing", "Web Engineering"];
 
@@ -51,45 +51,30 @@ export default function Assessments() {
     const [isGenerating, setIsGenerating] = useState(false);
 
     const navigate = useNavigate();
-    const { user } = useOutletContext(); // Get user from Layout context
+    const { user, refreshUser } = useUser(); // Get user from global context
 
 
     useEffect(() => {
-        const auth = getAuth();
+        if (refreshUser) refreshUser();
 
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            if (!user) return;
-
+        const fetchData = async () => {
             try {
-                const testsRes = await api.get("/assessments");
+                const [testsRes, resultsRes, lbRes, notesRes] = await Promise.all([
+                    api.get("/assessments"),
+                    api.get("/assessments/results/user"),
+                    api.get("/users/leaderboard").catch(() => ({ data: [] })), // Use real endpoint if exists
+                    api.get("/notes").catch(() => ({ data: [] }))
+                ]);
                 setGeneratedTests(testsRes.data);
-            } catch (err) {
-                console.error("Assessments error:", err);
-            }
-
-            try {
-                const resultsRes = await api.get("/assessments/results/user");
                 setUserResults(resultsRes.data);
-            } catch (err) {
-                console.error("Results error:", err);
-            }
-
-            try {
-                const lbRes = await api.get("/auth/leaderboard");
                 setLeaderboard(lbRes.data);
-            } catch (err) {
-                console.error("Leaderboard error:", err);
-            }
-
-            try {
-                const notesRes = await api.get("/notes");
                 setUserNotes(notesRes.data);
             } catch (err) {
-                console.error("Notes error:", err);
+                console.error("Error fetching assessment data:", err);
             }
-        });
+        };
 
-        return () => unsubscribe();
+        fetchData();
     }, []);
 
     const handleStartTest = (testId) => {

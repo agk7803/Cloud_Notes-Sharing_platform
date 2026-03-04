@@ -19,14 +19,45 @@ GET CURRENT USER PROFILE
 */
 router.get("/me", protect, async (req, res) => {
   try {
-    const { uid, email } = req.user;
+    const { uid, email, name } = req.user;
 
-    const user = await User.findOne({
+    let user = await User.findOne({
       $or: [{ firebaseUid: uid }, { email: email }]
     });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      // Create user if they don't exist in Mongo but are authed in Firebase
+      user = await User.create({
+        name: name || email.split('@')[0],
+        email: email,
+        firebaseUid: uid,
+        totalScore: 0,
+        subjectScores: {}
+      });
+    }
+
+    // Optional: Recalculate score if it's 0 or to ensure subjectScores are synced
+    if (user.totalScore === 0 || !user.subjectScores || user.subjectScores.size === 0) {
+      const AssessmentResult = require("../models/AssessmentResult");
+      const Assessment = require("../models/Assessment"); // Ensure model is loaded
+      const results = await AssessmentResult.find({ userId: uid }).populate("assessmentId");
+
+      if (results.length > 0) {
+        let total = 0;
+        let subjectMap = new Map();
+
+        for (const r of results) {
+          total += r.score;
+          if (r.assessmentId && r.assessmentId.subject) {
+            const currentSubScore = subjectMap.get(r.assessmentId.subject) || 0;
+            subjectMap.set(r.assessmentId.subject, currentSubScore + r.score);
+          }
+        }
+
+        user.totalScore = total;
+        user.subjectScores = subjectMap;
+        await user.save();
+      }
     }
 
     res.status(200).json(user);

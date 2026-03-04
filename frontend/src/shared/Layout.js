@@ -13,9 +13,9 @@ import {
     FaChevronRight,
 } from "react-icons/fa";
 
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { signOut } from "firebase/auth";
 import { auth } from "../services/firebase";
-import api from "../services/api";
+import { useUser } from "./UserContext";
 
 /* ================= SIDEBAR ================= */
 
@@ -100,11 +100,17 @@ const Sidebar = ({ active, setActive, onLogout, navigate }) => {
     );
 };
 
+
+/* ================= SIDEBAR ================= */
+
+/* ================= SIDEBAR ================= */
+// ... (no changes to Sidebar)
+
 /* ================= LAYOUT ================= */
 
 export default function Layout() {
     const [activeTab, setActiveTab] = useState("dashboard");
-    const [user, setUser] = useState(null);
+    const { user, loading, refreshUser } = useUser();
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -124,47 +130,27 @@ export default function Layout() {
         else setActiveTab("dashboard");
     }, [location]);
 
-    /* ===== FIREBASE AUTH CHECK ===== */
-
-    /* ===== FIREBASE AUTH CHECK ===== */
+    /* ===== AUTH REDIRECT ===== */
 
     useEffect(() => {
-        const unsub = onAuthStateChanged(auth, async (currentUser) => {
-            if (!currentUser) {
-                setUser(null);
-                if (location.pathname !== "/" && !location.pathname.startsWith("/login") && !location.pathname.startsWith("/register")) {
-                    navigate("/login");
-                }
-            } else {
-                try {
-                    // Sync with MongoDB
-                    const token = await currentUser.getIdToken();
-
-                    const res = await api.get('/users/me');
-
-                    setUser({ ...currentUser, ...res.data, photoURL: res.data.profilePicture || currentUser.photoURL, name: res.data.name || currentUser.displayName });
-                } catch (error) {
-                    console.error("Failed to fetch mongo user:", error);
-                    // Fallback to Firebase user if Mongo fetch fails (e.g. first login before sync)
-                    setUser(currentUser);
-                }
+        if (!loading && !user) {
+            if (location.pathname !== "/" && !location.pathname.startsWith("/login") && !location.pathname.startsWith("/register")) {
+                navigate("/login");
             }
-        });
-
-        return () => unsub();
-    }, [navigate, location.pathname]);
+        }
+    }, [user, loading, navigate, location.pathname]);
 
     /* ===== LOGOUT ===== */
 
     const handleLogout = async () => {
         await signOut(auth);
-
         localStorage.removeItem("user");
-
-        setUser(null);
-
         navigate("/login");
     };
+
+    if (loading) {
+        return <div className="min-h-screen bg-green-50 flex items-center justify-center font-bold text-[#1dc962]">Loading...</div>;
+    }
 
     return (
         <div className="flex min-h-screen bg-gradient-to-r from-green-100 to-emerald-200 text-gray-800">
@@ -179,7 +165,7 @@ export default function Layout() {
 
             {/* Main Content */}
             <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
-                <Outlet context={{ user }} />
+                <Outlet context={{ user, refreshUser }} />
             </div>
 
         </div>

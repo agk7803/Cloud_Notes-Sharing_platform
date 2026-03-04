@@ -21,6 +21,15 @@ const userSchema = new mongoose.Schema({
     type: String,
     unique: true,
   },
+  totalScore: {
+    type: Number,
+    default: 0,
+  },
+  subjectScores: {
+    type: Map,
+    of: Number,
+    default: {},
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", userSchema);

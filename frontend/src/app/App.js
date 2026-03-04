@@ -32,49 +32,52 @@ import AcademicAI from '../features/ai/AcademicAI';
 
 
 import AssessmentReview from '../features/assessments/AssessmentReview';
+import { UserProvider } from '../shared/UserContext';
 
 
 function App() {
     return (
-        <Routes>
+        <UserProvider>
+            <Routes>
 
-            {/* Public Routes */}
-            <Route path="/" element={<Landing />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/search" element={<SearchResults />} />
+                {/* Public Routes */}
+                <Route path="/" element={<Landing />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/search" element={<SearchResults />} />
 
 
-            {/* Routes with Persistent Sidebar + NoteProvider */}
-            <Route
-                element={
-                    <NoteProvider>
-                        <Layout />
-                    </NoteProvider>
-                }
-            >
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/view" element={<ViewNotes />} />
-                <Route path="/faq" element={<FAQ />} />
-                <Route path="/assessments" element={<Assessments />} />
-                <Route path="/calendar" element={<Calendar />} />
-                <Route path="/groups" element={<StudyGroups />} />
-                <Route path="/groups/:id" element={<GroupPage />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/academic-ai" element={<AcademicAI />} />
+                {/* Routes with Persistent Sidebar + NoteProvider */}
+                <Route
+                    element={
+                        <NoteProvider>
+                            <Layout />
+                        </NoteProvider>
+                    }
+                >
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/view" element={<ViewNotes />} />
+                    <Route path="/faq" element={<FAQ />} />
+                    <Route path="/assessments" element={<Assessments />} />
+                    <Route path="/calendar" element={<Calendar />} />
+                    <Route path="/groups" element={<StudyGroups />} />
+                    <Route path="/groups/:id" element={<GroupPage />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/academic-ai" element={<AcademicAI />} />
 
-            </Route>
+                </Route>
 
-            {/* Standalone Routes (Focus Mode) */}
-            <Route path="/test-window/:testId" element={<TestWindow />} />
-            <Route path="/assessment/:id" element={<TakeAssessment />} />
-            <Route path="/assessment/review/:resultId" element={<AssessmentReview />} />
+                {/* Standalone Routes (Focus Mode) */}
+                <Route path="/test-window/:testId" element={<TestWindow />} />
+                <Route path="/assessment/:id" element={<TakeAssessment />} />
+                <Route path="/assessment/review/:resultId" element={<AssessmentReview />} />
 
-        </Routes>
+            </Routes>
+        </UserProvider>
     );
 }
 

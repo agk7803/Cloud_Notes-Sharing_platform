@@ -5,10 +5,12 @@ import {
     FaClock, FaChevronLeft, FaChevronRight, FaCheckCircle,
     FaTimesCircle, FaTrophy, FaExclamationTriangle
 } from 'react-icons/fa';
+import { useUser } from '../../shared/UserContext';
 
 export default function TakeAssessment() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { refreshUser } = useUser();
 
     // State
     const [assessment, setAssessment] = useState(null);
@@ -106,6 +108,7 @@ export default function TakeAssessment() {
                 resultId: resultData._id
             });
             setIsSubmitted(true);
+            if (refreshUser) refreshUser();
         } catch (err) {
             console.error("Submit error:", err);
             alert("Failed to submit assessment. Please try again.");

@@ -100,9 +100,17 @@ router.post("/:id/submit", protect, async (req, res) => {
         await User.findOneAndUpdate(
             { firebaseUid: req.user.uid },
             {
-                $inc: { totalScore: totalScore },
-                $set: { [`subjectScores.${assessment.subject}`]: (totalScore) } // This is a bit simplified, but follows the idea
-            }
+                $inc: {
+                    totalScore: totalScore,
+                    [`subjectScores.${assessment.subject}`]: totalScore
+                },
+                $setOnInsert: {
+                    name: req.user.name,
+                    email: req.user.email,
+                    firebaseUid: req.user.uid
+                }
+            },
+            { upsert: true, new: true }
         );
 
         res.status(201).json(result);
