@@ -85,27 +85,31 @@ export default function TakeAssessment() {
         setAnswers(prev => ({ ...prev, [currentIdx]: optionIdx }));
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!assessment) return;
 
-        // Optional confirmation
         if (timeLeft > 0 && !window.confirm("Are you sure you want to submit your assessment?")) return;
 
-        const questions = assessment.questions || [];
-        let correctCount = 0;
+        try {
+            const formattedAnswers = Object.entries(answers).map(([idx, optionIdx]) => ({
+                questionIdx: parseInt(idx),
+                selectedOption: optionIdx
+            }));
 
-        questions.forEach((q, idx) => {
-            const selectedAnswer = answers[idx];
-            if (selectedAnswer !== undefined && q.options[selectedAnswer] === q.correctAnswer) {
-                correctCount++;
-            }
-        });
+            const res = await api.post(`/assessments/${id}/submit`, { answers: formattedAnswers });
+            const resultData = res.data;
 
-        const total = questions.length;
-        const percentage = Math.round((correctCount / total) * 100);
-
-        setScore({ correct: correctCount, total, percentage });
-        setIsSubmitted(true);
+            setScore({
+                correct: resultData.answers.filter(a => a.isCorrect).length,
+                total: resultData.totalQuestions,
+                percentage: resultData.percentage,
+                resultId: resultData._id
+            });
+            setIsSubmitted(true);
+        } catch (err) {
+            console.error("Submit error:", err);
+            alert("Failed to submit assessment. Please try again.");
+        }
     };
 
     if (loading) {
@@ -175,12 +179,20 @@ export default function TakeAssessment() {
                             </div>
                         </div>
 
-                        <button
-                            onClick={() => navigate('/assessments')}
-                            className="w-full py-4 bg-black text-white rounded-2xl font-bold text-base hover:bg-gray-800 active:scale-[0.97] transition-all shadow-xl shadow-black/10"
-                        >
-                            Return to Assessments
-                        </button>
+                        <div className="flex flex-col sm:flex-row gap-4 mb-10">
+                            <button
+                                onClick={() => navigate(`/assessment/review/${score.resultId}`)}
+                                className="flex-1 py-4 bg-green-600 text-white rounded-2xl font-bold text-base hover:bg-green-700 active:scale-[0.97] transition-all shadow-xl shadow-green-900/10"
+                            >
+                                Review Answers
+                            </button>
+                            <button
+                                onClick={() => navigate('/assessments')}
+                                className="flex-1 py-4 bg-black text-white rounded-2xl font-bold text-base hover:bg-gray-800 active:scale-[0.97] transition-all shadow-xl shadow-black/10"
+                            >
+                                Return to Assessments
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -7,7 +7,6 @@ import {
     FaBookOpen, FaPlayCircle, FaFileAlt, FaTrophy,
     FaChartBar, FaPlus, FaTimes, FaTrash, FaChevronRight
 } from 'react-icons/fa';
-import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 
 const SUBJECTS = ["Machine Learning", "Compiler Design", "Computer Networks", "Software Engineering", "Cloud Computing", "Web Engineering"];
 
@@ -40,6 +39,7 @@ export default function Assessments() {
     // Data State
     const [generatedTests, setGeneratedTests] = useState([]);
     const [leaderboard, setLeaderboard] = useState([]);
+    const [userResults, setUserResults] = useState([]);
 
     // Generator Form
     const [genSubject, setGenSubject] = useState(SUBJECTS[0]);
@@ -53,9 +53,6 @@ export default function Assessments() {
     const navigate = useNavigate();
     const { user } = useOutletContext(); // Get user from Layout context
 
-    console.log("Tests:", generatedTests);
-    console.log("Notes:", userNotes);
-
 
     useEffect(() => {
         const auth = getAuth();
@@ -68,6 +65,13 @@ export default function Assessments() {
                 setGeneratedTests(testsRes.data);
             } catch (err) {
                 console.error("Assessments error:", err);
+            }
+
+            try {
+                const resultsRes = await api.get("/assessments/results/user");
+                setUserResults(resultsRes.data);
+            } catch (err) {
+                console.error("Results error:", err);
             }
 
             try {
@@ -245,7 +249,9 @@ export default function Assessments() {
                                             <div className="flex items-center gap-1 text-xs text-gray-400 font-medium">
                                                 <FaClock /> {test.duration} min
                                             </div>
-                                            {/* For simplicity not showing createdBy name unless we populate it */}
+                                            <span className="px-2 py-1 text-[10px] bg-blue-50 text-blue-600 rounded-md font-semibold">
+                                                👤 By {test.creatorName || "Scholar"}
+                                            </span>
                                         </div>
                                         <h3 className={`text-xl font-bold transition-colors ${isExpanded ? 'text-green-600' : 'text-gray-900'}`}>{test.title}</h3>
                                         {/* Row 1 - Meta Info */}
@@ -272,9 +278,15 @@ export default function Assessments() {
                                                 }[test.difficulty]}
                                             </span>
 
-                                            <span className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-600 font-medium">
-                                                Not Attempted
-                                            </span>
+                                            {userResults.some(r => r.assessmentId?._id === test._id) ? (
+                                                <span className="text-xs px-3 py-1 rounded-full bg-green-100 text-green-600 font-bold flex items-center gap-1">
+                                                    <FaCheck size={10} /> Completed
+                                                </span>
+                                            ) : (
+                                                <span className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-600 font-medium">
+                                                    Not Attempted
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isExpanded ? 'bg-green-100 text-green-600' : 'bg-gray-50 text-gray-400'}`}>
@@ -352,8 +364,8 @@ export default function Assessments() {
 
                 {/* Score Modal - High Fidelity Redesign */}
                 {showScoreModal && (
-                    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
-                        <div className="bg-white rounded-[2.5rem] w-full max-w-5xl max-h-[90vh] overflow-hidden shadow-[0_32px_128px_-16px_rgba(0,0,0,0.3)] flex flex-col md:flex-row animate-in zoom-in-95 slide-in-from-bottom-8 duration-500">
+                    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-[2.5rem] w-full max-w-5xl max-h-[90vh] overflow-hidden shadow-2xl flex flex-col md:flex-row shadow-black/30">
 
                             {/* Left: Performance Analysis */}
                             <div className="flex-2 p-10 md:p-12 border-r border-gray-100 overflow-y-auto custom-scrollbar flex-shrink-0 md:w-[60%]">
@@ -371,7 +383,7 @@ export default function Assessments() {
                                         <div className="text-center md:text-left">
                                             <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 block mb-2">Total Accumulated Score</span>
                                             <div className="flex items-baseline gap-2 justify-center md:justify-start">
-                                                <h3 className="text-6xl font-black tracking-tighter animate-in slide-in-from-bottom-2 duration-700">
+                                                <h3 className="text-6xl font-black tracking-tighter">
                                                     <CountUp end={user?.totalScore || 0} />
                                                 </h3>
                                                 <span className="text-xl font-bold opacity-60">pts</span>
@@ -416,7 +428,7 @@ export default function Assessments() {
                                                 <div className="h-2.5 w-full bg-gray-50 rounded-full overflow-hidden border border-gray-100/50 relative">
                                                     <div
                                                         className="h-full bg-gradient-to-r from-green-400 to-emerald-500 rounded-full transition-all duration-1000 ease-out shadow-[4px_0_12px_rgba(16,185,129,0.2)]"
-                                                        style={{ width: `${Math.min((score / 500) * 100, 100)}%` }} // Normalized example
+                                                        style={{ width: `${Math.min((score / 500) * 100, 100)}%` }}
                                                     ></div>
                                                 </div>
                                             </div>
@@ -427,11 +439,42 @@ export default function Assessments() {
                                         )}
                                     </div>
 
+                                    {/* Recent Activity / History */}
+                                    <div className="mt-12 space-y-6">
+                                        <h3 className="font-black text-gray-900 text-sm uppercase tracking-widest flex items-center gap-2">
+                                            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                                            Recent Activity
+                                        </h3>
+                                        <div className="space-y-3">
+                                            {userResults.length > 0 ? userResults.slice(0, 5).map((result) => (
+                                                <div key={result._id} className="flex items-center justify-between p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md transition-all">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black ${result.percentage >= 80 ? 'bg-green-50 text-green-600' : result.percentage >= 50 ? 'bg-yellow-50 text-yellow-600' : 'bg-red-50 text-red-600'}`}>
+                                                            {result.percentage}%
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <h4 className="text-xs font-bold text-gray-900 truncate">{result.assessmentId?.title || "Deleted Assessment"}</h4>
+                                                            <p className="text-[10px] text-gray-400 font-medium">{new Date(result.completedAt).toLocaleDateString()}</p>
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => navigate(`/assessment/review/${result._id}`)}
+                                                        className="px-4 py-1.5 bg-gray-50 hover:bg-black hover:text-white text-gray-900 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border border-gray-100"
+                                                    >
+                                                        Review
+                                                    </button>
+                                                </div>
+                                            )) : (
+                                                <p className="text-xs text-gray-400 italic">No recent attempts recorded.</p>
+                                            )}
+                                        </div>
+                                    </div>
+
                                     {user?.subjectScores && Object.keys(user.subjectScores).length > 0 && (
                                         <div className="grid grid-cols-2 gap-4 mt-10">
                                             <div className="bg-blue-50/50 p-5 rounded-2xl border border-blue-100/50">
-                                                <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest block mb-2">Strongest Subject</span>
-                                                <span className="text-sm font-bold text-blue-900">
+                                                <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest block mb-2">Strongest Category</span>
+                                                <span className="text-sm font-bold text-blue-900 truncate block">
                                                     {Object.entries(user.subjectScores).sort((a, b) => b[1] - a[1])[0][0]}
                                                 </span>
                                             </div>
@@ -520,7 +563,7 @@ export default function Assessments() {
                                             <p className="text-sm font-black">Top 5% Students</p>
                                         </div>
                                     </div>
-                                    <div className="w-10 h-10 bg-white text-green-600 rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                                    <div className="w-10 h-10 bg-white text-green-600 rounded-full flex items-center justify-center shadow-lg animate-bounce cursor-pointer">
                                         <FaChevronUp />
                                     </div>
                                 </div>
@@ -528,6 +571,7 @@ export default function Assessments() {
                         </div>
                     </div>
                 )}
+
 
                 {/* Generate AI Test Drawer */}
                 {showGenerateModal && (

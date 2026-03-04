@@ -18,7 +18,7 @@ function Landing() {
   };
   return (
     <div
-      className="relative flex min-h-screen flex-col bg-[#f8fbfa] group/design-root overflow-x-hidden"
+      className="relative flex h-screen flex-col bg-[#f8fbfa] group/design-root overflow-x-hidden overflow-y-auto custom-scrollbar"
       style={{ fontFamily: 'Inter, "Noto Sans", sans-serif' }}
     >
       <div className="layout-container flex h-full grow flex-col">

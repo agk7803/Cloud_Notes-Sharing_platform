@@ -31,6 +31,9 @@ import Profile from '../features/profile/Profile';
 import AcademicAI from '../features/ai/AcademicAI';
 
 
+import AssessmentReview from '../features/assessments/AssessmentReview';
+
+
 function App() {
     return (
         <Routes>
@@ -69,6 +72,7 @@ function App() {
             {/* Standalone Routes (Focus Mode) */}
             <Route path="/test-window/:testId" element={<TestWindow />} />
             <Route path="/assessment/:id" element={<TakeAssessment />} />
+            <Route path="/assessment/review/:resultId" element={<AssessmentReview />} />
 
         </Routes>
     );
