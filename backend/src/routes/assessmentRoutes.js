@@ -110,7 +110,7 @@ router.post("/:id/submit", protect, async (req, res) => {
                     firebaseUid: req.user.uid
                 }
             },
-            { upsert: true, new: true }
+            { upsert: true, returnDocument: 'after' }
         );
 
         res.status(201).json(result);
@@ -153,12 +153,11 @@ router.get("/results/:resultId", protect, async (req, res) => {
 router.delete("/:id", protect, async (req, res) => {
     try {
         const assessment = await Assessment.findOne({
-            _id: req.params.id,
-            createdBy: req.user.uid
+            _id: req.params.id
         });
 
         if (!assessment) {
-            return res.status(403).json({ message: "Unauthorized to delete this assessment" });
+            return res.status(404).json({ message: "Assessment not found" });
         }
 
         await assessment.deleteOne();

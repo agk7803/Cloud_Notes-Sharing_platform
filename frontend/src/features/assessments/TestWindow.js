@@ -3,12 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FaClock, FaCheck, FaTimes, FaFlag, FaChevronRight, FaChevronLeft, FaSave, FaTrophy } from 'react-icons/fa';
 import { doc, getDoc, updateDoc, increment } from 'firebase/firestore';
 import { db, auth } from '../../services/firebase';
+import '../../styles/TestWindow.css';
 
 const MOCK_QUESTIONS = {
     'mock-1': [
         { id: 1, type: 'mcq', text: 'Which of the following spaces is NOT a vector space?', options: ['The set of all polynomials.', 'The set of all continuous functions.', 'The set of all 2x2 matrices.', 'Set of solutions to Ax=b where b!=0.'], correct: 3 },
         { id: 2, type: 'mcq', text: 'If A is invertible, det(A^-1) is?', options: ['det(A)', '1/det(A)', '-det(A)', '1'], correct: 1 },
-        // ... (simplified for brevity, assume 20 questions)
     ],
     'mock-2': [
         { id: 1, type: 'mcq', text: 'What is Backpropagation?', options: ['Forward pass', 'Error correction algorithm', 'Activation function', 'None'], correct: 1 },
@@ -33,23 +33,19 @@ export default function TestWindow() {
     const [showResult, setShowResult] = useState(false);
     const [scoreResult, setScoreResult] = useState({ score: 0, total: 0 });
 
+    // ── all logic unchanged ──
     useEffect(() => {
-        // Load Questions
         const loadTest = async () => {
             if (testId.startsWith('mock-')) {
                 setQuestions(MOCK_QUESTIONS[testId] || DEFAULT_QUESTIONS);
                 setTestMetadata({ title: 'Mock Test', subject: 'General' });
             } else {
-                // Fetch from Firestore
                 try {
                     const docRef = doc(db, 'assessments', testId);
                     const docSnap = await getDoc(docRef);
                     if (docSnap.exists()) {
                         const data = docSnap.data();
                         setTestMetadata(data);
-                        // In a real app, questions would be a subcollection or field. 
-                        // For this MVP, we generate dummy questions based on count.
-                        // But if questions field exists use it, else use DEFAULT.
                         setQuestions(DEFAULT_QUESTIONS);
                         setTimeLeft(data.duration * 60);
                     }
@@ -86,22 +82,15 @@ export default function TestWindow() {
     const handleSubmit = async () => {
         if (!window.confirm("Are you sure you want to submit?")) return;
 
-        // Calculate Score
         let score = 0;
         questions.forEach((q, idx) => {
-            if (q.type === 'mcq' && answers[idx] === q.correct) {
-                score += 10;
-            }
-            // Descriptive: Random score for MVP or mark as pending
-            if (q.type === 'descriptive' && answers[idx]) {
-                score += 5;
-            }
+            if (q.type === 'mcq' && answers[idx] === q.correct) score += 10;
+            if (q.type === 'descriptive' && answers[idx]) score += 5;
         });
 
         const totalPotential = questions.length * 10;
         setScoreResult({ score, total: totalPotential });
 
-        // Update Firestore
         const currentUser = auth.currentUser;
         if (currentUser) {
             try {
@@ -118,136 +107,150 @@ export default function TestWindow() {
         setShowResult(true);
     };
 
+    /* ── RESULT SCREEN ── */
     if (showResult) {
         return (
-            <div className="min-h-screen bg-green-50 flex items-center justify-center p-6 animate-fade-in">
-                <div className="bg-white rounded-3xl p-10 max-w-md w-full text-center shadow-xl border border-green-100 relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-400 to-green-600"></div>
-
-                    <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl">
-                        🏆
+            <div className="tw-result">
+                <div className="tw-result__blob-teal" />
+                <div className="tw-result__blob-pink" />
+                <div className="tw-result__card">
+                    <div className="tw-result__banner" />
+                    <div className="tw-result__body">
+                        <div className="tw-result__trophy">🏆</div>
+                        <h2 className="tw-result__title">Test Complete!</h2>
+                        <p className="tw-result__sub">Great job completing the assessment.</p>
+                        <div className="tw-result__score-box">
+                            <div className="tw-result__score-label">Your Score</div>
+                            <div className="tw-result__score-val">{scoreResult.score}</div>
+                            <div className="tw-result__score-out">out of {scoreResult.total} points</div>
+                        </div>
+                        {/* original onClick preserved */}
+                        <button className="tw-result__btn" onClick={() => navigate('/assessments')}>
+                            Return to Dashboard
+                        </button>
                     </div>
-
-                    <h2 className="text-3xl font-black text-gray-900 mb-2">Test Complete!</h2>
-                    <p className="text-gray-500 mb-8">Great job completing the assessment.</p>
-
-                    <div className="bg-gray-50 rounded-2xl p-6 mb-8 border border-gray-100">
-                        <span className="text-gray-400 text-xs font-bold uppercase tracking-widest">Your Score</span>
-                        <div className="text-6xl font-black text-green-600 my-2">{scoreResult.score}</div>
-                        <p className="text-sm text-gray-500">out of {scoreResult.total} points</p>
-                    </div>
-
-                    <button
-                        onClick={() => navigate('/assessments')}
-                        className="w-full py-4 bg-black text-white rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg active:scale-95"
-                    >
-                        Return to Dashboard
-                    </button>
                 </div>
             </div>
         );
     }
 
-    if (questions.length === 0) return <div className="p-10 text-center">Loading Test...</div>;
+    /* ── LOADING ── */
+    if (questions.length === 0) return (
+        <div className="tw-loading">
+            <div className="tw-spinner" />
+            <span className="tw-loading__text">Loading Test...</span>
+        </div>
+    );
 
     const currentQuestion = questions[currentQuestionIdx];
 
     return (
-        <div className="fixed inset-0 bg-white z-50 flex flex-col font-sans">
-            {/* Top Bar */}
-            <header className="h-16 border-b border-gray-200 flex items-center justify-between px-6 flex-shrink-0 bg-white shadow-sm">
-                <div className="flex items-center gap-4">
-                    <h2 className="font-bold text-gray-800 text-lg">{testMetadata?.title || 'Assessment'}</h2>
-                    <span className="px-2 py-0.5 bg-green-50 text-green-600 text-xs rounded font-bold uppercase tracking-wider">{testMetadata?.subject}</span>
+        <div className="tw-root">
+
+            {/* mesh bg */}
+            <div className="tw-bg">
+                <div className="tw-bg__blob-teal" />
+                <div className="tw-bg__blob-pink" />
+                <div className="tw-bg__blob-sage" />
+            </div>
+            <div className="tw-grid" />
+
+            {/* ── HEADER ── */}
+            <header className="tw-header">
+                <div className="tw-header__left">
+                    <div className="tw-logo">
+                        <span className="tw-logo__bracket">[</span>
+                        <span className="tw-logo__text">cs</span>
+                        <span className="tw-logo__dot">.</span>
+                        <span className="tw-logo__text">test</span>
+                        <span className="tw-logo__bracket">]</span>
+                    </div>
+                    <span className="tw-header__sep" />
+                    <span className="tw-header__title">{testMetadata?.title || 'Assessment'}</span>
+                    {testMetadata?.subject && (
+                        <span className="tw-subject-chip">{testMetadata.subject}</span>
+                    )}
                 </div>
 
-                <div className="flex items-center gap-6">
-                    <div className="flex items-center gap-2 text-gray-600 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
-                        <FaClock className={timeLeft < 300 ? "text-red-500 animate-pulse" : "text-gray-400"} />
-                        <span className={`font-mono font-bold text-lg ${timeLeft < 300 ? "text-red-600" : "text-gray-800"}`}>
-                            {formatTime(timeLeft)}
-                        </span>
+                <div className="tw-header__right">
+                    <div className={`tw-timer${timeLeft < 300 ? ' tw-timer--warn' : ''}`}>
+                        <FaClock className={timeLeft < 300 ? "animate-pulse" : ""} />
+                        <span>{formatTime(timeLeft)}</span>
                     </div>
-                    <button
-                        onClick={() => navigate('/assessments')}
-                        className="text-gray-400 hover:text-red-600 text-sm font-semibold transition-colors"
-                    >
-                        Exit
-                    </button>
-                    <button
-                        onClick={handleSubmit}
-                        className="bg-black text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-800 transition-all shadow-sm"
-                    >
-                        Submit Test
-                    </button>
+                    {/* original onClick preserved */}
+                    <button className="tw-btn-exit" onClick={() => navigate('/assessments')}>Exit</button>
+                    <button className="tw-btn-submit" onClick={handleSubmit}>Submit Test</button>
                 </div>
             </header>
 
-            {/* Main Content */}
-            <div className="flex-1 flex overflow-hidden">
-                {/* Question Area */}
-                <main className="flex-1 overflow-y-auto p-12 bg-gray-50 flex justify-center">
-                    <div className="max-w-3xl w-full bg-white min-h-[500px] rounded-2xl shadow-sm border border-gray-200 p-8 flex flex-col">
-                        <div className="flex justify-between items-start mb-6">
-                            <span className="text-sm font-bold text-green-600 uppercase tracking-wider bg-green-50 px-2 py-1 rounded">Question {currentQuestionIdx + 1} of {questions.length}</span>
-                            <button className="text-gray-400 hover:text-green-600 transition-colors">
-                                <FaFlag />
-                            </button>
+            {/* ── BODY ── */}
+            <div className="tw-body">
+
+                {/* ── QUESTION CARD ── */}
+                <main className="tw-main">
+                    <div className="tw-qcard">
+
+                        {/* meta row */}
+                        <div className="tw-qcard__meta">
+                            <span className="tw-qcard__counter">
+                                Question {currentQuestionIdx + 1} of {questions.length}
+                            </span>
+                            <button className="tw-flag-btn"><FaFlag /></button>
                         </div>
 
-                        <h3 className="text-2xl font-medium text-gray-900 mb-8 leading-relaxed">
-                            {currentQuestion.text}
-                        </h3>
+                        {/* question text */}
+                        <div className="tw-qtext">{currentQuestion.text}</div>
 
-                        <div className="flex-1">
+                        {/* answers */}
+                        <div style={{ flex: 1 }}>
                             {currentQuestion.type === 'mcq' ? (
-                                <div className="space-y-3">
+                                <div className="tw-options">
                                     {currentQuestion.options.map((option, idx) => (
                                         <label
                                             key={idx}
-                                            className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${answers[currentQuestionIdx] === idx
-                                                ? 'border-green-500 bg-green-50'
-                                                : 'border-gray-200 hover:border-green-200 hover:bg-gray-50'
-                                                }`}
+                                            className={`tw-option${answers[currentQuestionIdx] === idx ? ' tw-option--selected' : ''}`}
                                         >
                                             <input
                                                 type="radio"
                                                 name={`q-${currentQuestion.id}`}
                                                 checked={answers[currentQuestionIdx] === idx}
                                                 onChange={() => handleAnswer(idx)}
-                                                className="w-5 h-5 text-green-600 focus:ring-green-500 accent-green-600"
                                             />
-                                            <span className={`text-lg ${answers[currentQuestionIdx] === idx ? 'text-green-900 font-medium' : 'text-gray-700'}`}>{option}</span>
+                                            <span className="tw-option__text">{option}</span>
                                         </label>
                                     ))}
                                 </div>
                             ) : (
-                                <div className="relative">
+                                <div className="tw-textarea-wrap">
                                     <textarea
-                                        className="w-full h-64 p-4 rounded-xl border-2 border-gray-200 focus:border-green-500 focus:ring-0 resize-none text-lg text-gray-800 bg-white"
+                                        className="tw-textarea"
                                         placeholder="Type your answer here..."
                                         value={answers[currentQuestionIdx] || ''}
                                         onChange={(e) => handleAnswer(e.target.value)}
                                     />
-                                    <div className="absolute bottom-4 right-4 text-xs text-gray-400">
-                                        {isSaving ? <span className="flex items-center gap-1"><FaSave className="animate-bounce" /> Saving...</span> : <span className="flex items-center gap-1 text-green-600"><FaCheck /> Saved</span>}
+                                    <div className={`tw-save-indicator${isSaving ? ' tw-save-indicator--saving' : ' tw-save-indicator--saved'}`}>
+                                        {isSaving
+                                            ? <><FaSave className="animate-bounce" /> Saving...</>
+                                            : <><FaCheck /> Saved</>
+                                        }
                                     </div>
                                 </div>
                             )}
                         </div>
 
-                        <div className="mt-8 flex justify-between items-center pt-8 border-t border-gray-100">
+                        {/* footer nav — original button sizes preserved */}
+                        <div className="tw-qcard__footer">
                             <button
+                                className="tw-btn-prev"
                                 onClick={() => setCurrentQuestionIdx(prev => Math.max(0, prev - 1))}
                                 disabled={currentQuestionIdx === 0}
-                                className="flex items-center gap-2 px-6 py-3 rounded-lg text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
                             >
                                 <FaChevronLeft /> Previous
                             </button>
                             <button
+                                className="tw-btn-next"
                                 onClick={() => setCurrentQuestionIdx(prev => Math.min(questions.length - 1, prev + 1))}
                                 disabled={currentQuestionIdx === questions.length - 1}
-                                className="flex items-center gap-2 px-8 py-3 rounded-lg bg-black text-white hover:bg-gray-800 disabled:opacity-50 disabled:bg-gray-300 font-bold shadow-md transition-all active:scale-95"
                             >
                                 Next <FaChevronRight />
                             </button>
@@ -255,32 +258,32 @@ export default function TestWindow() {
                     </div>
                 </main>
 
-                {/* Utility Panel */}
-                <aside className="w-80 bg-white border-l border-gray-200 p-6 hidden lg:flex flex-col">
-                    <h3 className="font-bold text-gray-900 mb-4">Question Navigator</h3>
-                    <div className="grid grid-cols-4 gap-3 mb-8">
+                {/* ── SIDEBAR ── */}
+                <aside className="tw-sidebar">
+                    <div className="tw-sidebar__title">Question Navigator</div>
+
+                    <div className="tw-nav-grid">
                         {questions.map((q, idx) => (
                             <button
                                 key={idx}
+                                className={`tw-nav-dot${idx === currentQuestionIdx ? ' tw-nav-dot--current' : answers[idx] !== undefined ? ' tw-nav-dot--answered' : ''}`}
                                 onClick={() => setCurrentQuestionIdx(idx)}
-                                className={`w-12 h-12 rounded-lg flex items-center justify-center font-bold text-sm transition-all ${currentQuestionIdx === idx ? 'bg-green-600 text-white shadow-md ring-2 ring-green-200' :
-                                    answers[idx] !== undefined ? 'bg-green-50 text-green-600 border border-green-200' : 'bg-white border border-gray-200 text-gray-500 hover:border-gray-400'
-                                    }`}
                             >
                                 {idx + 1}
                             </button>
                         ))}
                     </div>
 
-                    <div className="flex-1 bg-green-50/50 rounded-xl p-4 border border-green-100">
-                        <h4 className="font-bold text-gray-800 text-sm mb-2">Instructions</h4>
-                        <p className="text-sm text-gray-600 leading-relaxed">
+                    <div className="tw-instructions">
+                        <div className="tw-instructions__title">Instructions</div>
+                        <p className="tw-instructions__body">
                             Questions specific to <strong>{testMetadata?.subject}</strong>.
                             <br /><br />
                             Select the best answer for MCQ questions. Your progress is saved automatically.
                         </p>
                     </div>
                 </aside>
+
             </div>
         </div>
     );

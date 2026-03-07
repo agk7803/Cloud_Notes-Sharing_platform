@@ -36,7 +36,7 @@ const Sidebar = ({ active, setActive, onLogout, navigate }) => {
         <aside
             className={`${collapsed ? "w-24" : "w-72"}
       flex-shrink-0 flex flex-col justify-between p-4 m-4 rounded-3xl
-      bg-white shadow-xl border hidden lg:flex sticky top-4
+      bg-white shadow-xl border hidden lg:flex sticky top-4 z-50
       h-[calc(100vh-2rem)] transition-all duration-300 relative`}
         >
             {/* Collapse Button */}

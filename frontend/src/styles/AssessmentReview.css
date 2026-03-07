@@ -1,0 +1,496 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=DM+Sans:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+    --pink: #f9a8c9;
+    --pink-light: #fce8f3;
+    --pink-border: #f3b8d5;
+    --pink-deep: #b5376e;
+    --teal: #7ec8c8;
+    --teal-light: #e0f5f5;
+    --teal-border: #a8dcdc;
+    --teal-deep: #1a7a7a;
+    --sage: #b8e0c8;
+    --sage-light: #e8f5e3;
+    --sage-deep: #4a7a42;
+    --cream: #faf8f5;
+    --grid-line: #e8e4df;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --white: #ffffff;
+}
+
+/* ── ROOT ── */
+.ar-root {
+    font-family: 'DM Sans', sans-serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--cream);
+    position: relative;
+    color: var(--text);
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+/* ── MESH BACKGROUND (same as AcademicAI) ── */
+.ar-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.ar-bg__blob-teal {
+    position: absolute;
+    width: 560px;
+    height: 560px;
+    border-radius: 50%;
+    background: var(--teal-light);
+    filter: blur(90px);
+    opacity: 0.55;
+    top: -180px;
+    right: -100px;
+}
+
+.ar-bg__blob-pink {
+    position: absolute;
+    width: 460px;
+    height: 460px;
+    border-radius: 50%;
+    background: var(--pink-light);
+    filter: blur(90px);
+    opacity: 0.5;
+    bottom: -100px;
+    left: -80px;
+}
+
+.ar-bg__blob-sage {
+    position: absolute;
+    width: 340px;
+    height: 340px;
+    border-radius: 50%;
+    background: var(--sage-light);
+    filter: blur(90px);
+    opacity: 0.45;
+    top: 45%;
+    left: 28%;
+}
+
+.ar-grid {
+    position: fixed;
+    inset: 0;
+    background-image:
+        linear-gradient(var(--grid-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 28px 28px;
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ── CONTENT WRAP ── */
+.ar-wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 48px 28px;
+}
+
+/* ── LOGO ── */
+.ar-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    margin-bottom: 32px;
+    display: inline-block;
+}
+
+.ar-logo__bracket {
+    color: var(--muted);
+}
+
+.ar-logo__text {
+    color: var(--pink-deep);
+}
+
+.ar-logo__dot {
+    color: var(--teal);
+}
+
+/* ── BACK BUTTON ── */
+.ar-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    margin-bottom: 32px;
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all .2s;
+}
+
+.ar-back:hover {
+    border-color: var(--teal-border);
+    color: var(--teal-deep);
+}
+
+/* ── HEADER CARD ── */
+.ar-header-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 32px;
+    margin-bottom: 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+@media (min-width: 768px) {
+    .ar-header-card {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+/* eyebrow */
+.ar-eyebrow {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--pink-deep);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.ar-eyebrow::before {
+    content: '';
+    width: 18px;
+    height: 2px;
+    background: var(--pink-border);
+    border-radius: 2px;
+    display: inline-block;
+}
+
+.ar-header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+    margin: 0 0 6px;
+}
+
+.ar-header-meta {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.ar-header-meta strong {
+    color: var(--text);
+    font-weight: 600;
+}
+
+/* score chips */
+.ar-score-chips {
+    display: flex;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.ar-score-chip {
+    padding: 14px 22px;
+    border-radius: 16px;
+    text-align: center;
+    border: 1px solid;
+}
+
+.ar-score-chip--score {
+    background: var(--sage-light);
+    border-color: var(--sage);
+}
+
+.ar-score-chip--accuracy {
+    background: var(--teal-light);
+    border-color: var(--teal-border);
+}
+
+.ar-score-chip__label {
+    display: block;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
+}
+
+.ar-score-chip--score .ar-score-chip__label {
+    color: var(--sage-deep);
+}
+
+.ar-score-chip--accuracy .ar-score-chip__label {
+    color: var(--teal-deep);
+}
+
+.ar-score-chip__val {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.ar-score-chip--score .ar-score-chip__val {
+    color: var(--sage-deep);
+}
+
+.ar-score-chip--accuracy .ar-score-chip__val {
+    color: var(--teal-deep);
+}
+
+/* ── QUESTION CARDS ── */
+.ar-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    transition: box-shadow .2s;
+}
+
+.ar-card:hover {
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.08);
+}
+
+.ar-card--correct {
+    border-color: var(--teal-border);
+}
+
+.ar-card--wrong {
+    border-color: var(--pink-border);
+}
+
+.ar-card__inner {
+    padding: 28px;
+}
+
+/* question top row */
+.ar-card__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.ar-card__q-label {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+}
+
+/* mark badges — kept same size as original rounded-full px-3 py-1 */
+.ar-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border: 1px solid;
+}
+
+.ar-mark--correct {
+    background: var(--sage-light);
+    color: var(--sage-deep);
+    border-color: var(--sage);
+}
+
+.ar-mark--wrong {
+    background: var(--pink-light);
+    color: var(--pink-deep);
+    border-color: var(--pink-border);
+}
+
+/* question text — Playfair, same as TakeAssessment */
+.ar-question-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.45;
+    margin-bottom: 20px;
+}
+
+/* ── OPTIONS ── */
+.ar-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* base option — same glass card as TakeAssessment options */
+.ar-option {
+    padding: 14px 18px;
+    border-radius: 14px;
+    border: 1.5px solid var(--border);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(4px);
+    transition: all .2s;
+}
+
+.ar-option--default {
+    background: var(--cream);
+    color: var(--muted);
+    border-color: var(--border);
+}
+
+/* correct + selected */
+.ar-option--correct-selected {
+    background: var(--teal-light);
+    color: var(--teal-deep);
+    border-color: var(--teal-border);
+    box-shadow: 0 4px 14px rgba(126, 200, 200, 0.2);
+    font-weight: 700;
+}
+
+/* wrong + selected */
+.ar-option--wrong-selected {
+    background: var(--pink-light);
+    color: var(--pink-deep);
+    border-color: var(--pink-border);
+    box-shadow: 0 4px 14px rgba(249, 168, 201, 0.2);
+    font-weight: 700;
+}
+
+/* right answer not selected */
+.ar-option--correct-answer {
+    background: var(--sage-light);
+    color: var(--sage-deep);
+    border-color: var(--sage);
+    font-weight: 600;
+}
+
+.ar-option__right {
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* ── EXPLANATION BOX ── */
+.ar-explanation {
+    margin-top: 22px;
+    padding: 20px 22px;
+    background: var(--teal-light);
+    border: 1px solid var(--teal-border);
+    border-radius: 16px;
+}
+
+.ar-explanation__label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--teal-deep);
+    margin-bottom: 10px;
+}
+
+.ar-explanation__text {
+    font-size: 14px;
+    color: var(--teal-deep);
+    line-height: 1.65;
+    font-weight: 500;
+}
+
+.ar-explanation__ref {
+    display: block;
+    margin-top: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--teal-deep);
+    opacity: 0.65;
+    font-style: italic;
+}
+
+/* ── LOADING / ERROR ── */
+.ar-loading,
+.ar-error {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: var(--cream);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+}
+
+.ar-loading {
+    flex-direction: column;
+    gap: 14px;
+}
+
+.ar-spinner {
+    width: 40px;
+    height: 40px;
+    border: 2.5px solid var(--border);
+    border-top-color: var(--pink-deep);
+    border-radius: 50%;
+    animation: ar-spin .8s linear infinite;
+}
+
+@keyframes ar-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.ar-loading__text {
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.ar-error {
+    color: var(--pink-deep);
+    font-weight: 700;
+}

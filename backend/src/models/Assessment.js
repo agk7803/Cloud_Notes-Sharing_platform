@@ -18,7 +18,6 @@ const assessmentSchema = new mongoose.Schema(
         questions: [questionSchema],
         createdBy: {
             type: String,
-            ref: 'User',
             required: true
         },
     },

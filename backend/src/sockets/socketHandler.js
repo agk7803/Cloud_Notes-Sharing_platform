@@ -43,7 +43,7 @@ function setupSocket(io) {
                 const updatedChat = await Chat.findByIdAndUpdate(
                     messageId,
                     { message: newContent },
-                    { new: true }
+                    { returnDocument: 'after' }
                 );
 
                 if (updatedChat) {

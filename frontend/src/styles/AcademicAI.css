@@ -1053,3 +1053,198 @@ body {
     color: #f9a8c9;
     font-weight: 900;
 }
+
+/* ════════════════════════════════════════
+   GLOBAL PAGE LOAD
+════════════════════════════════════════ */
+
+.bs-root {
+    animation: bsFadePage .6s ease;
+}
+
+@keyframes bsFadePage {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* ════════════════════════════════════════
+   HERO TEXT ANIMATION
+════════════════════════════════════════ */
+
+.bs-hero__headline {
+    animation: bsHeroText .6s ease;
+}
+
+@keyframes bsHeroText {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* ════════════════════════════════════════
+   SUGGESTION CARD HOVER
+════════════════════════════════════════ */
+
+.sg-card {
+    transition: all .3s cubic-bezier(.4, 0, .2, 1);
+}
+
+.sg-card:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 14px 32px rgba(126, 200, 200, .25);
+}
+
+
+/* ════════════════════════════════════════
+   INPUT BOX MICRO INTERACTION
+════════════════════════════════════════ */
+
+.land-wrap,
+.chat-wrap {
+    transition: all .25s ease;
+}
+
+.land-wrap:focus-within,
+.chat-wrap:focus-within {
+    transform: scale(1.01);
+}
+
+
+/* ════════════════════════════════════════
+   BUTTON HOVER ANIMATION
+════════════════════════════════════════ */
+
+.tool-btn,
+.hdr-btn,
+.msg-action,
+.new-sess {
+    transition: all .2s cubic-bezier(.4, 0, .2, 1);
+}
+
+.tool-btn:hover,
+.hdr-btn:hover,
+.msg-action:hover,
+.new-sess:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, .12);
+}
+
+
+/* BUTTON PRESS FEEDBACK */
+
+.tool-btn:active,
+.hdr-btn:active,
+.msg-action:active,
+.new-sess:active {
+    transform: scale(.95);
+}
+
+
+/* ════════════════════════════════════════
+   SEND BUTTON ANIMATION
+════════════════════════════════════════ */
+
+.send-btn {
+    transition: all .25s ease;
+}
+
+.send-btn:hover:not(:disabled) {
+    transform: scale(1.08);
+}
+
+
+/* ════════════════════════════════════════
+   MESSAGE BUBBLE ENTRY
+════════════════════════════════════════ */
+
+.bs-msg {
+    animation: bsMsgIn .25s ease;
+}
+
+@keyframes bsMsgIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* ════════════════════════════════════════
+   SIDEBAR SESSION ITEMS
+════════════════════════════════════════ */
+
+.sess-item {
+    transition: all .2s ease;
+}
+
+.sess-item:hover {
+    transform: translateX(4px);
+}
+
+
+/* ════════════════════════════════════════
+   LOGO SUBTLE FLOAT
+════════════════════════════════════════ */
+
+.bs-logo {
+    animation: bsLogoFloat 6s ease-in-out infinite;
+}
+
+@keyframes bsLogoFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-2px);
+    }
+}
+
+
+/* ════════════════════════════════════════
+   AVATAR HOVER
+════════════════════════════════════════ */
+
+.bs-avatar {
+    transition: all .2s ease;
+}
+
+.bs-avatar:hover {
+    transform: scale(1.08);
+}
+
+
+/* ════════════════════════════════════════
+   CODE BLOCK HOVER
+════════════════════════════════════════ */
+
+.bs-code-block {
+    transition: all .25s ease;
+}
+
+.bs-code-block:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, .08);
+}
