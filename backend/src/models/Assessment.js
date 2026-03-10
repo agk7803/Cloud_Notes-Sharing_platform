@@ -5,6 +5,7 @@ const questionSchema = new mongoose.Schema({
     options: [String],
     correctAnswer: String,
     explanation: String,
+    hint: String,
     referencePage: String,
 });
 

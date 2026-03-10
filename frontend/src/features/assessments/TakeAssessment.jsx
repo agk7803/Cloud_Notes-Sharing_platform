@@ -39,6 +39,22 @@ export default function TakeAssessment() {
     const [timeLeft, setTimeLeft] = useState(0);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [score, setScore] = useState({ correct: 0, total: 0, percentage: 0 });
+    const [showHint, setShowHint] = useState(false);
+
+    // ── Idleness Hint ──
+    useEffect(() => {
+        if (loading || isSubmitted || !assessment) return;
+
+        // Hide hint on any move or interaction
+        setShowHint(false);
+
+        // If no answer yet, start the 5s timer
+        const currentAns = answers[currentIdx];
+        if (!currentAns || (typeof currentAns === 'string' && currentAns.trim() === '')) {
+            const timer = setTimeout(() => setShowHint(true), 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [currentIdx, answers, assessment, loading, isSubmitted]);
 
     // ── Fetch (unchanged) ──
     useEffect(() => {
@@ -302,6 +318,20 @@ export default function TakeAssessment() {
                         </div>
 
                         <div className="ta-qtext">{currentQuestion.questionText}</div>
+
+                        {showHint && (
+                            <div className="ta-hint-bubble">
+                                <div className="ta-hint-bubble__icon text-yellow-500">💡</div>
+                                <div className="ta-hint-bubble__content">
+                                    <div className="ta-hint-bubble__title">Need a Hint?</div>
+                                    <div className="ta-hint-bubble__text">
+                                        {assessment.type === 'mcq'
+                                            ? "Stuck? Look closely at the options. There might be a keyword that matches your notes!"
+                                            : "Take a deep breath. Try to outline the key points from the provided material."}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="ta-options">
                             {assessment.type === 'mcq' ? (
