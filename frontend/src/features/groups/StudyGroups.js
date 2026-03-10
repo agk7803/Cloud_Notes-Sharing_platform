@@ -1,201 +1,320 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
-import { FaUsers, FaSearch, FaFilter, FaLock, FaGlobe, FaPlus } from 'react-icons/fa';
+import { FaGlobe, FaLock, FaSearch, FaFire, FaUsers } from 'react-icons/fa';
+
 import api from '../../services/api';
+import CreateGroupModal from './Creategroupmodal';
+import { getSubjectColor, getAvatarColor, EMOJI_AVATARS } from './Constants';
+import '../../styles/StudyGroups.css';
 
-const CreateGroupModal = ({ onClose, onCreated }) => {
-    const [name, setName] = useState('');
-    const [subject, setSubject] = useState('');
-    const [description, setDescription] = useState('');
-    const [type, setType] = useState('Public');
+// ─── Member Avatar Stack ───────────────────────────────────────────────────────
+const MemberStack = ({ members = [], limit = 3 }) => (
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+        {members.slice(0, limit).map((uid, i) => (
+            <div key={uid} style={{
+                width: 26, height: 26, borderRadius: 7,
+                background: getAvatarColor(uid),
+                border: '2px solid #fff', marginLeft: i > 0 ? -7 : 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 13, zIndex: limit - i, boxShadow: '0 1px 3px rgba(0,0,0,.08)',
+            }}>
+                {EMOJI_AVATARS[i % EMOJI_AVATARS.length]}
+            </div>
+        ))}
+        {members.length > limit && (
+            <div style={{
+                width: 26, height: 26, borderRadius: 7, background: '#f1f5f9',
+                border: '2px solid #fff', marginLeft: -7, display: 'flex',
+                alignItems: 'center', justifyContent: 'center',
+                fontSize: 10, fontWeight: 800, color: '#64748b',
+            }}>
+                +{members.length - limit}
+            </div>
+        )}
+    </div>
+);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const res = await api.post('/groups', { name, subject, description, type });
-            onCreated(res.data);
-            onClose();
-        } catch (error) {
-            alert(error.response?.data?.message || 'Failed to create group');
-        }
-    };
+// ─── Group Card ────────────────────────────────────────────────────────────────
+const GroupCard = ({ group, currentUserId, onClick }) => {
+    const [hovered, setHovered] = useState(false);
+    const sc = getSubjectColor(group.subject);
+    const isPublic = group.type === 'Public';
+    const isMember = group.members?.includes(currentUserId);
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in" onClick={onClose}>
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
-                <h3 className="text-xl font-bold mb-4">Create New Group</h3>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-1">Group Name</label>
-                        <input required type="text" value={name} onChange={e => setName(e.target.value)} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-[#1dc962] outline-none" placeholder="Ex: Cloud Computing Study Circle" />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-1">Subject</label>
-                        <input required type="text" value={subject} onChange={e => setSubject(e.target.value)} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-[#1dc962] outline-none" placeholder="Ex: Cloud Computing" />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
-                        <textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-[#1dc962] outline-none" placeholder="Brief description..." />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-1">Type</label>
-                        <select value={type} onChange={e => setType(e.target.value)} className="w-full p-2 border rounded-lg outline-none">
-                            <option value="Public">Public (Anyone can join)</option>
-                            <option value="Private">Private (Invite only)</option>
-                        </select>
-                    </div>
-                    <button type="submit" className="w-full py-3 bg-[#1dc962] text-white font-bold rounded-xl hover:bg-green-600 transition-colors">
-                        Create Group
-                    </button>
-                </form>
+        <div
+            className="sg-card"
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            onClick={onClick}
+            style={{
+                border: `1.5px solid ${hovered ? '#7ec8c8' : '#e8edf2'}`,
+                transform: hovered ? 'translateY(-6px)' : 'none',
+                boxShadow: hovered
+                    ? '0 18px 40px rgba(126,200,200,.22), 0 4px 12px rgba(0,0,0,.06)'
+                    : '0 1px 4px rgba(0,0,0,.04)',
+            }}
+        >
+            <div className="sg-card__accent" style={{ opacity: hovered ? 1 : 0, background: `linear-gradient(90deg, ${sc.text}, #00c96e)` }} />
+
+            <div className="sg-card__header">
+                <div style={{ flex: 1, minWidth: 0 }}>
+                    <div className="sg-card__name" style={{ color: hovered ? '#1a7a7a' : '#1e293b' }}>{group.name}</div>
+                    <span className="sg-card__subject" style={{ background: sc.bg, color: sc.text, border: `1px solid ${sc.border}` }}>
+                        {group.subject}
+                    </span>
+                </div>
+                <div className="sg-card__type" style={{
+                    background: isPublic ? '#e0f5f5' : '#fff7ed',
+                    color: isPublic ? '#1a7a7a' : '#b45309',
+                    border: `1px solid ${isPublic ? '#a8dcdc' : '#fcd9a0'}`,
+                }}>
+                    {isPublic ? <FaGlobe size={10} /> : <FaLock size={10} />} {group.type}
+                </div>
             </div>
+
+            <p className="sg-card__desc">{group.description}</p>
+
+            <div className="sg-card__footer">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <MemberStack members={group.members} />
+                    <span className="sg-card__member-count">
+                        <FaUsers size={10} style={{ marginRight: 4 }} />
+                        {group.members?.length || 0} members
+                    </span>
+                </div>
+                {group.lastActivity && (
+                    <div className="sg-card__activity">
+                        <div className="sg-card__activity-dot" />
+                        {group.lastActivity}
+                    </div>
+                )}
+            </div>
+
+            {!isMember ? (
+                <button
+                    className={`sg-card__cta ${isPublic ? 'sg-card__cta--join' : 'sg-card__cta--request'}`}
+                    onClick={e => { e.stopPropagation(); onClick(); }}
+                >
+                    {isPublic ? '+ Join Group' : '🔒 Request to Join'}
+                </button>
+            ) : (
+                <div className="sg-card__view-wrap" style={{ maxHeight: hovered ? 44 : 0, opacity: hovered ? 1 : 0 }}>
+                    <button className="sg-card__cta sg-card__cta--view" onClick={e => { e.stopPropagation(); onClick(); }}>
+                        → View Group
+                    </button>
+                </div>
+            )}
         </div>
     );
 };
 
+// ─── Study Groups Discovery Page ───────────────────────────────────────────────
 export default function StudyGroups() {
     const navigate = useNavigate();
     const { user } = useOutletContext();
-    const [activeTab, setActiveTab] = useState('all');
+
     const [groups, setGroups] = useState([]);
-    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [myGroups, setMyGroups] = useState([]);
+    const [trending, setTrending] = useState([]);
+    const [subjects, setSubjects] = useState([]);
+    const [activeTab, setActiveTab] = useState('all');
+    const [search, setSearch] = useState('');
+    const [subjectFilter, setSubFilter] = useState('');
+    const [typeFilter, setTypeFilter] = useState('');
     const [loading, setLoading] = useState(true);
+    const [showCreate, setShowCreate] = useState(false);
 
-    const fetchGroups = async () => {
-        setLoading(true);
-        try {
-            const res = await api.get(`/groups?filter=${activeTab}`);
-            setGroups(res.data);
-        } catch (error) {
-            console.error("Failed to fetch groups", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
+    // Fetch all / my groups
     useEffect(() => {
-        fetchGroups();
+        setLoading(true);
+        api.get(`/groups?filter=${activeTab}`)
+            .then(res => setGroups(res.data || []))
+            .catch(err => console.error(err))
+            .finally(() => setLoading(false));
     }, [activeTab]);
 
-    const handleCreate = (newGroup) => {
-        setGroups([newGroup, ...groups]);
-    };
+    // Fetch my groups for quick-access strip (always)
+    useEffect(() => {
+        api.get('/groups?filter=my')
+            .then(res => setMyGroups(res.data || []))
+            .catch(() => { });
+    }, []);
+
+    // Fetch trending topics
+    useEffect(() => {
+        api.get('/groups/trending')
+            .then(res => setTrending(res.data || []))
+            .catch(() => { });
+    }, []);
+
+    // Fetch subject list for filter dropdown
+    useEffect(() => {
+        api.get('/groups/subjects')
+            .then(res => setSubjects(res.data || []))
+            .catch(() => {
+                // fallback: derive from loaded groups
+                setSubjects([...new Set(groups.map(g => g.subject).filter(Boolean))]);
+            });
+    }, [groups]);
+
+    const filtered = groups.filter(g => {
+        const inSearch = !search || g.name.toLowerCase().includes(search.toLowerCase()) || g.subject?.toLowerCase().includes(search.toLowerCase());
+        const inSubject = !subjectFilter || g.subject === subjectFilter;
+        const inType = !typeFilter || g.type === typeFilter;
+        return inSearch && inSubject && inType;
+    });
+
+    const hasFilters = search || subjectFilter || typeFilter;
 
     const handleGroupClick = async (group) => {
-        if (group.members.includes(user.uid)) {
+        if (group.members?.includes(user.uid)) {
             navigate(`/groups/${group._id}`);
-        } else if (group.type === 'Public') {
-            if (window.confirm(`Join "${group.name}"?`)) {
-                try {
-                    await api.post(`/groups/${group._id}/join`);
-                    navigate(`/groups/${group._id}`);
-                } catch (error) {
-                    alert(error.response?.data?.message || "Failed to join group");
-                }
+            return;
+        }
+        if (group.type === 'Public') {
+            if (!window.confirm(`Join "${group.name}"?`)) return;
+            try {
+                await api.post(`/groups/${group._id}/join`);
+                navigate(`/groups/${group._id}`);
+            } catch (err) {
+                alert(err.response?.data?.message || 'Failed to join group');
             }
         } else {
-            alert("This group is private. You need an invite to join.");
+            alert('This is a private group. Request an invite to join.');
         }
+    };
+
+    const handleCreated = (newGroup) => {
+        setGroups(prev => [newGroup, ...prev]);
+        setMyGroups(prev => [newGroup, ...prev]);
     };
 
     return (
-        <div className="min-h-screen p-8">
-            <div className="max-w-6xl mx-auto">
-                <div className="mb-10">
-                    <header className="flex flex-col md:flex-row justify-between md:items-center gap-6">
-                        <div className="space-y-2">
-                            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">
-                                Study Groups
-                            </h1>
-                            <p className="text-gray-500 text-lg">Collaborate and prepare with peers.</p>
-                        </div>
-                        <button
-                            onClick={() => setShowCreateModal(true)}
-                            className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-black text-white font-semibold hover:bg-gray-800 hover:shadow-xl shadow-lg active:scale-95 transition-all duration-200"
-                        >
-                            <FaPlus className="transition-transform duration-300 group-hover:rotate-90" />
-                            Create New Group
-                        </button>
-                    </header>
+        <div className="bs-landing sg-page">
+            <div className="sg-container">
+
+                {/* Page header */}
+                <div className="sg-page-header">
+                    <div>
+                        <h1 className="sg-page-title">Study Groups</h1>
+                        <p className="sg-page-subtitle">Discover groups, collaborate, and study smarter together.</p>
+                    </div>
+                    <button className="sg-create-btn" onClick={() => setShowCreate(true)}>
+                        <span>+</span> Create Group
+                    </button>
                 </div>
 
-                {showCreateModal && <CreateGroupModal onClose={() => setShowCreateModal(false)} onCreated={handleCreate} />}
-
-                {/* Toolbar */}
-                <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-8 flex flex-col md:flex-row gap-4 justify-between items-center">
-                    <div className="flex gap-2 p-1 bg-gray-50 rounded-xl">
-                        {['All Groups', 'My Groups'].map((tab) => (
+                {/* Toolbar row 1 — tabs + search */}
+                <div className="sg-toolbar-row">
+                    <div className="sg-tabs">
+                        {[{ id: 'all', label: 'All Groups' }, { id: 'my', label: 'My Groups' }].map(t => (
                             <button
-                                key={tab}
-                                onClick={() => setActiveTab(tab.toLowerCase().split(' ')[0])}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === tab.toLowerCase().split(' ')[0]
-                                    ? 'bg-white text-[#1dc962] shadow-sm'
-                                    : 'text-gray-500 hover:text-gray-900'
-                                    }`}
+                                key={t.id}
+                                className={`sg-tab ${activeTab === t.id ? 'sg-tab--active' : ''}`}
+                                onClick={() => setActiveTab(t.id)}
                             >
-                                {tab}
+                                {t.label}
                             </button>
                         ))}
                     </div>
-
-                    <div className="flex gap-3 w-full md:w-auto">
-                        <div className="relative flex-1 md:w-64">
-                            <input
-                                type="text"
-                                placeholder="Search groups..."
-                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 text-sm"
-                            />
-                            <FaSearch className="absolute left-3.5 top-3 text-gray-400" />
-                        </div>
-                        <button className="p-2.5 border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50">
-                            <FaFilter />
-                        </button>
+                    <div className="sg-search-wrap">
+                        <FaSearch className="sg-search-icon" />
+                        <input
+                            className="sg-search-input"
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            placeholder="Search groups by name or subject..."
+                        />
                     </div>
                 </div>
 
-                {/* Groups Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {loading ? (
-                        <div className="col-span-full py-12 text-center text-gray-500">Loading groups...</div>
-                    ) : groups.length > 0 ? (
-                        groups.map(group => (
-                            <div key={group._id} className="bg-white p-6 rounded-2xl border border-gray-100 hover:border-green-200 hover:shadow-lg transition-all cursor-pointer group flex flex-col justify-between h-56"
-                                onClick={() => handleGroupClick(group)}
-                            >
-                                <div>
-                                    <div className="flex justify-between items-start mb-4">
-                                        <span className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${group.type === 'Public' ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'}`}>
-                                            {group.type === 'Public' ? <FaGlobe /> : <FaLock />} {group.type}
-                                        </span>
-                                        <div className="text-gray-400 text-sm font-semibold flex items-center gap-1">
-                                            <FaUsers /> {group.members.length}
-                                        </div>
-                                    </div>
-                                    <h3 className="text-xl font-bold text-gray-900 mb-1 group-hover:text-[#1dc962] transition-colors line-clamp-2">{group.name}</h3>
-                                    <p className="text-sm text-gray-500 font-medium">{group.subject}</p>
-                                </div>
-
-                                <div className="pt-4 border-t border-gray-50 flex items-center gap-3">
-                                    <div className="flex -space-x-2 overflow-hidden">
-                                        {group.members.slice(0, 3).map((member, i) => (
-                                            <div key={i} className="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">
-                                                U{i + 1}
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <span className="text-xs text-gray-400 font-medium">
-                                        {group.members.length > 3 ? `+ ${group.members.length - 3} others` : ''}
-                                    </span>
-                                </div>
-                            </div>
-                        ))
-                    ) : (
-                        <div className="col-span-full py-12 text-center text-gray-500">
-                            <p>No groups found. Create one to get started!</p>
-                        </div>
+                {/* Toolbar row 2 — filters */}
+                <div className="sg-filter-row">
+                    <span className="sg-filter-label">Filter by:</span>
+                    <select
+                        className={`sg-filter-select ${subjectFilter ? 'sg-filter-select--active' : ''}`}
+                        value={subjectFilter}
+                        onChange={e => setSubFilter(e.target.value)}
+                    >
+                        <option value="">Subject ▾</option>
+                        {subjects.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                    <select
+                        className={`sg-filter-select ${typeFilter ? 'sg-filter-select--active' : ''}`}
+                        value={typeFilter}
+                        onChange={e => setTypeFilter(e.target.value)}
+                    >
+                        <option value="">Visibility ▾</option>
+                        <option value="Public">🌐 Public</option>
+                        <option value="Private">🔒 Private</option>
+                    </select>
+                    {hasFilters && (
+                        <button className="sg-filter-clear" onClick={() => { setSearch(''); setSubFilter(''); setTypeFilter(''); }}>
+                            ✕ Clear
+                        </button>
                     )}
                 </div>
+
+                {/* Your Groups quick-access strip */}
+                {activeTab === 'all' && myGroups.length > 0 && (
+                    <div className="sg-section">
+                        <p className="sg-section-label">Your Groups</p>
+                        <div className="sg-quick-strip">
+                            {myGroups.slice(0, 5).map(g => (
+                                <div key={g._id} className="sg-quick-item" onClick={() => navigate(`/groups/${g._id}`)}>
+                                    <div className="sg-quick-item__icon">📖</div>
+                                    <div>
+                                        <div className="sg-quick-item__name">{g.name}</div>
+                                        <div className="sg-quick-item__activity">
+                                            <div className="sg-quick-dot" />
+                                            {g.lastActivity || 'Recently active'}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Trending chips */}
+                {!hasFilters && activeTab === 'all' && trending.length > 0 && (
+                    <div className="sg-section">
+                        <p className="sg-section-label"><FaFire color="#f97316" /> Trending Groups</p>
+                        <div className="sg-trending-strip">
+                            {trending.map((t, i) => (
+                                <button key={i} className="sg-trending-chip" onClick={() => setSearch(t.label)}>
+                                    {t.emoji && <span>{t.emoji}</span>}
+                                    {t.label}
+                                    {t.count != null && <span className="sg-trending-count">{t.count}</span>}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Group grid */}
+                {loading ? (
+                    <div className="sg-state-msg">Loading groups...</div>
+                ) : filtered.length === 0 ? (
+                    <div className="sg-empty">
+                        <div className="sg-empty__icon">🔍</div>
+                        <div className="sg-empty__title">No groups found</div>
+                        <p className="sg-empty__sub">Try a different search or clear filters</p>
+                        <button className="sg-empty__cta" onClick={() => setShowCreate(true)}>
+                            + Create a new group
+                        </button>
+                    </div>
+                ) : (
+                    <div className="sg-grid">
+                        {filtered.map(g => (
+                            <GroupCard key={g._id} group={g} currentUserId={user?.uid} onClick={() => handleGroupClick(g)} />
+                        ))}
+                    </div>
+                )}
             </div>
+
+            {showCreate && <CreateGroupModal onClose={() => setShowCreate(false)} onCreated={handleCreated} />}
         </div>
     );
 }

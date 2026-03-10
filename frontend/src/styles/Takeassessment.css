@@ -454,6 +454,57 @@
     margin-bottom: 26px;
 }
 
+/* ── TEXTAREA for Written Tests ── */
+.ta-textarea-wrap {
+    position: relative;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(8px);
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    transition: all .3s;
+}
+
+.ta-textarea-wrap:focus-within {
+    border-color: #7ec8c8;
+    box-shadow: 0 8px 30px rgba(126, 200, 200, 0.15);
+}
+
+.ta-textarea {
+    width: 100%;
+    min-height: 250px;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #1e293b;
+    resize: vertical;
+}
+
+.ta-textarea::placeholder {
+    color: #94a3b8;
+}
+
+.ta-textarea-hint {
+    margin-top: 16px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ta-textarea-hint::before {
+    content: "💡";
+}
+
 /* ── OPTIONS ── */
 .ta-options {
     display: flex;

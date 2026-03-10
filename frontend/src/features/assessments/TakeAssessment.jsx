@@ -94,17 +94,18 @@ export default function TakeAssessment() {
         return `${m}:${s.toString().padStart(2, '0')}`;
     };
 
-    const handleAnswer = (optionIdx) => {
-        setAnswers(prev => ({ ...prev, [currentIdx]: optionIdx }));
+    const handleAnswer = (val) => {
+        setAnswers(prev => ({ ...prev, [currentIdx]: val }));
     };
 
     const handleSubmit = async () => {
         if (!assessment) return;
         if (timeLeft > 0 && !window.confirm("Are you sure you want to submit your assessment?")) return;
         try {
-            const formattedAnswers = Object.entries(answers).map(([idx, optionIdx]) => ({
+            const formattedAnswers = Object.entries(answers).map(([idx, val]) => ({
                 questionIdx: parseInt(idx),
-                selectedOption: optionIdx
+                selectedOption: assessment.type === "mcq" ? val : null,
+                answerText: assessment.type === "written" ? val : null
             }));
             const res = await api.post(`/assessments/${id}/submit`, { answers: formattedAnswers });
             const resultData = res.data;
@@ -303,17 +304,32 @@ export default function TakeAssessment() {
                         <div className="ta-qtext">{currentQuestion.questionText}</div>
 
                         <div className="ta-options">
-                            {currentQuestion.options.map((option, idx) => (
-                                <button
-                                    key={idx}
-                                    onClick={() => handleAnswer(idx)}
-                                    className={`ta-option${answers[currentIdx] === idx ? ' ta-option--sel' : ''}`}
-                                >
-                                    <div className="ta-option__bar" />
-                                    <div className="ta-option__letter">{String.fromCharCode(65 + idx)}</div>
-                                    <span className="ta-option__text">{option}</span>
-                                </button>
-                            ))}
+                            {assessment.type === 'mcq' ? (
+                                currentQuestion.options.map((option, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => handleAnswer(idx)}
+                                        className={`ta-option${answers[currentIdx] === idx ? ' ta-option--sel' : ''}`}
+                                    >
+                                        <div className="ta-option__bar" />
+                                        <div className="ta-option__letter">{String.fromCharCode(65 + idx)}</div>
+                                        <span className="ta-option__text">{option}</span>
+                                    </button>
+                                ))
+                            ) : (
+                                <div className="ta-textarea-wrap">
+                                    <textarea
+                                        className="ta-textarea"
+                                        placeholder="Type your comprehensive answer here..."
+                                        value={answers[currentIdx] || ''}
+                                        onChange={(e) => handleAnswer(e.target.value)}
+                                        autoFocus
+                                    />
+                                    <div className="ta-textarea-hint">
+                                        Your progress is saved as you type. Be detailed and thorough.
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                     </div>

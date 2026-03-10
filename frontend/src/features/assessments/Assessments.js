@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getAuth } from 'firebase/auth';
 import api from "../../services/api";
 import {
   FaClock, FaArrowLeft, FaCheck, FaChevronDown, FaChevronUp,
   FaBookOpen, FaPlayCircle, FaFileAlt, FaTrophy,
-  FaPlus, FaTimes, FaTrash
+  FaPlus, FaTimes, FaTrash, FaDownload, FaEye
 } from 'react-icons/fa';
 import { useUser } from '../../shared/UserContext';
 
@@ -112,6 +113,23 @@ export default function Assessments() {
     }
   };
 
+  const handleViewAnswerKey = async (testId, download = false) => {
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) {
+        alert("You must be logged in to view the answer key.");
+        return;
+      }
+      const token = await user.getIdToken();
+      const url = `http://localhost:5050/api/assessments/answerkey/${testId}?token=${token}${download ? "&download=true" : ""}`;
+      window.open(url, "_blank");
+    } catch (error) {
+      console.error("Error opening answer key:", error);
+      alert("Failed to open answer key.");
+    }
+  };
+
   const diffChipClass = { easy: 'as-chip--easy', medium: 'as-chip--medium', hard: 'as-chip--hard' };
 
   return (
@@ -206,8 +224,13 @@ export default function Assessments() {
                         <div className="as-card__blob as-card__blob--4" />
                       </div>
                       <div className="as-card__body-inner">
-                        <div className="as-notes-label">
-                          <FaBookOpen /> <span className="as-hl-sage">Recommended Study Material</span>
+                        <div className="as-notes-label" style={{ justifyContent: 'space-between', width: '100%' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <FaBookOpen /> <span className="as-hl-sage">Recommended Study Material</span>
+                          </div>
+                          <button className="as-btn-prepare-mini" onClick={() => handlePrepare(test.subject)}>
+                            <FaFileAlt /> Prepare with Notes
+                          </button>
                         </div>
                         {userNotes.filter(n => n.subject?.toLowerCase() === test.subject?.toLowerCase()).length > 0 ? (
                           <div className="as-notes-grid">
@@ -224,10 +247,13 @@ export default function Assessments() {
                           <p className="as-no-notes">No notes available for this subject.</p>
                         )}
                         <div className="as-actions">
-                          <button className="as-btn-prepare" onClick={() => handlePrepare(test.subject)}>
-                            <FaFileAlt /> Prepare with Notes
+                          <button className="as-btn-scores" onClick={() => handleViewAnswerKey(test._id, false)} style={{ flex: 1 }}>
+                            <FaEye /> View Key
                           </button>
-                          <button className="as-btn-start" onClick={() => handleStartTest(test._id)}>
+                          <button className="as-btn-scores-icon" onClick={() => handleViewAnswerKey(test._id, true)} title="Download Key">
+                            <FaDownload />
+                          </button>
+                          <button className="as-btn-start" onClick={() => handleStartTest(test._id)} style={{ flex: 1.5 }}>
                             Start Assessment <FaArrowLeft style={{ transform: 'rotate(180deg)' }} />
                           </button>
                           <button className="as-btn-delete" onClick={() => handleDelete(test._id)} title="Delete Assessment">

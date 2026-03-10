@@ -1,8 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const upload = require("../middleware/upload");
-const { generateAssessment } = require("../controllers/assessmentController");
+const { generateAssessment, getAnswerKey } = require("../controllers/assessmentController");
 const { protect } = require("../middleware/authMiddleware");
+const fetch = require("node-fetch");
+
+// Get Answer Key PDF
+router.get("/answerkey/:id", protect, getAnswerKey);
 
 router.post(
     "/generate",
@@ -63,24 +67,81 @@ router.get("/:id", protect, async (req, res) => {
 // Submit Assessment
 router.post("/:id/submit", protect, async (req, res) => {
     try {
-        const { answers } = req.body; // Array of { questionIdx, selectedOption }
+        const { answers } = req.body;
         const assessment = await Assessment.findById(req.params.id);
 
         if (!assessment) {
             return res.status(404).json({ message: "Assessment not found" });
         }
 
+        let processedAnswers = [];
         let correctCount = 0;
-        const processedAnswers = assessment.questions.map((q, idx) => {
-            const userAnswer = answers.find(a => a.questionIdx === idx);
-            const isCorrect = userAnswer !== undefined && q.options[userAnswer.selectedOption] === q.correctAnswer;
-            if (isCorrect) correctCount++;
-            return {
-                questionIdx: idx,
-                selectedOption: userAnswer ? userAnswer.selectedOption : null,
-                isCorrect
-            };
-        });
+
+        if (assessment.type === "written") {
+            try {
+                const gradingInput = assessment.questions.map((q, idx) => {
+                    const userAnswer = answers.find(a => a.questionIdx === idx);
+                    return {
+                        questionIdx: idx,
+                        modelAnswer: q.correctAnswer,
+                        userAnswer: userAnswer ? (userAnswer.answerText || "") : ""
+                    };
+                });
+
+                const gradePrompt = `
+                    You are an academic grader. Grade these subjective answers against the model answers.
+                    Return "true" if the user answer is mostly accurate and relevant, or "false" if it is wrong, nonsense (like random characters), or empty.
+                    
+                    Data: ${JSON.stringify(gradingInput)}
+
+                    Return ONLY a JSON array of booleans. Example: [true, false]
+                `;
+
+                const aiRes = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: gradePrompt }] }] })
+                });
+
+                const aiData = await aiRes.json();
+                const aiText = aiData.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
+                const gradingResults = JSON.parse(aiText.replace(/```json|```/g, "").trim());
+
+                processedAnswers = assessment.questions.map((q, idx) => {
+                    const userAnswer = answers.find(a => a.questionIdx === idx);
+                    const isCorrect = Array.isArray(gradingResults) && gradingResults[idx] === true;
+                    if (isCorrect) correctCount++;
+                    return {
+                        questionIdx: idx,
+                        answerText: userAnswer ? userAnswer.answerText : null,
+                        isCorrect
+                    };
+                });
+            } catch (aiErr) {
+                console.error("AI GRADING ERROR:", aiErr);
+                // Fallback: mark as submitted but not necessarily correct if AI fails
+                processedAnswers = assessment.questions.map((q, idx) => {
+                    const userAnswer = answers.find(a => a.questionIdx === idx);
+                    return {
+                        questionIdx: idx,
+                        answerText: userAnswer ? userAnswer.answerText : null,
+                        isCorrect: false
+                    };
+                });
+            }
+        } else {
+            // MCQ Logic
+            processedAnswers = assessment.questions.map((q, idx) => {
+                const userAnswer = answers.find(a => a.questionIdx === idx);
+                const isCorrect = userAnswer !== undefined && q.options[userAnswer.selectedOption] === q.correctAnswer;
+                if (isCorrect) correctCount++;
+                return {
+                    questionIdx: idx,
+                    selectedOption: userAnswer ? userAnswer.selectedOption : null,
+                    isCorrect
+                };
+            });
+        }
 
         const totalQuestions = assessment.questions.length;
         const percentage = Math.round((correctCount / totalQuestions) * 100);

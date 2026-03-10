@@ -1,0 +1,177 @@
+/* ═══════════════════════════════════════════════
+   CreateGroupModal.css
+═══════════════════════════════════════════════ */
+
+.cgm-modal-box {
+    width: 480px;
+    max-width: 94vw;
+}
+
+/* ── Header ── */
+.cgm-header {
+    padding: 24px 28px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.cgm-header__icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #7ec8c8, #00c96e);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+}
+
+.cgm-header__title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: #1e293b;
+}
+
+.cgm-header__sub {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-top: 3px;
+}
+
+.cgm-close {
+    background: #f1f5f9;
+    border: none;
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .15s;
+}
+
+.cgm-close:hover {
+    background: #e2e8f0;
+    color: #475569;
+}
+
+/* ── Body / Form ── */
+.cgm-body {
+    padding: 20px 28px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* ── Privacy toggle ── */
+.cgm-privacy-row {
+    display: flex;
+    gap: 8px;
+}
+
+.cgm-privacy-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all .15s;
+}
+
+.cgm-privacy-btn--active {
+    border: 1.5px solid #7ec8c8;
+    background: #e0f5f5;
+    color: #1a7a7a;
+}
+
+.cgm-privacy-btn--inactive {
+    border: 1.5px solid #e2e8f0;
+    background: #f8fafc;
+    color: #64748b;
+}
+
+.cgm-privacy-hint {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 5px;
+}
+
+/* ── Actions ── */
+.cgm-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.cgm-btn-cancel {
+    flex: 1;
+    padding: 11px;
+    border-radius: 10px;
+    border: 1.5px solid #e2e8f0;
+    background: #f8fafc;
+    color: #64748b;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all .15s;
+}
+
+.cgm-btn-cancel:hover {
+    border-color: #94a3b8;
+    color: #475569;
+}
+
+.cgm-btn-submit {
+    flex: 2;
+    padding: 11px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 800;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all .2s;
+}
+
+.cgm-btn-submit--active {
+    background: linear-gradient(135deg, #00c96e, #1a7a7a);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(0, 201, 110, .25);
+}
+
+.cgm-btn-submit--active:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 22px rgba(0, 201, 110, .35);
+}
+
+.cgm-btn-submit--disabled {
+    background: #e2e8f0;
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+.cgm-error {
+    font-size: 12px;
+    color: #ef4444;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 8px 12px;
+}

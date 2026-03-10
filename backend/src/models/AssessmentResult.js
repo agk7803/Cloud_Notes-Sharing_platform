@@ -15,6 +15,7 @@ const assessmentResultSchema = new mongoose.Schema(
             {
                 questionIdx: Number,
                 selectedOption: Number,
+                answerText: String,
                 isCorrect: Boolean,
             },
         ],

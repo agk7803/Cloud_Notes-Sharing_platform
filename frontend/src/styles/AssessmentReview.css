@@ -413,6 +413,54 @@
     gap: 6px;
 }
 
+/* ── SUBJECTIVE REVIEW ── */
+.ar-subjective {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.ar-sub-box {
+    padding: 18px 20px;
+    border-radius: 16px;
+    border: 1px solid;
+}
+
+.ar-sub-box--user {
+    background: var(--cream);
+    border-color: var(--border);
+}
+
+.ar-sub-box--model {
+    background: var(--sage-light);
+    border-color: var(--sage);
+}
+
+.ar-sub-label {
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin-bottom: 8px;
+    color: var(--muted);
+}
+
+.ar-sub-box--model .ar-sub-label {
+    color: var(--sage-deep);
+}
+
+.ar-sub-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text);
+    white-space: pre-wrap;
+}
+
+.ar-sub-box--model .ar-sub-text {
+    color: var(--sage-deep);
+}
+
 /* ── EXPLANATION BOX ── */
 .ar-explanation {
     margin-top: 22px;

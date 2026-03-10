@@ -1,364 +1,322 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useOutletContext } from 'react-router-dom';
-import {
-    FaUsers,
-    FaGlobe,
-    FaLock,
-    FaFilePdf,
-    FaTrash
-} from 'react-icons/fa';
+import React, { useEffect, useState } from 'react';
+import { useParams, useOutletContext, useNavigate } from 'react-router-dom';
+import { FaUsers, FaGlobe, FaLock, FaTrash, FaDownload, FaEye, FaUserPlus, FaArrowUp } from 'react-icons/fa';
 
 import api from '../../services/api';
 import GroupChat from './GroupChat';
+import InviteModal from './Invitemodal';
+import { getSubjectColor, getAvatarColor, getFileIcon, getViewUrl, ROLE_STYLES } from './Constants';
+import '../../styles/GroupPage.css';
 
-const GroupPage = () => {
-    const { id } = useParams();
-    const { user } = useOutletContext();
-
-    const [group, setGroup] = useState(null);
-    const [activeTab, setActiveTab] = useState('chat');
-    const [notes, setNotes] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-
-    /* ---------------- FETCH GROUP DATA ---------------- */
-
-    useEffect(() => {
-        if (!id) return;
-
-        const fetchGroupData = async () => {
-            try {
-                setLoading(true);
-
-                const groupRes = await api.get(`/groups/${id}`);
-                setGroup(groupRes.data);
-
-                if (activeTab === 'notes') {
-                    const notesRes = await api.get(
-                        `/notes?visibility=groups&groupId=${id}`
-                    );
-                    setNotes(notesRes.data || []);
-                }
-
-            } catch (err) {
-                console.error('Failed to load group data:', err);
-                setGroup(null);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchGroupData();
-
-    }, [id, activeTab]);
-
-
-    /* ---------------- ONLINE VIEWER ---------------- */
-
-    const getViewUrl = (fileUrl) => {
-
-        if (!fileUrl) return "";
-
-        const ext = fileUrl
-            .split('.')
-            .pop()
-            .split('?')[0]
-            .toLowerCase();
-
-        const officeTypes = [
-            'doc', 'docx',
-            'ppt', 'pptx',
-            'xls', 'xlsx'
-        ];
-
-        // Office → Microsoft Viewer
-        if (officeTypes.includes(ext)) {
-            return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
-        }
-
-        // PDF / Others → Google Viewer
-        return `https://docs.google.com/gview?url=${encodeURIComponent(fileUrl)}&embedded=true`;
-    };
-
-
-    /* ---------------- LOADING ---------------- */
-
-    if (loading || !user) {
-        return (
-            <div className="p-8 text-center text-gray-500">
-                Loading user and group...
-            </div>
-        );
-    }
-
-    if (!group) {
-        return (
-            <div className="p-8 text-center text-red-500">
-                Group not found or access denied.
-            </div>
-        );
-    }
-
-
-    /* ---------------- PERMISSIONS ---------------- */
-
-    const isCreator =
-        user && group?.createdBy === user.uid;
-
-
-    /* ---------------- DELETE NOTE ---------------- */
-
-    const handleDeleteNote = async (e, noteId) => {
-
-        e.stopPropagation(); // prevent opening file
-
-        if (!window.confirm('Delete this shared note?')) return;
-
-        try {
-
-            await api.delete(`/notes/${noteId}`);
-
-            setNotes(prev =>
-                prev.filter(n => n._id !== noteId)
-            );
-
-        } catch (err) {
-            console.error('Delete failed:', err);
-            alert('Failed to delete note');
-        }
-    };
-
-
-    /* ---------------- UI ---------------- */
-
+// ─── Shared Avatar ─────────────────────────────────────────────────────────────
+const Avatar = ({ name = '', uid = '', size = 36 }) => {
+    const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
     return (
-        <div className="min-h-screen bg-gray-50 p-4 lg:p-8">
-
-            <div className="max-w-7xl mx-auto">
-
-
-                {/* ================= HEADER ================= */}
-
-                <div className="bg-white p-6 rounded-3xl shadow-sm border mb-6">
-
-                    <div className="flex flex-col md:flex-row justify-between gap-4">
-
-                        <div>
-                            <div className="flex items-center gap-3 mb-2">
-
-                                <h1 className="text-3xl font-bold">
-                                    {group.name}
-                                </h1>
-
-                                <span
-                                    className={`px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1
-                                    ${group.type === 'Public'
-                                            ? 'bg-green-50 text-green-600'
-                                            : 'bg-orange-50 text-orange-600'
-                                        }`}
-                                >
-                                    {group.type === 'Public'
-                                        ? <FaGlobe />
-                                        : <FaLock />
-                                    }
-
-                                    {group.type}
-                                </span>
-
-                            </div>
-
-                            <p className="text-gray-500">
-                                {group.description || group.subject}
-                            </p>
-                        </div>
-
-
-                        <div className="flex items-center gap-2 text-gray-400 font-bold bg-gray-50 px-4 py-2 rounded-xl">
-                            <FaUsers />
-                            {group.members?.length || 0} Members
-                        </div>
-
-                    </div>
-
-
-                    {/* ================= TABS ================= */}
-
-                    <div className="flex gap-4 mt-6 border-b">
-
-                        {['chat', 'notes'].map(tab => (
-
-                            <button
-                                key={tab}
-                                onClick={() => setActiveTab(tab)}
-                                className={`pb-3 px-4 font-bold text-sm capitalize
-                                ${activeTab === tab
-                                        ? 'text-[#1dc962] border-b-2 border-[#1dc962]'
-                                        : 'text-gray-400 hover:text-gray-600'
-                                    }`}
-                            >
-                                {tab === 'notes'
-                                    ? 'Shared Notes'
-                                    : 'Group Chat'}
-                            </button>
-
-                        ))}
-
-                    </div>
-
-                </div>
-
-
-                {/* ================= CONTENT ================= */}
-
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 min-h-[600px]">
-
-
-                    {/* ========== CHAT TAB ========== */}
-
-                    {activeTab === 'chat' && (
-
-                        <>
-
-                            <div className="lg:col-span-3 h-[55vh] lg:h-[450px]">
-
-                                {user && (
-                                    <GroupChat
-                                        groupId={id}
-                                        user={user}
-                                    />
-                                )}
-
-                            </div>
-
-
-                            {/* Members */}
-
-                            <div className="lg:col-span-1 hidden lg:block">
-
-                                <div className="bg-white p-6 rounded-2xl shadow-sm border">
-
-                                    <h3 className="font-bold mb-4 flex items-center gap-2">
-                                        <FaUsers />
-                                        Members ({group.members?.length || 0})
-                                    </h3>
-
-                                    <div className="flex flex-col gap-2 max-h-[400px] overflow-y-auto">
-
-                                        {group.members?.map((m, i) => (
-
-                                            <div
-                                                key={i}
-                                                className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg"
-                                            >
-
-                                                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold">
-                                                    U
-                                                </div>
-
-                                                <span className="text-sm truncate">
-                                                    {user && m === user.uid
-                                                        ? 'You'
-                                                        : `User ${m.substring(0, 6)}`
-                                                    }
-                                                </span>
-
-                                            </div>
-
-                                        ))}
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </>
-
-                    )}
-
-
-                    {/* ========== NOTES TAB ========== */}
-
-                    {activeTab === 'notes' && (
-
-                        <div className="col-span-full">
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-
-                                {notes.length > 0 ? (
-
-                                    notes.map(note => (
-
-                                        <div
-                                            key={note._id}
-                                            onClick={() =>
-                                                window.open(
-                                                    getViewUrl(note.fileUrl),
-                                                    '_blank'
-                                                )
-                                            }
-                                            className="bg-white p-4 rounded-xl border shadow-sm flex flex-col cursor-pointer hover:shadow-md transition"
-                                        >
-
-                                            <div className="flex gap-3">
-
-                                                <div className="w-10 h-10 bg-red-50 text-red-500 rounded-lg flex items-center justify-center">
-                                                    <FaFilePdf />
-                                                </div>
-
-                                                <div>
-                                                    <h4 className="font-bold line-clamp-1">
-                                                        {note.title}
-                                                    </h4>
-
-                                                    <p className="text-xs text-gray-400">
-                                                        by {note.authorName || 'Unknown'}
-                                                    </p>
-
-                                                </div>
-
-                                            </div>
-
-
-                                            {/* Delete Button */}
-                                            {(isCreator ||
-                                                (user && note.authorId === user.uid)) && (
-
-                                                    <button
-                                                        onClick={(e) => handleDeleteNote(e, note._id)}
-                                                        className="mt-4 self-end p-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100"
-                                                    >
-                                                        <FaTrash />
-                                                    </button>
-
-                                                )}
-
-                                        </div>
-
-                                    ))
-
-                                ) : (
-
-                                    <div className="col-span-full py-12 text-center text-gray-400 bg-white rounded-xl border-dashed border">
-
-                                        <p>No notes shared yet.</p>
-
-                                    </div>
-
-                                )}
-
-                            </div>
-
-                        </div>
-
-                    )}
-
-                </div>
-
-            </div>
-
+        <div style={{
+            width: size, height: size, minWidth: size,
+            background: getAvatarColor(uid || name),
+            borderRadius: size * 0.28,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: size * 0.34, fontWeight: 800, color: '#1e293b',
+            border: '1.5px solid rgba(0,0,0,0.07)', flexShrink: 0,
+        }}>
+            {initials}
         </div>
     );
 };
 
-export default GroupPage;
+// ─── Shared Notes Tab ──────────────────────────────────────────────────────────
+const NotesTab = ({ groupId, isCreator, user }) => {
+    const [notes, setNotes] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [dragging, setDragging] = useState(false);
+
+    useEffect(() => {
+        setLoading(true);
+        api.get(`/groups/${groupId}/notes`)
+            .then(res => setNotes(res.data || []))
+            .catch(err => console.error('Notes fetch error', err))
+            .finally(() => setLoading(false));
+    }, [groupId]);
+
+    const handleDelete = async (e, noteId) => {
+        e.stopPropagation();
+        if (!window.confirm('Remove this note from the group?')) return;
+        try {
+            await api.delete(`/groups/${groupId}/notes/${noteId}`);
+            setNotes(prev => prev.filter(n => n._id !== noteId));
+        } catch (err) {
+            alert(err.response?.data?.message || 'Failed to delete note');
+        }
+    };
+
+    const handleUpload = async (file) => {
+        const form = new FormData();
+        form.append('file', file);
+        form.append('groupId', groupId);
+        try {
+            const res = await api.post('/notes/upload', form);
+            setNotes(prev => [res.data, ...prev]);
+        } catch (err) {
+            alert(err.response?.data?.message || 'Upload failed');
+        }
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        setDragging(false);
+        const file = e.dataTransfer.files[0];
+        if (file) handleUpload(file);
+    };
+
+    if (loading) return <div className="gp-state-msg">Loading notes...</div>;
+
+    return (
+        <div className="gp-notes">
+            <div className="gp-notes__toolbar">
+                <label className="btn-primary" style={{ cursor: 'pointer' }}>
+                    + Share Material
+                    <input type="file" hidden accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx"
+                        onChange={e => e.target.files[0] && handleUpload(e.target.files[0])} />
+                </label>
+            </div>
+
+            <div
+                className={`gp-notes__dropzone ${dragging ? 'gp-notes__dropzone--active' : ''}`}
+                onDragOver={e => { e.preventDefault(); setDragging(true); }}
+                onDragLeave={() => setDragging(false)}
+                onDrop={handleDrop}
+            >
+                <div style={{ fontSize: 28, marginBottom: 8 }}>📁</div>
+                <div className="gp-notes__drop-title">Drag & drop notes, slides, or PDFs here</div>
+                <div className="gp-notes__drop-sub">PDF, DOC, PPT, XLS — max 25 MB</div>
+            </div>
+
+            {notes.length === 0 ? (
+                <div className="gp-empty">No notes shared yet.</div>
+            ) : (
+                <div className="gp-notes__grid">
+                    {notes.map(note => {
+                        const fi = getFileIcon(note.fileType || note.title?.split('.').pop());
+                        const isOwn = user && note.authorId === user.uid;
+                        return (
+                            <div key={note._id} className="gp-note-card"
+                                onClick={() => note.fileUrl && window.open(getViewUrl(note.fileUrl), '_blank')}
+                            >
+                                <div className="gp-note-card__top">
+                                    <div className="gp-note-card__icon" style={{ background: fi.bg }}>
+                                        <span>{fi.emoji}</span>
+                                        <span style={{ fontSize: 9, fontWeight: 800, color: fi.color }}>{fi.label}</span>
+                                    </div>
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div className="gp-note-card__title">{note.title}</div>
+                                        <div className="gp-note-card__meta">by {note.authorName}</div>
+                                        <div className="gp-note-card__meta">
+                                            {note.createdAt ? new Date(note.createdAt).toLocaleDateString() : note.date}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="gp-note-card__actions">
+                                    <button className="gp-note-btn gp-note-btn--view">
+                                        <FaEye size={11} /> View
+                                    </button>
+                                    <a href={note.fileUrl} download className="gp-note-btn gp-note-btn--dl" onClick={e => e.stopPropagation()}>
+                                        <FaDownload size={11} /> Download
+                                    </a>
+                                    {(isCreator || isOwn) && (
+                                        <button className="gp-note-btn gp-note-btn--del" onClick={e => handleDelete(e, note._id)}>
+                                            <FaTrash size={11} />
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
+    );
+};
+
+// ─── Members Tab ───────────────────────────────────────────────────────────────
+const MembersTab = ({ group, isCreator, user }) => {
+    const [members, setMembers] = useState(group.members || []);
+
+    // If members are just IDs, fetch full member details
+    useEffect(() => {
+        if (!group._id) return;
+        api.get(`/groups/${group._id}/members`)
+            .then(res => setMembers(res.data || []))
+            .catch(() => { }); // fall back to whatever members the group already has
+    }, [group._id]);
+
+    const handleRemove = async (memberId) => {
+        if (!window.confirm('Remove this member from the group?')) return;
+        try {
+            await api.delete(`/groups/${group._id}/members/${memberId}`);
+            setMembers(prev => prev.filter(m => (m._id || m.id || m) !== memberId));
+        } catch (err) {
+            alert(err.response?.data?.message || 'Failed to remove member');
+        }
+    };
+
+    const handlePromote = async (memberId) => {
+        try {
+            await api.put(`/groups/${group._id}/members/${memberId}/promote`);
+            setMembers(prev => prev.map(m =>
+                (m._id || m.id) === memberId ? { ...m, role: 'Admin' } : m
+            ));
+        } catch (err) {
+            alert(err.response?.data?.message || 'Failed to promote member');
+        }
+    };
+
+    return (
+        <div className="gp-members">
+            {members.map(m => {
+                const uid = m._id || m.id || m;
+                const name = m.name || m.displayName || uid;
+                const role = m.role || 'Member';
+                const rs = ROLE_STYLES[role] || ROLE_STYLES.Member;
+                const isMe = user && uid === user.uid;
+
+                return (
+                    <div key={uid} className="gp-member-row">
+                        <Avatar name={name} uid={uid} size={40} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <div className="gp-member-row__name">{name}{isMe && ' (you)'}</div>
+                            {m.joinedAt && (
+                                <div className="gp-member-row__meta">
+                                    Joined {new Date(m.joinedAt).toLocaleDateString()}
+                                </div>
+                            )}
+                        </div>
+                        <span className="gp-member-row__role" style={{ background: rs.bg, color: rs.text, border: `1px solid ${rs.border}` }}>
+                            {role}
+                        </span>
+                        {isCreator && role !== 'Creator' && !isMe && (
+                            <div style={{ display: 'flex', gap: 6 }}>
+                                {role !== 'Admin' && (
+                                    <button className="gp-action-btn gp-action-btn--promote" onClick={() => handlePromote(uid)}>
+                                        <FaArrowUp size={10} /> Promote
+                                    </button>
+                                )}
+                                <button className="gp-action-btn gp-action-btn--remove" onClick={() => handleRemove(uid)}>
+                                    Remove
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                );
+            })}
+        </div>
+    );
+};
+
+// ─── Group Page ────────────────────────────────────────────────────────────────
+export default function GroupPage() {
+    const { id } = useParams();
+    const { user } = useOutletContext();
+    const navigate = useNavigate();
+
+    const [group, setGroup] = useState(null);
+    const [activeTab, setActiveTab] = useState('chat');
+    const [loading, setLoading] = useState(true);
+    const [showInvite, setShowInvite] = useState(false);
+
+    useEffect(() => {
+        if (!id) return;
+        setLoading(true);
+        api.get(`/groups/${id}`)
+            .then(res => setGroup(res.data))
+            .catch(() => setGroup(null))
+            .finally(() => setLoading(false));
+    }, [id]);
+
+    if (loading) return <div className="gp-state-msg">Loading group...</div>;
+    if (!group) return <div className="gp-state-msg gp-state-msg--error">Group not found or access denied.</div>;
+
+    const isCreator = user && group.createdBy === user.uid;
+    const sc = getSubjectColor(group.subject);
+
+    const TABS = [
+        { id: 'chat', label: '💬 Chat' },
+        { id: 'notes', label: '📄 Shared Notes' },
+        { id: 'members', label: '👥 Members' },
+    ];
+
+    const handleLeave = async () => {
+        if (!window.confirm('Leave this group?')) return;
+        try {
+            await api.post(`/groups/${id}/leave`);
+            navigate('/groups');
+        } catch (err) {
+            alert(err.response?.data?.message || 'Failed to leave group');
+        }
+    };
+
+    return (
+        <div className="gp-root">
+            {showInvite && <InviteModal group={group} onClose={() => setShowInvite(false)} />}
+
+            {/* Group header */}
+            <div className="gp-header">
+                <div className="gp-header__top">
+                    <div className="gp-header__info">
+                        <div className="gp-header__icon">📚</div>
+                        <div>
+                            <div className="gp-header__title-row">
+                                <h2 className="gp-header__name">{group.name}</h2>
+                                <span className="gp-tag" style={{ background: sc.bg, color: sc.text, border: `1px solid ${sc.border}` }}>
+                                    {group.subject}
+                                </span>
+                                <span className="gp-tag" style={{
+                                    background: group.type === 'Public' ? '#e0f5f5' : '#fff7ed',
+                                    color: group.type === 'Public' ? '#1a7a7a' : '#b45309',
+                                }}>
+                                    {group.type === 'Public' ? <FaGlobe size={9} /> : <FaLock size={9} />}
+                                    {' '}{group.type}
+                                </span>
+                            </div>
+                            <div className="gp-header__meta">
+                                <FaUsers size={11} style={{ marginRight: 4 }} />
+                                {group.members?.length || 0} members
+                                {group.description && <> · {group.description}</>}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="gp-header__actions">
+                        <button className="hdr-btn gp-btn--invite" onClick={() => setShowInvite(true)}>
+                            <FaUserPlus size={12} /> Invite
+                        </button>
+                        {isCreator && (
+                            <button className="hdr-btn gp-btn--settings">⚙ Settings</button>
+                        )}
+                        <button className="hdr-btn gp-btn--leave" onClick={handleLeave}>Leave</button>
+                    </div>
+                </div>
+
+                {/* Tabs */}
+                <div className="gp-tabs">
+                    {TABS.map(tab => (
+                        <button
+                            key={tab.id}
+                            className={`gp-tab ${activeTab === tab.id ? 'gp-tab--active' : ''}`}
+                            onClick={() => setActiveTab(tab.id)}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Tab content */}
+            <div className="gp-content">
+                {activeTab === 'chat' && <GroupChat groupId={id} user={user} groupMembers={group.members} />}
+                {activeTab === 'notes' && <NotesTab groupId={id} isCreator={isCreator} user={user} />}
+                {activeTab === 'members' && <MembersTab group={group} isCreator={isCreator} user={user} />}
+            </div>
+        </div>
+    );
+}

@@ -112,37 +112,42 @@ export default function AssessmentReview() {
                                 {/* question text */}
                                 <div className="ar-question-text">{q.questionText}</div>
 
-                                {/* options */}
-                                <div className="ar-options">
-                                    {q.options.map((option, oIdx) => {
-                                        // The backend evaluates based on index. If indices somehow shifted,
-                                        // we also want a fallback check based on the text if possible (though we only have selectedOption index from DB).
-                                        // Let's stick to index but ensure we gracefully handle undefined/null.
-                                        const isSelected = !isSkipped && userAns?.selectedOption === oIdx;
-                                        // Also use text check as fallback if indexes mismatched because of shuffling, though TakeAssessment doesn't shuffle
-                                        const isRightAns = option === q.correctAnswer;
+                                {/* options / answers */}
+                                {assessment.type === 'mcq' ? (
+                                    <div className="ar-options">
+                                        {q.options.map((option, oIdx) => {
+                                            const isSelected = !isSkipped && userAns?.selectedOption === oIdx;
+                                            const isRightAns = option === q.correctAnswer;
 
-                                        let cls = 'ar-option ar-option--default';
-                                        if (isSelected && isCorrect) {
-                                            cls = 'ar-option ar-option--correct-selected';
-                                        } else if (isSelected && !isCorrect) {
-                                            cls = 'ar-option ar-option--wrong-selected';
-                                        } else if (isRightAns) {
-                                            cls = 'ar-option ar-option--correct-answer';
-                                        }
+                                            let cls = 'ar-option ar-option--default';
+                                            if (isSelected && isCorrect) cls = 'ar-option ar-option--correct-selected';
+                                            else if (isSelected && !isCorrect) cls = 'ar-option ar-option--wrong-selected';
+                                            else if (isRightAns) cls = 'ar-option ar-option--correct-answer';
 
-                                        return (
-                                            <div key={oIdx} className={cls}>
-                                                <span>{option}</span>
-                                                <span className="ar-option__right">
-                                                    {isSelected && isCorrect && <FaCheck />}
-                                                    {isSelected && !isCorrect && <FaTimes />}
-                                                    {isRightAns && !isSelected && 'Correct Answer'}
-                                                </span>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
+                                            return (
+                                                <div key={oIdx} className={cls}>
+                                                    <span>{option}</span>
+                                                    <span className="ar-option__right">
+                                                        {isSelected && isCorrect && <FaCheck />}
+                                                        {isSelected && !isCorrect && <FaTimes />}
+                                                        {isRightAns && !isSelected && 'Correct Answer'}
+                                                    </span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                ) : (
+                                    <div className="ar-subjective">
+                                        <div className="ar-sub-box ar-sub-box--user">
+                                            <div className="ar-sub-label">Your Response</div>
+                                            <div className="ar-sub-text">{userAns?.answerText || <span className="italic opacity-50">No answer provided</span>}</div>
+                                        </div>
+                                        <div className="ar-sub-box ar-sub-box--model">
+                                            <div className="ar-sub-label">Model Answer</div>
+                                            <div className="ar-sub-text">{q.correctAnswer}</div>
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* explanation */}
                                 {q.explanation && (
