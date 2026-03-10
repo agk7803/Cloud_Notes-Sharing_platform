@@ -39,22 +39,6 @@ export default function TakeAssessment() {
     const [timeLeft, setTimeLeft] = useState(0);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [score, setScore] = useState({ correct: 0, total: 0, percentage: 0 });
-    const [showHint, setShowHint] = useState(false);
-
-    // ── Idleness Hint ──
-    useEffect(() => {
-        if (loading || isSubmitted || !assessment) return;
-
-        // Hide hint on any move or interaction
-        setShowHint(false);
-
-        // If no answer yet, start the 5s timer
-        const currentAns = answers[currentIdx];
-        if (!currentAns || (typeof currentAns === 'string' && currentAns.trim() === '')) {
-            const timer = setTimeout(() => setShowHint(true), 5000);
-            return () => clearTimeout(timer);
-        }
-    }, [currentIdx, answers, assessment, loading, isSubmitted]);
 
     // ── Fetch (unchanged) ──
     useEffect(() => {
@@ -319,20 +303,6 @@ export default function TakeAssessment() {
 
                         <div className="ta-qtext">{currentQuestion.questionText}</div>
 
-                        {showHint && (
-                            <div className="ta-hint-bubble">
-                                <div className="ta-hint-bubble__icon text-yellow-500">💡</div>
-                                <div className="ta-hint-bubble__content">
-                                    <div className="ta-hint-bubble__title">Need a Hint?</div>
-                                    <div className="ta-hint-bubble__text">
-                                        {assessment.type === 'mcq'
-                                            ? "Stuck? Look closely at the options. There might be a keyword that matches your notes!"
-                                            : "Take a deep breath. Try to outline the key points from the provided material."}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
                         <div className="ta-options">
                             {assessment.type === 'mcq' ? (
                                 currentQuestion.options.map((option, idx) => (
@@ -384,7 +354,7 @@ export default function TakeAssessment() {
                                 className="group flex items-center gap-3 px-10 py-3.5 rounded-2xl bg-black text-white font-black hover:bg-gray-800 active:scale-95 transition-all shadow-xl shadow-black/10 disabled:opacity-50 disabled:bg-gray-200 disabled:shadow-none"
                             >
                                 <span className="text-[13px]">Analyze & Finish</span>
-                                <div className="w-6 h-6 bg-white/10 rounded-xl flex items-center justify-center group-hover:bg-green-500 transition-all duration-500">
+                                <div className="w-6 h-6 bg-white/10 rounded-xl flex items-center justify-center group-hover:bg-[#1a7a7a] transition-all duration-500">
                                     <FaCheckCircle className="text-white text-[10px]" />
                                 </div>
                             </button>
@@ -392,7 +362,7 @@ export default function TakeAssessment() {
                             <button
                                 onClick={() => setCurrentIdx(prev => Math.min(totalQuestions - 1, prev + 1))}
                                 disabled={answers[currentIdx] === undefined}
-                                className="group flex items-center gap-3 px-10 py-3.5 rounded-2xl bg-[#1dc962] text-white font-black hover:bg-[#18a952] active:scale-95 transition-all shadow-xl shadow-green-200/40 disabled:opacity-50 disabled:bg-gray-200 disabled:shadow-none"
+                                className="group flex items-center gap-3 px-10 py-3.5 rounded-2xl bg-[#1a7a7a] text-white font-black hover:bg-[#156a6a] active:scale-95 transition-all shadow-xl shadow-teal-500/20 disabled:opacity-50 disabled:bg-gray-200 disabled:shadow-none"
                             >
                                 <span className="text-[13px]">Proceed Next</span>
                                 <FaChevronRight className="text-[11px] group-hover:translate-x-1 transition-transform" />
