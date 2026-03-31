@@ -371,6 +371,14 @@ function LockModal({ onClose }) {
 function NoteCard({ note, locked, onLock, onView, index }) {
   const ombreBg = NOTE_OMBRES[index % NOTE_OMBRES.length];
 
+  const isImage = note.fileType && (
+    note.fileType.includes('image') ||
+    note.fileType.includes('png') ||
+    note.fileType.includes('jpg') ||
+    note.fileType.includes('jpeg') ||
+    note.fileType.includes('webp')
+  );
+
   return (
     <div className={`note-card fade-up fade-up-${Math.min(index + 2, 5)}`}
       style={{
@@ -393,45 +401,56 @@ function NoteCard({ note, locked, onLock, onView, index }) {
         justifyContent: 'center',
         border: '1px solid rgba(0,0,0,0.03)',
       }}>
-        {/* Actual Preview Content (Blurred if locked) */}
+        {/* Preview Content (blurred when locked) */}
         <div style={{
-          position: 'absolute', inset: 0, 
+          position: 'absolute', inset: 0,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           filter: locked ? 'blur(10px)' : 'none',
           opacity: locked ? 0.6 : 1,
           transition: 'all 0.4s ease'
         }}>
-            <Icon name="doc" size={64} color="rgba(0,0,0,0.15)" strokeWidth={1} />
-            <div style={{ 
-                position: 'absolute', inset: 0, 
-                background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.2))' 
-            }} />
+          {isImage && note.fileUrl ? (
+            <img
+              src={note.fileUrl}
+              alt={note.title}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              onError={e => { e.target.style.display = 'none'; }}
+            />
+          ) : (
+            <>
+              <Icon name="doc" size={64} color="rgba(0,0,0,0.15)" strokeWidth={1} />
+              <div style={{
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.2))'
+              }} />
+            </>
+          )}
         </div>
 
-        {/* Lock Overlay (Centered over preview only) */}
+        {/* Lock Icon (only over preview area) */}
         {locked && (
-            <div style={{ 
-                position: 'absolute', inset: 0, 
-                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                background: 'rgba(255,255,255,0.1)'
+          <div style={{
+            position: 'absolute', inset: 0,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(255,255,255,0.1)'
+          }}>
+            <div style={{
+              width: 52, height: 52, borderRadius: '50%', background: '#fff',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.08)'
             }}>
-                <div style={{ 
-                    width: 52, height: 52, borderRadius: '50%', background: '#fff',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.08)'
-                }}>
-                    <Icon name="lock" size={24} color="#7c3aed" strokeWidth={2.5} />
-                </div>
+              <Icon name="lock" size={24} color="#7c3aed" strokeWidth={2.5} />
             </div>
+          </div>
         )}
       </div>
 
-      {/* 2. CONTENT SECTION (Bottom - Always Clear) */}
+      {/* 2. CONTENT SECTION (Bottom — always clear) */}
       <div style={{
         display: 'flex', flexDirection: 'column', gap: 16, height: '100%',
         zIndex: 1
       }}>
-        {/* BADGE ROW */}
+        {/* BADGE */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', minHeight: 24 }}>
           {note.badge ? (
             <span style={{
@@ -444,18 +463,16 @@ function NoteCard({ note, locked, onLock, onView, index }) {
           ) : <span />}
         </div>
 
-        {/* TITLE ROW */}
-        <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{
-              fontSize: 15, fontWeight: 900, color: '#0f172a', lineHeight: 1.4, marginBottom: 5,
-              display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
-              letterSpacing: '-0.3px'
-            }}>
-              {note.title}
-            </p>
-            <p style={{ fontSize: 12, fontWeight: 700, color: '#64748b' }}>{note.subject}</p>
-          </div>
+        {/* TITLE + SUBJECT */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{
+            fontSize: 15, fontWeight: 900, color: '#0f172a', lineHeight: 1.4, marginBottom: 5,
+            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+            letterSpacing: '-0.3px'
+          }}>
+            {note.title}
+          </p>
+          <p style={{ fontSize: 12, fontWeight: 700, color: '#64748b' }}>{note.subject}</p>
         </div>
 
         {/* TAGS */}
@@ -478,7 +495,7 @@ function NoteCard({ note, locked, onLock, onView, index }) {
         }}>
           <span style={{ fontSize: 11, color: '#64748b', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Icon name="user" size={14} color="#94a3b8" strokeWidth={2.2} />
-            {note.uploader}
+            {note.uploader || note.authorName || 'Student'}
           </span>
           <button onClick={locked ? onLock : () => onView(note)} className="btn-press"
             style={{
@@ -512,9 +529,8 @@ export default function Landing() {
 
   useEffect(() => {
     // 1. Fetch live notes
-    api.get('/notes/public')
+    api.get('/notes/public', { params: { limit: 3 } })
       .then(res => {
-          // res.data is { notes, total, hasMore }
           setNotes(res.data.notes || []);
       })
       .catch(err => console.error("Error fetching landing stats:", err));
@@ -573,11 +589,23 @@ export default function Landing() {
     return viewedNotes.length >= FREE_LIMIT || idx >= FREE_LIMIT;
   };
 
+  // Helper to turn MIME types into clean labels
+  const getFileLabel = (fileType) => {
+    if (!fileType) return 'DOC';
+    const ft = fileType.toLowerCase();
+    if (ft.includes('pdf')) return 'PDF';
+    if (ft.includes('presentation') || ft.includes('ppt')) return 'PPT';
+    if (ft.includes('word') || ft.includes('doc')) return 'DOC';
+    if (ft.includes('image') || ft.includes('png') || ft.includes('jpg')) return 'IMG';
+    if (ft.includes('sheet') || ft.includes('excel')) return 'XLS';
+    return ft.split('/').pop().toUpperCase().slice(0, 4);
+  };
+
   const displayNotes = notes.map(n => ({
     ...n,
     id: n._id,
     uploader: n.authorName || 'Student',
-    tags: [n.subject, n.size || 'PDF'],
+    tags: [n.subject, getFileLabel(n.fileType)].filter(Boolean),
     badge: (new Date() - new Date(n.createdAt)) < 604800000 ? '✨ NEW' : null
   }));
 
@@ -726,8 +754,8 @@ export default function Landing() {
 
               {/* TOPIC PILLS */}
               <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginTop: 32 }}>
-                {subjects.map(topic => (
-                  <Link key={topic} to="/notes" state={{ subject: topic }} className="topic-pill" style={{
+                {subjects.slice(0, -1).map(topic => ( // slice to exclude 'Other' if needed, or just iterate all
+                  <Link key={topic} to={`/notes?subject=${encodeURIComponent(topic)}`} className="topic-pill" style={{
                     padding: '8px 18px', borderRadius: 12, fontSize: 11, fontWeight: 900, textDecoration: 'none',
                     background: 'rgba(255,255,255,0.4)', color: '#334155', border: '1px solid rgba(255,255,255,0.3)',
                     backdropFilter: 'blur(10px)', transition: 'all 0.3s ease', textTransform: 'uppercase', letterSpacing: 0.5
@@ -801,7 +829,7 @@ export default function Landing() {
               ) : (
                 filteredNotes.length > 0 ? (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 18 }}>
-                    {filteredNotes.map((note, idx) => (
+                    {filteredNotes.slice(0, 3).map((note, idx) => (
                       <NoteCard key={note.id} note={note} index={idx}
                         locked={isLocked(note, idx)}
                         onLock={() => setShowLock(true)}

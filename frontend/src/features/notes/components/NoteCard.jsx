@@ -2,8 +2,17 @@ import React from 'react';
 import Icon from '../../../shared/components/Icon';
 import { C, NOTE_OMBRES } from '../../../shared/theme';
 
-export default function NoteCard({ note, locked, onLock, onView, index, isExplorer = false }) {
+export default function NoteCard({ note, locked, onLock, onView, index }) {
   const ombreBg = NOTE_OMBRES[index % NOTE_OMBRES.length];
+
+  // Determine if the note file is a viewable image
+  const isImage = note.fileType && (
+    note.fileType.includes('image') ||
+    note.fileType.includes('png') ||
+    note.fileType.includes('jpg') ||
+    note.fileType.includes('jpeg') ||
+    note.fileType.includes('webp')
+  );
 
   return (
     <div className={`note-card fade-up fade-up-${Math.min(index + 2, 5)}`}
@@ -16,7 +25,7 @@ export default function NoteCard({ note, locked, onLock, onView, index, isExplor
         height: '100%'
       }}>
 
-      {/* 1. PREVIEW SECTION (Top) */}
+      {/* 1. PREVIEW SECTION (Top - Blurred when locked) */}
       <div style={{
         position: 'relative',
         height: '160px',
@@ -28,48 +37,57 @@ export default function NoteCard({ note, locked, onLock, onView, index, isExplor
         justifyContent: 'center',
         border: '1px solid rgba(0,0,0,0.03)',
       }}>
-        {/* Actual Preview Content (Blurred if locked) */}
+        {/* Preview Content (blurred when locked) */}
         <div style={{
-          position: 'absolute', inset: 0, 
+          position: 'absolute', inset: 0,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           filter: locked ? 'blur(10px)' : 'none',
           opacity: locked ? 0.6 : 1,
           transition: 'all 0.4s ease'
         }}>
-            <Icon name="doc" size={64} color="rgba(0,0,0,0.15)" strokeWidth={1} />
-            {/* Optional: Add a subtle gradient overlay */}
-            <div style={{ 
-                position: 'absolute', inset: 0, 
-                background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.2))' 
-            }} />
+          {isImage && note.fileUrl ? (
+            <img
+              src={note.fileUrl}
+              alt={note.title}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              onError={e => { e.target.style.display = 'none'; }}
+            />
+          ) : (
+            <>
+              <Icon name="doc" size={64} color="rgba(0,0,0,0.15)" strokeWidth={1} />
+              <div style={{
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.2))'
+              }} />
+            </>
+          )}
         </div>
 
-        {/* Lock Overlay (Centered over preview only) */}
+        {/* Lock Icon Overlay (centered over preview only) */}
         {locked && (
-            <div style={{ 
-                position: 'absolute', inset: 0, 
-                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                background: 'rgba(255,255,255,0.1)',
-                backdropFilter: 'none' // We already blurred the background div
+          <div style={{
+            position: 'absolute', inset: 0,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(255,255,255,0.1)'
+          }}>
+            <div style={{
+              width: 52, height: 52, borderRadius: '50%', background: '#fff',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+              transition: 'all 0.3s'
             }}>
-                <div style={{ 
-                    width: 52, height: 52, borderRadius: '50%', background: '#fff',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
-                    transform: 'scale(1)', transition: 'all 0.3s'
-                }}>
-                    <Icon name="lock" size={24} color="#7c3aed" strokeWidth={2.5} />
-                </div>
+              <Icon name="lock" size={24} color="#7c3aed" strokeWidth={2.5} />
             </div>
+          </div>
         )}
       </div>
 
-      {/* 2. CONTENT SECTION (Bottom - Always Clear) */}
+      {/* 2. CONTENT SECTION (Bottom — always clear, never blurred) */}
       <div style={{
         display: 'flex', flexDirection: 'column', gap: 16, height: '100%',
         zIndex: 1
       }}>
-        {/* BADGE ROW */}
+        {/* BADGE */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', minHeight: 24 }}>
           {note.badge ? (
             <span style={{
@@ -82,18 +100,16 @@ export default function NoteCard({ note, locked, onLock, onView, index, isExplor
           ) : <span />}
         </div>
 
-        {/* TITLE ROW */}
-        <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{
-              fontSize: 15, fontWeight: 900, color: '#0f172a', lineHeight: 1.4, marginBottom: 5,
-              display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
-              letterSpacing: '-0.3px'
-            }}>
-              {note.title}
-            </p>
-            <p style={{ fontSize: 12, fontWeight: 700, color: '#64748b' }}>{note.subject}</p>
-          </div>
+        {/* TITLE + SUBJECT */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{
+            fontSize: 15, fontWeight: 900, color: '#0f172a', lineHeight: 1.4, marginBottom: 5,
+            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+            letterSpacing: '-0.3px'
+          }}>
+            {note.title}
+          </p>
+          <p style={{ fontSize: 12, fontWeight: 700, color: '#64748b' }}>{note.subject}</p>
         </div>
 
         {/* TAGS */}
