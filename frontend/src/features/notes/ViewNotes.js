@@ -14,6 +14,7 @@ import {
 import UploadModal from './UploadModal';
 import { useNotes } from './NoteContext';
 import { useOutletContext, useLocation } from 'react-router-dom';
+import api from '../../services/api';
 
 
 /* ================= CONSTANTS ================= */
@@ -53,6 +54,16 @@ export default function ViewNotes() {
   const [search, setSearch] = useState('');
   const [subjectFilter, setSubjectFilter] = useState('');
   const [monthFilter, setMonthFilter] = useState('');
+  const [fetchedSubjects, setFetchedSubjects] = useState(SUBJECTS);
+
+  useEffect(() => {
+    // Fetch authoritative subjects
+    api.get('/notes/subjects')
+      .then(res => {
+        if (Array.isArray(res.data)) setFetchedSubjects(res.data);
+      })
+      .catch(err => console.error("Error subjects:", err));
+  }, []);
 
 
   /* ================= AUTO FILTER ================= */
@@ -272,12 +283,11 @@ export default function ViewNotes() {
             <select
               value={subjectFilter}
               onChange={e => setSubjectFilter(e.target.value)}
-              className="px-4 py-2 rounded-lg border"
+              className="px-4 py-2 rounded-lg border focus:ring-2 focus:ring-green-500 outline-none"
             >
               <option value="">All Subjects</option>
-
-              {SUBJECTS.map(s => (
-                <option key={s}>{s}</option>
+              {fetchedSubjects.map(s => (
+                <option key={s} value={s}>{s}</option>
               ))}
             </select>
 

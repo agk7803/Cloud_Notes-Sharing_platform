@@ -12,6 +12,15 @@ router.get("/test", (req, res) => {
   res.json({ message: "User routes working" });
 });
 
+router.get("/count", async (req, res) => {
+  try {
+    const count = await User.countDocuments({});
+    res.json({ count });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 /*
 ========================================
 GET CURRENT USER PROFILE

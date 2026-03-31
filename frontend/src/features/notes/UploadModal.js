@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaCloudUploadAlt, FaTimes, FaUsers } from 'react-icons/fa';
+import { FaCloudUploadAlt, FaTimes } from 'react-icons/fa';
 import api from '../../services/api';
 
 const SUBJECTS = ["Machine Learning", "Compiler Design", "Computer Networks", "Software Engineering", "Cloud Computing", "Web Engineering", "Other"];
@@ -8,12 +8,20 @@ const UploadModal = ({ onClose, onUpload }) => {
     const [title, setTitle] = useState('');
     const [subject, setSubject] = useState('');
     const [file, setFile] = useState(null);
-    const [visibility, setVisibility] = useState('private');
+    const [visibility] = useState('private');
     const [userGroups, setUserGroups] = useState([]);
     const [selectedGroups, setSelectedGroups] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [fetchedSubjects, setFetchedSubjects] = useState(SUBJECTS);
 
     useEffect(() => {
+        // Fetch authoritative subjects
+        api.get('/notes/subjects')
+            .then(res => {
+                if (Array.isArray(res.data)) setFetchedSubjects(res.data);
+            })
+            .catch(err => console.error("Error subjects:", err));
+
         // Fetch user's groups for sharing
         const fetchGroups = async () => {
             try {
@@ -93,7 +101,7 @@ const UploadModal = ({ onClose, onUpload }) => {
                         <label className="block text-sm font-bold text-gray-700 mb-1">Subject</label>
                         <select required value={subject} onChange={e => setSubject(e.target.value)} className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-[#1dc962] outline-none bg-gray-50">
                             <option value="" disabled>Select Subject</option>
-                            {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
+                            {fetchedSubjects.map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
                     </div>
 

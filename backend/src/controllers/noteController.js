@@ -113,9 +113,39 @@ const getNotes = async (req, res) => {
     }
 };
 
-// @desc    Delete a note
-// @route   DELETE /api/notes/:id
+// @desc    Get all public notes
+// @route   GET /api/notes/public
 // @access  Public
+const getPublicNotes = async (req, res) => {
+    try {
+        const notes = await Note.find({})
+            .sort({ createdAt: -1 })
+            .limit(10);
+
+        const notesWithSignedUrls = await Promise.all(notes.map(async (note) => {
+            const noteObj = note.toObject();
+            if (note.s3Key) {
+                try {
+                    const command = new GetObjectCommand({
+                        Bucket: process.env.AWS_BUCKET_NAME,
+                        Key: note.s3Key,
+                        ResponseContentDisposition: 'inline'
+                    });
+                    noteObj.fileUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
+                } catch (err) {
+                    console.error(`Error signing URL for public note ${note.id}:`, err);
+                }
+            }
+            return noteObj;
+        }));
+
+        res.json(notesWithSignedUrls);
+    } catch (error) {
+        console.error("Error fetching public notes:", error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
 const deleteNote = async (req, res) => {
     try {
         const note = await Note.findById(req.params.id);
@@ -154,8 +184,39 @@ function formatBytes(bytes, decimals = 2) {
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 }
 
+const getNoteCount = async (req, res) => {
+    try {
+        const count = await Note.countDocuments({});
+        res.json({ count });
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+const getNoteSubjects = async (req, res) => {
+    try {
+        const subjects = [
+            "Machine Learning",
+            "Compiler Design",
+            "Computer Networks",
+            "Software Engineering",
+            "Cloud Computing",
+            "Web Engineering",
+            "Data Structures",
+            "Calculus",
+            "Other"
+        ];
+        res.json(subjects);
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
 module.exports = {
     uploadNote,
     getNotes,
+    getPublicNotes,
+    getNoteCount,
+    getNoteSubjects,
     deleteNote
 };

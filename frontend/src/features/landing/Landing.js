@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import './Landing.css';
+import api from '../../services/api';
 import logo from '../../assets/generated-image.png';
 
 /* ═══════════════════════════════════════════════
@@ -34,22 +35,8 @@ const C = {
 /* ═══════════════════════════════════════════════
    DATA
 ═══════════════════════════════════════════════ */
-const NOTES = [
-  { id: 1, title: 'Data Structures & Algorithms – Complete Guide', subject: 'Computer Science', uploader: 'Arjun M.', tags: ['Medium', 'PDF'], color: 'green', badge: '🔥 Trending' },
-  { id: 2, title: 'Organic Chemistry: Reaction Mechanisms', subject: 'Chemistry', uploader: 'Priya S.', tags: ['Easy', 'Handwritten'], color: 'teal', badge: '⭐ Popular' },
-  { id: 3, title: 'Macroeconomics – Keynesian Theory', subject: 'Economics', uploader: 'Rohan K.', tags: ['Advanced', 'Notes'], color: 'green', badge: null },
-  { id: 4, title: 'Calculus III – Multivariable Functions', subject: 'Mathematics', uploader: 'Sneha T.', tags: ['Advanced', 'PDF'], color: 'teal', badge: '🔥 Trending' },
-  { id: 5, title: 'World History: Industrial Revolution', subject: 'History', uploader: 'Dev P.', tags: ['Easy', 'Notes'], color: 'green', badge: null },
-  { id: 6, title: 'Machine Learning Fundamentals', subject: 'Computer Science', uploader: 'Aisha R.', tags: ['Medium', 'PDF'], color: 'teal', badge: '⭐ Popular' },
-];
 const FREE_LIMIT = 3;
 
-const STATS = [
-  { value: '12k+', label: 'Notes shared', bg: C.lavender },
-  { value: '98%', label: 'Students satisfied', bg: C.peach },
-  { value: '<2min', label: 'Avg search time', bg: C.softMint },
-  { value: '100%', label: 'Free to explore', bg: C.softYellow },
-];
 
 const HOW = [
   { n: '01', bg: C.lavender, title: 'Search instantly', desc: 'Find notes by subject, topic, or keyword across thousands of student-uploaded resources.', icon: 'search' },
@@ -64,9 +51,17 @@ const FEATURES = [
   { bg: C.softBlue, icon: 'assessment', title: 'Assessments', desc: 'Practice quizzes and assessments linked to your note topics and subjects.' },
 ];
 
-const TOPICS = ['Computer Science', 'Mathematics', 'Chemistry', 'Economics', 'History', 'Physics'];
-const SUGGESTIONS = ['Machine Learning', 'Data Structures', 'Organic Chemistry', 'Calculus', 'Economics', 'World History'];
-
+const TOPICS = [
+  "Machine Learning",
+  "Compiler Design",
+  "Computer Networks",
+  "Software Engineering",
+  "Cloud Computing",
+  "Web Engineering",
+  "Data Structures",
+  "Calculus",
+  "Other"
+];
 const PASTELS = [C.paleLavender, C.paleRose, C.paleTeal, C.paleOrange, C.mintBg, C.peach];
 
 const NOTE_OMBRES = [
@@ -109,6 +104,182 @@ function HeroBg({ children, id }) {
         <div className="ln-blob-pink" />
         <div className="ln-blob-sage" />
       </div>
+
+      {/* Floating SVG decorations — Engineering Theme */}
+      <div className="sv-float-el sv-chip sv-float-a">
+        <svg viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+          <rect x="12" y="12" width="28" height="28" rx="3" fill="#EEEDFE" stroke="#534AB7" strokeWidth="1.2" />
+          <rect x="18" y="18" width="16" height="16" rx="2" fill="#534AB7" />
+          <line x1="16" y1="18" x2="8" y2="18" stroke="#7F77DD" strokeWidth="1.2" />
+          <line x1="16" y1="24" x2="8" y2="24" stroke="#7F77DD" strokeWidth="1.2" />
+          <line x1="16" y1="30" x2="8" y2="30" stroke="#7F77DD" strokeWidth="1.2" />
+          <line x1="36" y1="18" x2="44" y2="18" stroke="#7F77DD" strokeWidth="1.2" />
+          <line x1="36" y1="24" x2="44" y2="24" stroke="#7F77DD" strokeWidth="1.2" />
+          <line x1="36" y1="30" x2="44" y2="30" stroke="#7F77DD" strokeWidth="1.2" />
+          <line x1="18" y1="16" x2="18" y2="8" stroke="#7F77DD" strokeWidth="1.2" />
+          <line x1="26" y1="12" x2="26" y2="4" stroke="#AFA9EC" strokeWidth="1" />
+          <line x1="34" y1="16" x2="34" y2="8" stroke="#7F77DD" strokeWidth="1.2" />
+          <line x1="18" y1="36" x2="18" y2="44" stroke="#7F77DD" strokeWidth="1.2" />
+          <line x1="26" y1="40" x2="26" y2="48" stroke="#AFA9EC" strokeWidth="1" />
+          <line x1="34" y1="36" x2="34" y2="44" stroke="#7F77DD" strokeWidth="1.2" />
+          <rect x="22" y="22" width="8" height="8" rx="1" fill="#AFA9EC" opacity="0.6" />
+        </svg>
+      </div>
+      <div className="sv-float-el sv-resistor sv-float-b">
+        <svg viewBox="0 0 52 20" xmlns="http://www.w3.org/2000/svg">
+          <line x1="0" y1="10" x2="12" y2="10" stroke="#BA7517" strokeWidth="1.5" strokeLinecap="round" />
+          <rect x="12" y="4" width="28" height="12" rx="3" fill="#FAC775" stroke="#BA7517" strokeWidth="1" />
+          <line x1="40" y1="10" x2="52" y2="10" stroke="#BA7517" strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="18" y1="4" x2="18" y2="16" stroke="#D4537E" strokeWidth="0.8" />
+          <line x1="24" y1="4" x2="24" y2="16" stroke="#9FE1CB" strokeWidth="0.8" />
+          <line x1="30" y1="4" x2="30" y2="16" stroke="#D4537E" strokeWidth="0.8" />
+          <line x1="36" y1="4" x2="36" y2="16" stroke="#534AB7" strokeWidth="0.8" />
+        </svg>
+      </div>
+      <div className="sv-float-el sv-beaker sv-float-c">
+        <svg viewBox="0 0 40 58" xmlns="http://www.w3.org/2000/svg">
+          <rect x="16" y="0" width="8" height="12" rx="2" fill="#B5D4F4" stroke="#378ADD" strokeWidth="1" />
+          <path d="M10 12 L6 50 Q6 56 20 56 Q34 56 34 50 L30 12 Z" fill="#E6F1FB" stroke="#185FA5" strokeWidth="1" />
+          <path d="M6 38 Q6 56 20 56 Q34 56 34 38 Z" fill="#B5D4F4" opacity="0.6" />
+          <circle cx="14" cy="44" r="2.5" fill="#378ADD" opacity="0.7" />
+          <circle cx="24" cy="48" r="2" fill="#378ADD" opacity="0.5" />
+          <circle cx="18" cy="50" r="1.5" fill="#185FA5" opacity="0.6" />
+          <line x1="12" y1="26" x2="28" y2="26" stroke="#B5D4F4" strokeWidth="1" />
+        </svg>
+      </div>
+      <div className="sv-float-el sv-gear sv-float-d">
+        <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+          <path d="M26 4 L28 4 L30 8 L34 6 L36 8 L34 12 Q38 14 40 18 L44 16 L46 18 L44 22 L48 26 L48 28 L44 30 L46 34 L44 36 L40 34 Q38 38 34 40 L36 44 L34 46 L30 44 L28 48 L26 48 L24 44 L20 46 L18 44 L20 40 Q16 38 14 34 L10 36 L8 34 L10 30 L6 28 L6 26 L10 24 L8 20 L10 18 L14 20 Q16 16 20 14 L18 10 L20 8 L24 10 Z" fill="#9FE1CB" stroke="#1D9E75" strokeWidth="1" />
+          <circle cx="27" cy="26" r="9" fill="#E6F1FB" stroke="#1D9E75" strokeWidth="1" />
+          <circle cx="27" cy="26" r="5" fill="#5DCAA5" />
+        </svg>
+      </div>
+      <div className="sv-float-el sv-oscwave sv-float-e">
+        <svg viewBox="0 0 76 50" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="76" height="50" rx="6" fill="#0a1628" stroke="#378ADD" strokeWidth="1" />
+          <rect x="4" y="4" width="68" height="42" rx="3" fill="#0a2040" />
+          <line x1="8" y1="25" x2="68" y2="25" stroke="#1a4060" strokeWidth="0.6" />
+          <line x1="38" y1="8" x2="38" y2="42" stroke="#1a4060" strokeWidth="0.6" />
+          <polyline points="8,25 16,25 16,12 24,12 24,38 32,38 32,12 40,12 40,38 48,38 48,12 56,12 56,25 68,25" fill="none" stroke="#5DCAA5" strokeWidth="1.4" strokeLinejoin="round" />
+          <circle cx="8" cy="25" r="1.5" fill="#FAC775" />
+        </svg>
+      </div>
+      <div className="sv-float-el sv-sticker sv-float-a" style={{ animationDelay: '1s' }}>
+        <svg viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="26" cy="26" r="24" fill="#FAEEDA" stroke="#EF9F27" strokeWidth="1.2" />
+          <circle cx="26" cy="26" r="20" fill="none" stroke="#FAC775" strokeWidth="0.6" strokeDasharray="3 3" />
+          <text x="26" y="22" textAnchor="middle" fontFamily="Georgia,serif" fontSize="9" fontWeight="700" fill="#EF9F27">GREAT</text>
+          <text x="26" y="33" textAnchor="middle" fontFamily="Georgia,serif" fontSize="9" fontWeight="700" fill="#EF9F27">WORK!</text>
+          <polygon points="26,6 28,12 34,12 29,16 31,22 26,18 21,22 23,16 18,12 24,12" fill="#EF9F27" opacity="0.3" />
+        </svg>
+      </div>
+      <div className="sv-float-el sv-binary sv-float-f">
+        <svg viewBox="0 0 76 50" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="76" height="50" rx="6" fill="#1a1a2e" stroke="#534AB7" strokeWidth="1" />
+          <text x="8" y="16" fontFamily="monospace" fontSize="10" fill="#7F77DD">01001000</text>
+          <text x="8" y="28" fontFamily="monospace" fontSize="10" fill="#AFA9EC">11010011</text>
+          <text x="8" y="40" fontFamily="monospace" fontSize="10" fill="#534AB7">10110110</text>
+          <rect x="52" y="3" width="20" height="10" rx="2" fill="#534AB7" />
+          <text x="62" y="11" textAnchor="middle" fontFamily="monospace" fontSize="7" fill="#EEEDFE">BIN</text>
+        </svg>
+      </div>
+      <div className="sv-float-el sv-wrench sv-float-d" style={{ animationDelay: '0.5s' }}>
+        <svg viewBox="0 0 44 56" xmlns="http://www.w3.org/2000/svg">
+          <path d="M28 4 Q38 4 38 12 Q38 18 32 20 L20 44 Q20 52 12 52 Q4 52 4 44 Q4 36 12 36 L36 22 Q38 16 38 12" fill="none" stroke="#9FE1CB" strokeWidth="2" strokeLinecap="round" />
+          <path d="M12 4 Q4 8 6 16 L14 14 L16 6 Z" fill="#5DCAA5" stroke="#1D9E75" strokeWidth="0.8" />
+          <circle cx="12" cy="44" r="5" fill="#9FE1CB" stroke="#1D9E75" strokeWidth="1" />
+          <circle cx="12" cy="44" r="2" fill="#1D9E75" />
+        </svg>
+      </div>
+      <div className="sv-float-el sv-ruler sv-float-g">
+        <svg viewBox="0 0 70 24" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="70" height="24" rx="3" fill="#B5D4F4" stroke="#185FA5" strokeWidth="1" />
+          <line x1="8" y1="14" x2="8" y2="24" stroke="#185FA5" strokeWidth="1" />
+          <line x1="16" y1="16" x2="16" y2="24" stroke="#185FA5" strokeWidth="0.8" />
+          <line x1="24" y1="14" x2="24" y2="24" stroke="#185FA5" strokeWidth="1" />
+          <line x1="32" y1="16" x2="32" y2="24" stroke="#185FA5" strokeWidth="0.8" />
+          <line x1="40" y1="14" x2="40" y2="24" stroke="#185FA5" strokeWidth="1" />
+          <line x1="48" y1="16" x2="48" y2="24" stroke="#185FA5" strokeWidth="0.8" />
+          <line x1="56" y1="14" x2="56" y2="24" stroke="#185FA5" strokeWidth="1" />
+          <line x1="64" y1="16" x2="64" y2="24" stroke="#185FA5" strokeWidth="0.8" />
+          <text x="8" y="11" textAnchor="middle" fontFamily="sans-serif" fontSize="7" fill="#0C447C">1</text>
+          <text x="24" y="11" textAnchor="middle" fontFamily="sans-serif" fontSize="7" fill="#0C447C">2</text>
+          <text x="40" y="11" textAnchor="middle" fontFamily="sans-serif" fontSize="7" fill="#0C447C">3</text>
+          <text x="56" y="11" textAnchor="middle" fontFamily="sans-serif" fontSize="7" fill="#0C447C">4</text>
+        </svg>
+      </div>
+      <div className="sv-float-el sv-compass sv-float-e" style={{ animationDelay: '0.7s' }}>
+        <svg viewBox="0 0 48 56" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="24" cy="6" r="4" fill="#FAC775" stroke="#BA7517" strokeWidth="1" />
+          <line x1="24" y1="10" x2="14" y2="40" stroke="#EF9F27" strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="24" y1="10" x2="34" y2="40" stroke="#EF9F27" strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="16" y1="30" x2="32" y2="30" stroke="#BA7517" strokeWidth="1" />
+          <polygon points="14,40 10,52 18,46" fill="#BA7517" />
+          <polygon points="34,40 30,46 38,52" fill="#FAC775" stroke="#BA7517" strokeWidth="0.8" />
+          <path d="M18 22 Q24 18 30 22" fill="none" stroke="#FAC775" strokeWidth="0.8" strokeDasharray="2 2" />
+        </svg>
+      </div>
+      <div className="sv-float-el sv-pi sv-float-b" style={{ animationDelay: '1.2s' }}>
+        <svg viewBox="0 0 34 40" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="34" height="40" rx="6" fill="#EEEDFE" stroke="#534AB7" strokeWidth="1" />
+          <line x1="6" y1="10" x2="28" y2="10" stroke="#7F77DD" strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="12" y1="10" x2="10" y2="34" stroke="#534AB7" strokeWidth="1.4" strokeLinecap="round" />
+          <path d="M22 10 Q26 10 26 16 Q26 34 22 34" fill="none" stroke="#534AB7" strokeWidth="1.4" strokeLinecap="round" />
+        </svg>
+      </div>
+      {/* Stacked textbooks */}
+      <div className="sv-float-el sv-books sv-float-h">
+        <svg viewBox="0 0 72 64" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="44" width="64" height="12" rx="2" fill="#ED93B1" stroke="#D4537E" strokeWidth="1" />
+          <rect x="2" y="44" width="4" height="12" rx="1" fill="#BA3060" stroke="#993556" strokeWidth="0.8" />
+          <rect x="8" y="28" width="56" height="16" rx="2" fill="#FAC775" stroke="#BA7517" strokeWidth="1" />
+          <rect x="6" y="28" width="4" height="16" rx="1" fill="#EF9F27" stroke="#BA7517" strokeWidth="0.8" />
+          <rect x="10" y="10" width="52" height="18" rx="2" fill="#9FE1CB" stroke="#1D9E75" strokeWidth="1" />
+          <rect x="8" y="10" width="4" height="18" rx="1" fill="#5DCAA5" stroke="#1D9E75" strokeWidth="0.8" />
+          <line x1="20" y1="16" x2="54" y2="16" stroke="#E6F9F3" strokeWidth="0.8" />
+          <line x1="20" y1="20" x2="46" y2="20" stroke="#E6F9F3" strokeWidth="0.8" />
+          <line x1="18" y1="34" x2="54" y2="34" stroke="#FAEEDA" strokeWidth="0.8" />
+          <line x1="18" y1="38" x2="46" y2="38" stroke="#FAEEDA" strokeWidth="0.8" />
+          <line x1="16" y1="49" x2="54" y2="49" stroke="#F4C0D1" strokeWidth="0.8" />
+        </svg>
+      </div>
+
+      {/* Study timer / clock */}
+      <div className="sv-float-el sv-clock sv-float-a">
+        <svg viewBox="0 0 58 64" xmlns="http://www.w3.org/2000/svg">
+          <line x1="20" y1="4" x2="38" y2="4" stroke="#534AB7" strokeWidth="2" strokeLinecap="round" />
+          <line x1="29" y1="4" x2="29" y2="10" stroke="#534AB7" strokeWidth="1.5" strokeLinecap="round" />
+          <circle cx="29" cy="36" r="24" fill="#EEEDFE" stroke="#534AB7" strokeWidth="1.2" />
+          <circle cx="29" cy="36" r="20" fill="white" stroke="#AFA9EC" strokeWidth="0.6" />
+          <line x1="29" y1="36" x2="29" y2="20" stroke="#534AB7" strokeWidth="1.8" strokeLinecap="round" />
+          <line x1="29" y1="36" x2="40" y2="42" stroke="#7F77DD" strokeWidth="1.4" strokeLinecap="round" />
+          <circle cx="29" cy="36" r="2.5" fill="#534AB7" />
+          <line x1="29" y1="17" x2="29" y2="19" stroke="#AFA9EC" strokeWidth="1" strokeLinecap="round" />
+          <line x1="29" y1="53" x2="29" y2="55" stroke="#AFA9EC" strokeWidth="1" strokeLinecap="round" />
+          <line x1="10" y1="36" x2="12" y2="36" stroke="#AFA9EC" strokeWidth="1" strokeLinecap="round" />
+          <line x1="46" y1="36" x2="48" y2="36" stroke="#AFA9EC" strokeWidth="1" strokeLinecap="round" />
+        </svg>
+      </div>
+
+      {/* Trophy / achievement */}
+      <div className="sv-float-el sv-trophy sv-float-c" style={{ animationDelay: '0.6s' }}>
+        <svg viewBox="0 0 54 66" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14 6 Q10 6 8 14 Q6 24 14 30 Q18 34 27 36 Q36 34 40 30 Q48 24 46 14 Q44 6 40 6 Z" fill="#FAC775" stroke="#BA7517" strokeWidth="1" />
+          <path d="M8 10 Q2 10 2 18 Q2 26 10 28" fill="none" stroke="#EF9F27" strokeWidth="1.4" strokeLinecap="round" />
+          <path d="M46 10 Q52 10 52 18 Q52 26 44 28" fill="none" stroke="#EF9F27" strokeWidth="1.4" strokeLinecap="round" />
+          <rect x="22" y="36" width="10" height="14" rx="1" fill="#EF9F27" stroke="#BA7517" strokeWidth="0.8" />
+          <rect x="14" y="50" width="26" height="8" rx="3" fill="#FAC775" stroke="#BA7517" strokeWidth="1" />
+          <rect x="16" y="58" width="22" height="4" rx="2" fill="#EF9F27" stroke="#BA7517" strokeWidth="0.8" />
+          <polygon points="27,12 29,18 35,18 30,22 32,28 27,24 22,28 24,22 19,18 25,18" fill="#FAEEDA" opacity="0.8" />
+        </svg>
+      </div>
+
+      <div className="sv-dot sv-dot-1"></div>
+      <div className="sv-dot sv-dot-2"></div>
+      <div className="sv-dot sv-dot-3"></div>
+      <div className="sv-dot sv-dot-4"></div>
+      <div className="sv-dot sv-dot-5"></div>
+
       <div style={{ position: 'relative', zIndex: 10 }}>{children}</div>
     </div>
   );
@@ -235,10 +406,10 @@ function NoteCard({ note, locked, onLock, onView, index }) {
 
       {/* CONTENT: Slightly blurred and lower opacity when locked */}
       <div style={{
-       filter: locked ? 'blur(1.5px)' : 'none',
-       opacity: locked ? 0.45 : 1,
-       transition: 'all 0.4s ease',
-       display: 'flex', flexDirection: 'column', gap: 16, height: '100%'
+        filter: locked ? 'blur(1.5px)' : 'none',
+        opacity: locked ? 0.45 : 1,
+        transition: 'all 0.4s ease',
+        display: 'flex', flexDirection: 'column', gap: 16, height: '100%'
       }}>
         {/* BADGE ROW */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', minHeight: 24 }}>
@@ -276,7 +447,7 @@ function NoteCard({ note, locked, onLock, onView, index }) {
 
         {/* TAGS */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-          {note.tags.map(t => (
+          {(note.tags || []).map(t => (
             <span key={t} style={{
               fontSize: 10, fontWeight: 800, padding: '4px 14px', borderRadius: 99,
               background: 'rgba(255,255,255,0.6)', color: '#4b5563',
@@ -314,20 +485,41 @@ function NoteCard({ note, locked, onLock, onView, index }) {
    MAIN COMPONENT
 ═══════════════════════════════════════════════ */
 export default function Landing() {
-  const [query, setQuery] = useState('');
-  const [searched, setSearched] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [modal, setModal] = useState(false);
-  const [activeNav, setActiveNav] = useState('home');
+  const [notes, setNotes] = useState([]);
+  const [subjects, setSubjects] = useState(TOPICS);
+  const [counts, setCounts] = useState({ notes: 0, users: 0 });
+  const [loading, setLoading] = useState(true);
   const [showSearch, setShowSearch] = useState(false);
+  const [query, setQuery] = useState('');
+  const [showLock, setShowLock] = useState(false);
+  const [searched, setSearched] = useState(false);
+  const [activeNav, setActiveNav] = useState('home');
   const resultsRef = useRef(null);
   const searchInputRef = useRef(null);
 
   useEffect(() => {
-    if (showSearch && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, [showSearch]);
+    // 1. Fetch live notes
+    api.get('/notes/public')
+      .then(res => setNotes(res.data || []))
+      .catch(err => console.error("Error fetching landing stats:", err));
+
+    // 2. Fetch total counts
+    Promise.all([
+      api.get('/notes/count'),
+      api.get('/users/count')
+    ]).then(([nr, ur]) => {
+      setCounts({ notes: nr.data.count || 0, users: ur.data.count || 0 });
+    }).catch(err => console.error("Error counts:", err));
+
+    // 3. Fetch authoritative subjects
+    api.get('/notes/subjects')
+      .then(res => {
+        if (Array.isArray(res.data)) setSubjects(res.data);
+      })
+      .catch(err => console.error("Error subjects:", err));
+
+    setTimeout(() => setLoading(false), 900);
+  }, []);
 
   /* localStorage freemium */
   const [viewedNotes, setViewedNotes] = useState(() => {
@@ -337,8 +529,6 @@ export default function Landing() {
   useEffect(() => {
     localStorage.setItem('stunotes_viewed', JSON.stringify(viewedNotes));
   }, [viewedNotes]);
-
-
 
   const scrollToSection = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -356,8 +546,9 @@ export default function Landing() {
 
   const handleViewNote = (note) => {
     if (viewedNotes.includes(note.id)) return;
-    if (viewedNotes.length >= FREE_LIMIT) { setModal(true); return; }
+    if (viewedNotes.length >= FREE_LIMIT) { setShowLock(true); return; }
     setViewedNotes(prev => [...prev, note.id]);
+    if (note.fileUrl) window.open(note.fileUrl, '_blank');
   };
 
   const isLocked = (note, idx) => {
@@ -365,14 +556,28 @@ export default function Landing() {
     return viewedNotes.length >= FREE_LIMIT || idx >= FREE_LIMIT;
   };
 
-  const notes = searched
-    ? NOTES.filter(n => !query
+  const displayNotes = notes.map(n => ({
+    ...n,
+    id: n._id,
+    uploader: n.authorName || 'Student',
+    tags: [n.subject, n.size || 'PDF'],
+    badge: (new Date() - new Date(n.createdAt)) < 604800000 ? '✨ NEW' : null
+  }));
+
+  const filteredNotes = searched
+    ? displayNotes.filter(n => !query
       || n.title.toLowerCase().includes(query.toLowerCase())
-      || n.subject.toLowerCase().includes(query.toLowerCase()))
-    : NOTES;
+      || (n.subject && n.subject.toLowerCase().includes(query.toLowerCase())))
+    : displayNotes;
 
   const freeUsed = Math.min(viewedNotes.length, FREE_LIMIT);
-  const freeLeft = FREE_LIMIT - freeUsed;
+
+  const dynamicStats = [
+    { value: counts.notes > 0 ? `${counts.notes}` : '0', label: 'Notes shared', bg: C.lavender },
+    { value: '98%', label: 'Students satisfied', bg: C.peach },
+    { value: '<2min', label: 'Avg search time', bg: C.softMint },
+    { value: '100%', label: 'Free to explore', bg: C.softYellow },
+  ];
 
   /* ──────────── RENDER ──────────── */
   return (
@@ -407,81 +612,50 @@ export default function Landing() {
               {label}
             </button>
           ))}
-          <Link to="/contact" className="nav-link"
-            style={{ fontSize: 14, fontWeight: 700, color: '#6b7280', textDecoration: 'none' }}>
-            Contact
-          </Link>
-          <a href="/login" className="btn-press"
-            style={{
-              padding: '10px 24px', borderRadius: 99, fontSize: 13, fontWeight: 800, color: '#fff',
-              background: '#0f172a', boxShadow: '0 4px 12px rgba(15,23,42,0.2)',
-              textDecoration: 'none', display: 'inline-block'
-            }}>
-            Login
-          </a>
         </nav>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <Link to="/login" style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', textDecoration: 'none', padding: '10px 20px' }}>Login</Link>
+          <Link to="/register" className="btn-press" style={{
+            fontSize: 13, fontWeight: 800, color: '#fff', background: '#111',
+            padding: '10px 24px', borderRadius: 12, textDecoration: 'none'
+          }}>Join Free</Link>
+        </div>
       </header>
 
-      <main>
-
-        {/* ══════ HERO ══════ */}
+      <main style={{ flex: 1 }}>
+        {/* ══════ HERO SECTION ══════ */}
         <HeroBg id="home">
           <section style={{
-            display: 'flex', flexDirection: 'column', alignItems: 'center',
-            padding: '100px 24px 120px', textAlign: 'center', position: 'relative'
+            padding: '100px 24px 120px', display: 'flex', flexDirection: 'column',
+            alignItems: 'center', textAlign: 'center', position: 'relative', zIndex: 1
           }}>
 
-            {/* TOP BADGE CHIPS */}
-            <div className="fade-up" style={{ display: 'flex', gap: 10, marginBottom: 32 }}>
-              <div style={{
-                fontFamily: 'monospace', fontSize: 13, fontWeight: 900,
-                padding: '6px 14px', borderRadius: 10, border: '1px solid rgba(0,0,0,0.05)',
-                background: '#fff', color: '#0f172a', letterSpacing: 1,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
-              }}>
-                [stu<span style={{ color: C.green }}>.</span>notes]
+            {/* LOGO BANNER */}
+            <div className="fade-up banner-glow" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '6px 14px', borderRadius: 99, background: '#fff',
+              border: '1.5px solid #f1f5f9', marginBottom: 32
+            }}>
+              <div style={{ width: 18, height: 18, borderRadius: 5, background: C.green, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="search" size={10} color="#fff" strokeWidth={3} />
               </div>
-              <div className="float-slow" style={{
-                display: 'inline-flex', alignItems: 'center', gap: 6,
-                borderRadius: 99, border: '1px solid rgba(29,201,98,.2)', padding: '6px 14px',
-                fontSize: 12, fontWeight: 800, background: 'rgba(255,255,255,.7)', color: C.greenDark
-              }}>
-                <span className="pulse-dot" style={{ width: 6, height: 6, borderRadius: '50%', background: C.green }} />
-                Free to explore · No account needed
-              </div>
+              <span style={{ fontSize: 11, fontWeight: 900, color: '#475569', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                Community Driven Learning
+              </span>
             </div>
 
-            {/* HEADLINE — Reduced dominance to let search shine */}
+            {/* HEADLINE */}
             <h1 className="fade-up fade-up-1"
               style={{
                 fontSize: 'clamp(32px,5vw,52px)', fontWeight: 900, lineHeight: 1.15,
-                letterSpacing: '-1.5px', color: '#0f172a', maxWidth: 840, marginBottom: 16,
-                position: 'relative'
+                letterSpacing: '-1.5px', color: '#0f172a', maxWidth: 840, marginBottom: 40
               }}>
-              for the{' '}
-              <span className="sticker-highlight" style={{ background: C.pinkBg, color: C.pink, '--r': '-1.5deg' }}>
-                note-hungry,
-              </span>
-              {' '}the{' '}
-              <span className="sticker-highlight" style={{ background: C.tealBg, color: C.teal, '--r': '1.2deg' }}>
-                exam-chasing
-              </span>
-              <br />
-              and the{' '}
-              <span className="sticker-highlight" style={{ background: C.mintBg, color: C.greenDark, '--r': '-1deg' }}>
-                concept-obsessed.
-              </span>
+              Search thousands of student notes instantly.
             </h1>
 
-            {/* CONTEXT LINE */}
-            <p className="fade-up fade-up-2" style={{
-              fontSize: 18, color: '#64748b', fontWeight: 700, marginBottom: 40, letterSpacing: '-0.2px'
-            }}>
-              Search thousands of student notes instantly
-            </p>
-
-            {/* MAIN ELEMENT: LARGE SEARCH BAR */}
-            <div className="fade-up fade-up-3" style={{ width: '100%', maxWidth: 850, padding: '0 10px' }}>
+            {/* SEARCH BAR */}
+            <div className="fade-up fade-up-3" style={{ width: '100%', maxWidth: 720, padding: '0 10px' }}>
               <div className={`glass-search ${showSearch ? 'search-focus' : ''}`} style={{
                 display: 'flex', alignItems: 'center', gap: 12,
                 borderRadius: 22, padding: '10px 10px 10px 24px',
@@ -495,13 +669,13 @@ export default function Landing() {
                 ) : (
                   <Icon name="search" size={22} color={C.teal} strokeWidth={2.5} />
                 )}
-                
+
                 <input type="text" value={query} ref={searchInputRef}
                   onFocus={() => setShowSearch(true)}
                   onBlur={() => setShowSearch(false)}
                   onChange={e => setQuery(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && doSearch()}
-                  placeholder="Search 12,000+ notes..."
+                  placeholder={`Search ${counts.notes > 0 ? counts.notes : 'all'} notes...`}
                   style={{
                     flex: 1, border: 'none', outline: 'none', fontSize: 'clamp(15px, 2vw, 18px)', color: '#0f172a',
                     fontFamily: 'inherit', fontWeight: 600, background: 'transparent'
@@ -525,45 +699,28 @@ export default function Landing() {
 
               {/* MINI FEATURE ROW */}
               <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginTop: 28, flexWrap: 'wrap' }}>
-                 {[
-                   { icon: 'search', txt: 'Search instantly' },
-                   { icon: 'eye', txt: 'Preview 3 free' },
-                   { icon: 'lock', txt: 'Unlock full access' }
-                 ].map(f => (
-                   <div key={f.txt} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: '#4b5563' }}>
-                     <Icon name={f.icon} size={15} color={C.teal} strokeWidth={2.5} />
-                     {f.txt}
-                   </div>
-                 ))}
+                {[
+                  { icon: 'search', txt: 'Search instantly' },
+                  { icon: 'eye', txt: 'Preview 3 free' },
+                  { icon: 'lock', txt: 'Unlock full access' }
+                ].map(f => (
+                  <div key={f.txt} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: '#4b5563' }}>
+                    <Icon name={f.icon} size={15} color={C.teal} strokeWidth={2.5} />
+                    {f.txt}
+                  </div>
+                ))}
               </div>
 
-              {/* TRENDING SEARCHES */}
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 10, marginTop: 20 }}>
-                <span style={{ fontSize: 12, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 0.5 }}>Trending:</span>
-                <div style={{ display: 'flex', gap: 8 }}>
-                   {['Machine Learning', 'DSA', 'Chemistry', 'Calculus'].map(t => (
-                     <button key={t} onClick={() => doSearch(t)} className="btn-press" style={{
-                       fontSize: 12, fontWeight: 800, color: '#475569', background: 'rgba(0,0,0,0.03)',
-                       border: 'none', padding: '4px 12px', borderRadius: 99, cursor: 'pointer'
-                     }}>
-                       {t}
-                     </button>
-                   ))}
-                </div>
-              </div>
-
-              {/* TOPIC PILLS COLLAPSED */}
+              {/* TOPIC PILLS */}
               <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginTop: 32 }}>
-                {TOPICS.map(t => (
-                  <button key={t} onClick={() => doSearch(t)} className="topic-pill"
-                    style={{
-                      borderRadius: 99, border: '1.5px solid rgba(0,0,0,0.04)', padding: '10px 22px',
-                      fontSize: 13, fontWeight: 800, color: '#0f172a',
-                      background: '#fff', cursor: 'pointer', transition: 'all .25s',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
-                    }}>
-                    {t}
-                  </button>
+                {subjects.map(topic => (
+                  <Link key={topic} to="/notes" state={{ subject: topic }} className="topic-pill" style={{
+                    padding: '8px 18px', borderRadius: 12, fontSize: 11, fontWeight: 900, textDecoration: 'none',
+                    background: 'rgba(255,255,255,0.4)', color: '#334155', border: '1px solid rgba(255,255,255,0.3)',
+                    backdropFilter: 'blur(10px)', transition: 'all 0.3s ease', textTransform: 'uppercase', letterSpacing: 0.5
+                  }}>
+                    {topic}
+                  </Link>
                 ))}
               </div>
             </div>
@@ -582,7 +739,7 @@ export default function Landing() {
                 ))}
               </div>
               <p style={{ fontSize: 13, color: '#64748b', fontWeight: 700 }}>
-                <span style={{ color: '#0f172a', fontWeight: 900 }}>2,400+</span> students studying smarter
+                <span style={{ color: '#0f172a', fontWeight: 900 }}>{counts.users > 0 ? counts.users : 'Many'}</span> students studying smarter
               </p>
             </div>
           </section>
@@ -590,12 +747,9 @@ export default function Landing() {
 
         {/* ══════ STATS BAND ══════ */}
         <section style={{ background: '#fff', padding: '40px 24px 60px' }}>
-          <div style={{
-            maxWidth: 1000, margin: '0 auto',
-            display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 20
-          }}>
-            {STATS.map((s, i) => (
-              <div key={s.value} className={`stat-card ${i % 2 === 0 ? 'asym-up' : 'asym-down'}`}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 20 }}>
+            {dynamicStats.map((s, i) => (
+              <div key={i} className={`stat-card ${i % 2 === 0 ? 'asym-up' : 'asym-down'}`}
                 style={{
                   borderRadius: 24, padding: '32px 20px',
                   background: PASTELS[i % PASTELS.length], border: '1px solid rgba(0,0,0,0.02)',
@@ -612,56 +766,25 @@ export default function Landing() {
         {/* ══════ BROWSE / RESULTS ══════ */}
         <section id="results" ref={resultsRef} className="grid-bg" style={{ background: '#fafafa', padding: '52px 24px' }}>
           <div style={{ maxWidth: 1140, margin: '0 auto' }}>
-
-            {/* Header */}
-            <div style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end',
-              marginBottom: 28, flexWrap: 'wrap', gap: 12
-            }}>
-              <div>
-                <h2 style={{ fontSize: 22, fontWeight: 800, color: '#111', letterSpacing: '-0.5px', marginBottom: 8 }}>
-                  {searched ? `Results for "${query || 'all notes'}"` : 'Browse Popular Notes'}
-                </h2>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <div style={{ display: 'flex', gap: 5 }}>
-                    {[0, 1, 2].map(i => (
-                      <div key={i} style={{
-                        width: 26, height: 7, borderRadius: 99,
-                        background: i < freeLeft ? C.green : '#e5e7eb', transition: 'background .3s'
-                      }} />
-                    ))}
-                  </div>
-                  <p style={{ fontSize: 12, fontWeight: 700, color: '#6b7280' }}>
-                    <span style={{ color: C.green, fontWeight: 800 }}>{freeLeft} free notes</span> remaining · Sign up to unlock all
-                  </p>
-                </div>
-              </div>
-              {searched && (
-                <button onClick={() => { setQuery(''); setSearched(false); }}
-                  style={{
-                    fontSize: 12, fontWeight: 700, color: C.muted, textDecoration: 'underline',
-                    background: 'none', border: 'none', cursor: 'pointer'
-                  }}>
-                  ✕ Clear search
-                </button>
-              )}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 28 }}>
+              <h2 style={{ fontSize: 22, fontWeight: 800, color: '#111', letterSpacing: '-0.5px' }}>
+                {searched ? `Results for "${query || 'all notes'}"` : 'Browse Popular Notes'}
+              </h2>
             </div>
 
-            {/* Skeletons */}
             {loading && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 18 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 20 }}>
                 {[1, 2, 3, 4, 5, 6].map(i => <SkeletonCard key={i} />)}
               </div>
             )}
 
-            {/* Empty state */}
-            {!loading && notes.length === 0 && (
+            {!loading && filteredNotes.length === 0 && (
               <div style={{ textAlign: 'center', padding: '60px 0' }}>
                 <p style={{ fontSize: 48, marginBottom: 16 }}>📭</p>
                 <h3 style={{ fontSize: 18, fontWeight: 800, color: '#374151', marginBottom: 8 }}>No notes found</h3>
                 <p style={{ fontSize: 14, color: '#9ca3af', marginBottom: 20 }}>Try a different keyword:</p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8 }}>
-                  {SUGGESTIONS.map(s => (
+                  {subjects.slice(0, 6).map(s => (
                     <button key={s} onClick={() => doSearch(s)} className="topic-pill"
                       style={{
                         borderRadius: 99, padding: '7px 14px', fontSize: 12, fontWeight: 700,
@@ -675,16 +798,29 @@ export default function Landing() {
             )}
 
             {/* Cards grid */}
-            {!loading && notes.length > 0 && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 18 }}>
-                {notes.map((note, idx) => (
-                  <NoteCard key={note.id} note={note} index={idx}
-                    locked={isLocked(note, idx)}
-                    onLock={() => setModal(true)}
-                    onView={handleViewNote} />
-                ))}
-              </div>
-            )}
+            <div style={{ position: 'relative' }}>
+              {loading ? (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 18 }}>
+                  {[0, 1, 2, 3].map(i => <SkeletonCard key={i} />)}
+                </div>
+              ) : (
+                filteredNotes.length > 0 ? (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 18 }}>
+                    {filteredNotes.map((note, idx) => (
+                      <NoteCard key={note.id} note={note} index={idx}
+                        locked={isLocked(note, idx)}
+                        onLock={() => setShowLock(true)}
+                        onView={handleViewNote} />
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '60px 24px', opacity: 0.6 }}>
+                    <p style={{ fontSize: 18, fontWeight: 800 }}>No notes found</p>
+                    <p style={{ fontSize: 14 }}>Try searching for a different subject or topic.</p>
+                  </div>
+                )
+              )}
+            </div>
 
             {/* Freemium banner */}
             {!loading && (
@@ -891,7 +1027,7 @@ export default function Landing() {
         </div>
       </footer>
 
-      {modal && <LockModal onClose={() => setModal(false)} />}
+      {showLock && <LockModal onClose={() => setShowLock(false)} />}
     </div>
   );
 }
