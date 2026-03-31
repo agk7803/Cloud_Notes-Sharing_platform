@@ -142,8 +142,27 @@ const GLOBAL_CSS = `
   .btn-press:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
   .btn-press:active { transform: scale(0.96); }
 
-  .search-wrap:focus-within {
-    box-shadow: 0 0 0 3px rgba(29,201,98,.22), 0 6px 28px rgba(29,201,98,.12) !important;
+  .glass-search {
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 
+      0 10px 40px rgba(0, 0, 0, 0.04),
+      0 0 0 1px rgba(0, 0, 0, 0.02);
+    transition: all 0.4s cubic-bezier(.22,1,0.36,1);
+  }
+  .glass-search:hover {
+    background: rgba(255, 255, 255, 0.85);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 48px rgba(0, 0, 0, 0.06);
+  }
+  .search-focus {
+    background: #fff !important;
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 
+      0 20px 60px rgba(0, 0, 0, 0.1),
+      0 0 0 4px rgba(29, 201, 98, 0.12) !important;
+    border-color: rgba(29, 201, 98, 0.3) !important;
   }
 
   .topic-pill { transition: background .15s, transform .15s; }
@@ -574,42 +593,41 @@ export default function Landing() {
         <HeroBg id="home">
           <section style={{
             display: 'flex', flexDirection: 'column', alignItems: 'center',
-            padding: '84px 24px 104px', textAlign: 'center'
+            padding: '100px 24px 120px', textAlign: 'center', position: 'relative'
           }}>
 
-            {/* Monospace chip */}
-            <div className="fade-up" style={{
-              fontFamily: 'monospace', fontSize: 13, fontWeight: 800,
-              padding: '7px 16px', borderRadius: 10, border: '1px solid rgba(29,201,98,.3)',
-              background: 'rgba(255,255,255,.68)', color: C.greenDark, marginBottom: 20,
-              letterSpacing: 2, display: 'inline-block'
-            }}>
-              [stu<span style={{ color: C.green }}>.</span>notes]
+            {/* TOP BADGE CHIPS */}
+            <div className="fade-up" style={{ display: 'flex', gap: 10, marginBottom: 32 }}>
+              <div style={{
+                fontFamily: 'monospace', fontSize: 13, fontWeight: 900,
+                padding: '6px 14px', borderRadius: 10, border: '1px solid rgba(0,0,0,0.05)',
+                background: '#fff', color: '#0f172a', letterSpacing: 1,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+              }}>
+                [stu<span style={{ color: C.green }}>.</span>notes]
+              </div>
+              <div className="float-slow" style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                borderRadius: 99, border: '1px solid rgba(29,201,98,.2)', padding: '6px 14px',
+                fontSize: 12, fontWeight: 800, background: 'rgba(255,255,255,.7)', color: C.greenDark
+              }}>
+                <span className="pulse-dot" style={{ width: 6, height: 6, borderRadius: '50%', background: C.green }} />
+                Free to explore · No account needed
+              </div>
             </div>
 
-            {/* Live pill */}
-            <span className="fade-up fade-up-1 float-slow" style={{
-              display: 'inline-flex', alignItems: 'center', gap: 7,
-              borderRadius: 99, border: '1px solid rgba(29,201,98,.25)', padding: '7px 16px',
-              fontSize: 12, fontWeight: 800, background: 'rgba(255,255,255,.65)', color: C.greenDark, marginBottom: 32
-            }}>
-              <span className="pulse-dot" style={{ width: 7, height: 7, borderRadius: '50%', background: C.green, display: 'inline-block' }} />
-              Free to explore · No account needed
-            </span>
-
-            {/* Headline — playful editorial highlights */}
-            <h1 className="fade-up fade-up-2"
+            {/* HEADLINE — Reduced dominance to let search shine */}
+            <h1 className="fade-up fade-up-1"
               style={{
-                fontSize: 'clamp(38px,6vw,64px)', fontWeight: 900, lineHeight: 1.1,
-                letterSpacing: '-2px', color: '#0f172a', maxWidth: 800, marginBottom: 24,
+                fontSize: 'clamp(32px,5vw,52px)', fontWeight: 900, lineHeight: 1.15,
+                letterSpacing: '-1.5px', color: '#0f172a', maxWidth: 840, marginBottom: 16,
                 position: 'relative'
               }}>
               for the{' '}
               <span className="sticker-highlight" style={{ background: C.pinkBg, color: C.pink, '--r': '-1.5deg' }}>
                 note-hungry,
               </span>
-              <br />
-              the{' '}
+              {' '}the{' '}
               <span className="sticker-highlight" style={{ background: C.tealBg, color: C.teal, '--r': '1.2deg' }}>
                 exam-chasing
               </span>
@@ -618,21 +636,21 @@ export default function Landing() {
               <span className="sticker-highlight" style={{ background: C.mintBg, color: C.greenDark, '--r': '-1deg' }}>
                 concept-obsessed.
               </span>
-
-
             </h1>
 
+            {/* CONTEXT LINE */}
+            <p className="fade-up fade-up-2" style={{
+              fontSize: 18, color: '#64748b', fontWeight: 700, marginBottom: 40, letterSpacing: '-0.2px'
+            }}>
+              Search thousands of student notes instantly
+            </p>
 
-
-            {/* AI-STYLE SEARCH WRAPPER */}
-            <div className="fade-up fade-up-4" style={{ width: '100%', maxWidth: 660, marginTop: 10 }}>
-
-              <div style={{
+            {/* MAIN ELEMENT: LARGE SEARCH BAR */}
+            <div className="fade-up fade-up-3" style={{ width: '100%', maxWidth: 850, padding: '0 10px' }}>
+              <div className={`glass-search ${showSearch ? 'search-focus' : ''}`} style={{
                 display: 'flex', alignItems: 'center', gap: 12,
-                background: 'rgba(255, 255, 255, 0.88)', backdropFilter: 'blur(14px)',
-                border: '1.5px solid #e2e8f0', borderRadius: 18,
-                padding: '12px 14px 12px 22px',
-                boxShadow: '0 10px 40px rgba(126, 200, 200, 0.22)', transition: 'all 0.2s',
+                borderRadius: 22, padding: '10px 10px 10px 24px',
+                position: 'relative', zIndex: 2
               }}>
                 {loading ? (
                   <svg style={{ width: 22, height: 22, flexShrink: 0, animation: 'spin 1s linear infinite', color: C.teal }} fill="none" viewBox="0 0 24 24">
@@ -640,26 +658,30 @@ export default function Landing() {
                     <path fill="currentColor" opacity=".75" d="M4 12a8 8 0 018-8v3l3.5-3.5L12 0v3A9 9 0 003 12h1z" />
                   </svg>
                 ) : (
-                  <Icon name="search" size={22} color={C.teal} />
+                  <Icon name="search" size={22} color={C.teal} strokeWidth={2.5} />
                 )}
+                
                 <input type="text" value={query} ref={searchInputRef}
+                  onFocus={() => setShowSearch(true)}
+                  onBlur={() => setShowSearch(false)}
                   onChange={e => setQuery(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && doSearch()}
-                  placeholder="Search notes by subject, topic, or keyword…"
+                  placeholder="Search 12,000+ notes..."
                   style={{
-                    flex: 1, border: 'none', outline: 'none', fontSize: 16, color: '#1e293b',
-                    fontFamily: 'Nunito,sans-serif', fontWeight: 600, background: 'transparent', padding: '6px 0'
+                    flex: 1, border: 'none', outline: 'none', fontSize: 'clamp(15px, 2vw, 18px)', color: '#0f172a',
+                    fontFamily: 'inherit', fontWeight: 600, background: 'transparent'
                   }} />
+
                 <button onClick={() => doSearch()} disabled={loading} className="btn-press"
                   style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    width: 46, height: 46, borderRadius: 99, flexShrink: 0,
-                    background: query.trim() ? C.teal : '#f1f5f9',
+                    width: 52, height: 52, borderRadius: 99, flexShrink: 0,
+                    background: query.trim() ? `linear-gradient(135deg, ${C.green}, ${C.teal})` : '#f1f5f9',
                     color: query.trim() ? '#fff' : '#94a3b8',
                     border: 'none', cursor: query.trim() ? 'pointer' : 'default',
-                    transition: 'all .25s', boxShadow: query.trim() ? `0 4px 12px ${C.teal}30` : 'none'
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    transition: 'all .3s', boxShadow: query.trim() ? `0 8px 20px ${C.teal}40` : 'none'
                   }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="22" y1="2" x2="11" y2="13"></line>
                     <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                   </svg>
@@ -667,50 +689,65 @@ export default function Landing() {
               </div>
 
               {/* MINI FEATURE ROW */}
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 20, marginTop: 26, flexWrap: 'wrap' }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#4b5563', fontWeight: 700 }}>
-                  <Icon name="search" size={16} color={C.teal} /> Search notes instantly
-                </span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#4b5563', fontWeight: 700 }}>
-                  <Icon name="eye" size={16} color={C.teal} /> Preview 3 free
-                </span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#4b5563', fontWeight: 700 }}>
-                  <Icon name="lock" size={15} color={C.teal} /> Unlock full access
-                </span>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginTop: 28, flexWrap: 'wrap' }}>
+                 {[
+                   { icon: 'search', txt: 'Search instantly' },
+                   { icon: 'eye', txt: 'Preview 3 free' },
+                   { icon: 'lock', txt: 'Unlock full access' }
+                 ].map(f => (
+                   <div key={f.txt} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: '#4b5563' }}>
+                     <Icon name={f.icon} size={15} color={C.teal} strokeWidth={2.5} />
+                     {f.txt}
+                   </div>
+                 ))}
               </div>
 
-              {/* Topic pills */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 10, marginTop: 24 }}>
+              {/* TRENDING SEARCHES */}
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 10, marginTop: 20 }}>
+                <span style={{ fontSize: 12, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 0.5 }}>Trending:</span>
+                <div style={{ display: 'flex', gap: 8 }}>
+                   {['Machine Learning', 'DSA', 'Chemistry', 'Calculus'].map(t => (
+                     <button key={t} onClick={() => doSearch(t)} className="btn-press" style={{
+                       fontSize: 12, fontWeight: 800, color: '#475569', background: 'rgba(0,0,0,0.03)',
+                       border: 'none', padding: '4px 12px', borderRadius: 99, cursor: 'pointer'
+                     }}>
+                       {t}
+                     </button>
+                   ))}
+                </div>
+              </div>
+
+              {/* TOPIC PILLS COLLAPSED */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginTop: 32 }}>
                 {TOPICS.map(t => (
                   <button key={t} onClick={() => doSearch(t)} className="topic-pill"
                     style={{
-                      borderRadius: 99, border: '1px solid rgba(0,0,0,0.05)', padding: '8px 18px',
-                      fontSize: 12, fontWeight: 800, color: '#0f172a',
+                      borderRadius: 99, border: '1.5px solid rgba(0,0,0,0.04)', padding: '10px 22px',
+                      fontSize: 13, fontWeight: 800, color: '#0f172a',
                       background: '#fff', cursor: 'pointer', transition: 'all .25s',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
                     }}>
                     {t}
                   </button>
                 ))}
               </div>
-
             </div>
 
-            {/* Social proof */}
-            <div className="fade-up fade-up-5" style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 32 }}>
+            {/* SOCIAL PROOF */}
+            <div className="fade-up fade-up-4" style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 48 }}>
               <div style={{ display: 'flex' }}>
                 {[C.pinkBg, C.tealBg, C.lavender, C.softMint].map((bg, i) => (
                   <div key={i} style={{
-                    width: 32, height: 32, borderRadius: '50%', border: '2.5px solid #fff',
+                    width: 32, height: 32, borderRadius: '50%', border: '2px solid #fff',
                     background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 12, fontWeight: 800, color: '#374151', marginLeft: i ? -9 : 0, boxShadow: '0 1px 4px rgba(0,0,0,.1)'
+                    fontSize: 12, fontWeight: 900, color: '#0f172a', marginLeft: i ? -8 : 0, boxShadow: '0 2px 6px rgba(0,0,0,.1)'
                   }}>
                     {['A', 'P', 'R', 'S'][i]}
                   </div>
                 ))}
               </div>
-              <p style={{ fontSize: 12, color: '#6b7280', fontWeight: 600 }}>
-                <span style={{ fontWeight: 900, color: '#111' }}>2,400+</span> students already studying smarter
+              <p style={{ fontSize: 13, color: '#64748b', fontWeight: 700 }}>
+                <span style={{ color: '#0f172a', fontWeight: 900 }}>2,400+</span> students studying smarter
               </p>
             </div>
           </section>
