@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaHome } from "react-icons/fa";
 import { C } from "../../shared/theme";
 import "../landing/Landing.css";
+import { useUser } from "../../shared/UserContext";
 
 import {
     createUserWithEmailAndPassword,
@@ -15,6 +16,7 @@ import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "../../services/firebase";
 
 function Register() {
+    const { setUser } = useUser();
     const [role, setRole] = useState("student");
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
@@ -54,7 +56,11 @@ function Register() {
 
             // Save locally
             const token = await res.user.getIdToken();
-            localStorage.setItem("user", JSON.stringify({ ...res.user, token }));
+            const userData = { ...res.user, token, name, role };
+            localStorage.setItem("user", JSON.stringify(userData));
+
+            // Manually sync context to avoid race conditions with Layout
+            setUser(userData);
 
             navigate("/dashboard");
         } catch (error) {
@@ -63,15 +69,18 @@ function Register() {
     };
 
     return (
-        <div className="ne-root" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px', overflowY: 'auto' }}>
-            {/* VIVID BACKGROUND FOUNDATION */}
-            <div className="ne-bg">
-                <div className="ne-bg__blob" style={{ background: 'rgba(126, 200, 200, 0.65)', top: '5%', left: '-5%', width: '60vw', height: '60vw' }} />
-                <div className="ne-bg__blob" style={{ background: 'rgba(249, 168, 201, 0.45)', bottom: '5%', right: '0%', width: '50vw', height: '50vw', animationDelay: '-5s' }} />
-                <div className="ne-bg__blob" style={{ background: 'rgba(254, 215, 170, 0.35)', top: '25%', left: '40%', width: '45vw', height: '45vw', animationDelay: '-8s' }} />
-                <div className="ne-bg__blob" style={{ background: 'rgba(126, 200, 200, 0.4)', bottom: '15%', left: '10%', width: '40vw', height: '40vw', animationDelay: '-3s' }} />
+        <div className="ne-root" style={{ 
+            minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px', overflowY: 'auto',
+            background: 'linear-gradient(135deg,#e8faf0 0%,#f0fdf8 40%,#fce7f3 75%,#ccfbf1 100%)',
+            position: 'relative', overflow: 'hidden'
+        }}>
+            {/* VIVID BACKGROUND FOUNDATION — Total Parity with Landing Hero */}
+            <div className="ln-grid" />
+            <div className="ln-bg">
+                <div className="ln-blob-teal" />
+                <div className="ln-blob-pink" />
+                <div className="ln-blob-sage" />
             </div>
-            <div className="ne-grid" style={{ opacity: 0.8 }} />
 
             {/* Home Pill */}
             <Link
@@ -103,23 +112,6 @@ function Register() {
                         style={{ display: 'flex', flexDirection: 'column', gap: 10 }}
                         autoComplete="off"
                     >
-                        {/* ROLE */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                            <label style={{ fontSize: 11, fontWeight: 900, color: '#64748b', textTransform: 'uppercase', paddingLeft: 4 }}>Account Type</label>
-                            <select
-                                value={role}
-                                onChange={(e) => setRole(e.target.value)}
-                                required
-                                style={{
-                                    width: '100%', padding: '12px 16px', borderRadius: '12px',
-                                    border: '1px solid rgba(15, 23, 42, 0.08)', background: '#fff',
-                                    fontSize: 14, fontWeight: 600, outline: 'none'
-                                }}
-                            >
-                                <option value="student">Student</option>
-                                <option value="professor">Professor</option>
-                            </select>
-                        </div>
 
                         {/* NAME */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>

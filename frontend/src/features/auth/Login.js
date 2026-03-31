@@ -136,15 +136,18 @@ function Login() {
     };
 
     return (
-        <div className="ne-root" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-            {/* VIVID BACKGROUND FOUNDATION */}
-            <div className="ne-bg">
-                <div className="ne-bg__blob" style={{ background: 'rgba(126, 200, 200, 0.65)', top: '5%', left: '-5%', width: '60vw', height: '60vw' }} />
-                <div className="ne-bg__blob" style={{ background: 'rgba(249, 168, 201, 0.45)', bottom: '5%', right: '0%', width: '50vw', height: '50vw', animationDelay: '-5s' }} />
-                <div className="ne-bg__blob" style={{ background: 'rgba(254, 215, 170, 0.35)', top: '25%', left: '40%', width: '45vw', height: '45vw', animationDelay: '-8s' }} />
-                <div className="ne-bg__blob" style={{ background: 'rgba(126, 200, 200, 0.4)', bottom: '15%', left: '10%', width: '40vw', height: '40vw', animationDelay: '-3s' }} />
+        <div className="ne-root" style={{ 
+            minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px',
+            background: 'linear-gradient(135deg,#e8faf0 0%,#f0fdf8 40%,#fce7f3 75%,#ccfbf1 100%)',
+            position: 'relative', overflow: 'hidden'
+        }}>
+            {/* VIVID BACKGROUND FOUNDATION — Total Parity with Landing Hero */}
+            <div className="ln-grid" />
+            <div className="ln-bg">
+                <div className="ln-blob-teal" />
+                <div className="ln-blob-pink" />
+                <div className="ln-blob-sage" />
             </div>
-            <div className="ne-grid" style={{ opacity: 0.8 }} />
 
             {/* Home Pill */}
             <Link
