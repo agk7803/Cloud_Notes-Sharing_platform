@@ -1,12 +1,23 @@
 const Note = require('../models/Note');
 const mongoose = require('mongoose');
-
-// @desc    Upload a new note
-// @route   POST /api/notes
-// @access  Public (for now, will secure later)
-const { GetObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+const { GetObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const s3 = require('../config/s3');
+
+const MIME_MAP = {
+    'application/pdf': 'pdf',
+    'image/jpeg': 'jpg',
+    'image/jpg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+    'application/msword': 'doc',
+    'text/plain': 'txt',
+    'application/zip': 'zip'
+};
+
+const getExt = (mime) => MIME_MAP[mime] || 'bin';
+const sanitize = (str) => str.replace(/[^a-z0-9]/gi, '_').toLowerCase();
 
 // @desc    Upload a new note
 // @route   POST /api/notes
@@ -42,17 +53,33 @@ const uploadNote = async (req, res) => {
 
         const createdNote = await note.save();
 
-        // Generate signed URL for immediate access
+        // Generate signed URLs for immediate access
         const noteObj = createdNote.toObject();
-        try {
-            const command = new GetObjectCommand({
-                Bucket: process.env.AWS_BUCKET_NAME,
-                Key: noteObj.s3Key,
-                ResponseContentDisposition: 'inline'
-            });
-            noteObj.fileUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
-        } catch (error) {
-            console.error("Error signing new note URL:", error);
+        if (noteObj.s3Key) {
+            try {
+                const ext = getExt(noteObj.fileType);
+                const safeName = `${sanitize(noteObj.title)}.${ext}`;
+
+                // 1. Inline URL for viewing
+                const viewCommand = new GetObjectCommand({
+                    Bucket: process.env.AWS_BUCKET_NAME,
+                    Key: noteObj.s3Key,
+                    ResponseContentDisposition: 'inline',
+                    ResponseContentType: noteObj.fileType
+                });
+                noteObj.fileUrl = await getSignedUrl(s3, viewCommand, { expiresIn: 3600 });
+
+                // 2. Attachment URL for downloading
+                const downCommand = new GetObjectCommand({
+                    Bucket: process.env.AWS_BUCKET_NAME,
+                    Key: noteObj.s3Key,
+                    ResponseContentDisposition: `attachment; filename="${safeName}"`,
+                    ResponseContentType: noteObj.fileType
+                });
+                noteObj.downloadUrl = await getSignedUrl(s3, downCommand, { expiresIn: 3600 });
+            } catch (error) {
+                console.error("Error signing new note URLs:", error);
+            }
         }
 
         res.status(201).json(noteObj);
@@ -91,15 +118,28 @@ const getNotes = async (req, res) => {
             const noteObj = note.toObject();
             if (note.s3Key) {
                 try {
-                    const command = new GetObjectCommand({
+                    const ext = getExt(note.fileType);
+                    const safeName = `${sanitize(note.title)}.${ext}`;
+
+                    // Inline
+                    const vCmd = new GetObjectCommand({
                         Bucket: process.env.AWS_BUCKET_NAME,
                         Key: note.s3Key,
-                        ResponseContentDisposition: 'inline'
+                        ResponseContentDisposition: 'inline',
+                        ResponseContentType: note.fileType
                     });
-                    // URL valid for 1 hour (3600 seconds)
-                    noteObj.fileUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
+                    noteObj.fileUrl = await getSignedUrl(s3, vCmd, { expiresIn: 3600 });
+
+                    // Download
+                    const dCmd = new GetObjectCommand({
+                        Bucket: process.env.AWS_BUCKET_NAME,
+                        Key: note.s3Key,
+                        ResponseContentDisposition: `attachment; filename="${safeName}"`,
+                        ResponseContentType: note.fileType
+                    });
+                    noteObj.downloadUrl = await getSignedUrl(s3, dCmd, { expiresIn: 3600 });
                 } catch (err) {
-                    console.error(`Error signing URL for note ${note.id}:`, err);
+                    console.error(`Error signing URLs for note ${note.id}:`, err);
                 }
             }
             return noteObj;
@@ -156,14 +196,28 @@ const getPublicNotes = async (req, res) => {
             const noteObj = note.toObject();
             if (note.s3Key) {
                 try {
-                    const command = new GetObjectCommand({
+                    const ext = getExt(note.fileType);
+                    const safeName = `${sanitize(note.title)}.${ext}`;
+
+                    // Inline
+                    const vCmd = new GetObjectCommand({
                         Bucket: process.env.AWS_BUCKET_NAME,
                         Key: note.s3Key,
-                        ResponseContentDisposition: 'inline'
+                        ResponseContentDisposition: 'inline',
+                        ResponseContentType: note.fileType
                     });
-                    noteObj.fileUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
+                    noteObj.fileUrl = await getSignedUrl(s3, vCmd, { expiresIn: 3600 });
+
+                    // Download
+                    const dCmd = new GetObjectCommand({
+                        Bucket: process.env.AWS_BUCKET_NAME,
+                        Key: note.s3Key,
+                        ResponseContentDisposition: `attachment; filename="${safeName}"`,
+                        ResponseContentType: note.fileType
+                    });
+                    noteObj.downloadUrl = await getSignedUrl(s3, dCmd, { expiresIn: 3600 });
                 } catch (err) {
-                    console.error(`Error signing URL for public note ${note.id}:`, err);
+                    console.error(`Error signing URLs for public note ${note.id}:`, err);
                 }
             }
             return noteObj;

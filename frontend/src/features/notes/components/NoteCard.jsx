@@ -2,8 +2,20 @@ import React from 'react';
 import Icon from '../../../shared/components/Icon';
 import { C, NOTE_OMBRES } from '../../../shared/theme';
 
-export default function NoteCard({ note, locked, onLock, onView, index }) {
-  const ombreBg = NOTE_OMBRES[index % NOTE_OMBRES.length];
+export default function NoteCard({ note, locked, onLock, onView, onDownload, index }) {
+  // Use a stable index based on the note's ID to ensure consistent coloring everywhere
+  const getStableIndex = (id) => {
+    if (!id) return index || 0;
+    let hash = 0;
+    const str = id.toString();
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return Math.abs(hash);
+  };
+
+  const stableIdx = getStableIndex(note._id || note.id);
+  const ombreBg = NOTE_OMBRES[stableIdx % NOTE_OMBRES.length];
 
   // Determine if the note file is a viewable image
   const isImage = note.fileType && (
@@ -17,9 +29,9 @@ export default function NoteCard({ note, locked, onLock, onView, index }) {
   return (
     <div className={`note-card fade-up fade-up-${Math.min(index + 2, 5)}`}
       style={{
-        position: 'relative', borderRadius: '28px', border: '1px solid rgba(0,0,0,0.05)',
+        position: 'relative', borderRadius: '28px', border: '1px solid rgba(15, 23, 42, 0.08)',
         background: ombreBg,
-        padding: '28px', boxShadow: '0 12px 32px rgba(0,0,0,.04)',
+        padding: '28px', boxShadow: '0 16px 48px rgba(15, 23, 42, 0.10)',
         display: 'flex', flexDirection: 'column', gap: 16,
         overflow: 'hidden',
         height: '100%'
@@ -31,7 +43,7 @@ export default function NoteCard({ note, locked, onLock, onView, index }) {
         height: '160px',
         borderRadius: '20px',
         overflow: 'hidden',
-        background: 'rgba(255,255,255,0.4)',
+        background: 'rgba(255,255,255,0.6)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -134,14 +146,39 @@ export default function NoteCard({ note, locked, onLock, onView, index }) {
             <Icon name="user" size={14} color="#94a3b8" strokeWidth={2.2} />
             {note.uploader || note.authorName || 'Student'}
           </span>
-          <button onClick={locked ? onLock : () => onView(note)} className="btn-press"
-            style={{
-              fontSize: 11, fontWeight: 900, padding: '8px 18px', borderRadius: 99,
-              background: '#fff', color: '#0f172a', border: '1px solid rgba(0,0,0,0.06)', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
-            }}>
-            {locked ? <span>🔒 Unlock</span> : <><Icon name="eye" size={14} color="#0f172a" strokeWidth={2.2} /> View</>}
-          </button>
+          <div style={{ display: 'flex', gap: 6 }}>
+            {locked ? (
+              <button onClick={onLock} className="btn-press"
+                style={{
+                  fontSize: 11, fontWeight: 900, padding: '8px 18px', borderRadius: 99,
+                  background: '#fff', color: '#0f172a', border: '1px solid rgba(0,0,0,0.06)', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+                }}>
+                <span>🔒 Unlock</span>
+              </button>
+            ) : (
+              <>
+                <button onClick={() => onView(note)} className="btn-press"
+                  style={{
+                    fontSize: 11, fontWeight: 900, padding: '8px 18px', borderRadius: 99,
+                    background: '#fff', color: '#0f172a', border: '1px solid rgba(0,0,0,0.06)', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+                  }}>
+                  <Icon name="eye" size={14} color="#0f172a" strokeWidth={2.2} />
+                  <span>View</span>
+                </button>
+                <button onClick={() => onDownload(note)} className="btn-press"
+                  style={{
+                    fontSize: 11, fontWeight: 900, padding: '8px 18px', borderRadius: 99,
+                    background: '#fff', color: '#059669', border: '1px solid rgba(0,0,0,0.06)', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+                  }}>
+                  <Icon name="download" size={14} color="#059669" strokeWidth={2.2} />
+                  <span>Get</span>
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

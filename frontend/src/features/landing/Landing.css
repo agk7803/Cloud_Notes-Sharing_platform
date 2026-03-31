@@ -110,7 +110,7 @@ body {
   width: 55%;
   height: 55%;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(126, 200, 200, 0.25) 0%, rgba(126, 200, 200, 0.06) 45%, transparent 70%);
+  background: radial-gradient(circle, rgba(82, 185, 185, 0.45) 0%, rgba(82, 185, 185, 0.15) 45%, transparent 70%);
   animation: blob1 14s ease-in-out infinite;
   filter: blur(2px);
 }
@@ -122,7 +122,7 @@ body {
   width: 50%;
   height: 50%;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(249, 168, 201, 0.20) 0%, rgba(249, 168, 201, 0.05) 45%, transparent 70%);
+  background: radial-gradient(circle, rgba(236, 72, 153, 0.40) 0%, rgba(236, 72, 153, 0.12) 45%, transparent 70%);
   animation: blob2 17s ease-in-out infinite;
   filter: blur(2px);
 }
@@ -134,7 +134,7 @@ body {
   width: 52%;
   height: 52%;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(184, 224, 200, 0.22) 0%, rgba(0, 201, 110, 0.04) 45%, transparent 70%);
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.38) 0%, rgba(16, 185, 129, 0.10) 45%, transparent 70%);
   animation: blob3 20s ease-in-out infinite;
   filter: blur(2px);
 }
@@ -209,7 +209,6 @@ body {
 
 .note-card {
   transition: all 0.4s cubic-bezier(.22, 1, 0.36, 1);
-  border: 1px solid rgba(0, 0, 0, 0.03) !important;
 }
 
 .note-card:hover {

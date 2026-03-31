@@ -35,12 +35,12 @@ const C = {
 /* ═══════════════════════════════════════════════
    DATA
 ═══════════════════════════════════════════════ */
-const FREE_LIMIT = 3;
+const FREE_LIMIT = 10;
 
 
 const HOW = [
   { n: '01', bg: C.lavender, title: 'Search instantly', desc: 'Find notes by subject, topic, or keyword across thousands of student-uploaded resources.', icon: 'search' },
-  { n: '02', bg: C.peach, title: 'View 3 notes free', desc: 'No account needed. Preview your first three notes immediately — no strings attached.', icon: 'doc' },
+  { n: '02', bg: C.peach, title: 'View 10 notes free', desc: 'No account needed. Preview your first ten notes immediately — no strings attached.', icon: 'doc' },
   { n: '03', bg: C.softMint, title: 'Unlock everything', desc: 'Sign up free to access unlimited notes, AI assistant, study groups, and assessments.', icon: 'lock' },
 ];
 
@@ -531,7 +531,7 @@ export default function Landing() {
     // 1. Fetch live notes
     api.get('/notes/public', { params: { limit: 3 } })
       .then(res => {
-          setNotes(res.data.notes || []);
+        setNotes(res.data.notes || []);
       })
       .catch(err => console.error("Error fetching landing stats:", err));
 
@@ -578,10 +578,17 @@ export default function Landing() {
   };
 
   const handleViewNote = (note) => {
+    if (note.fileUrl) window.open(note.fileUrl, '_blank');
     if (viewedNotes.includes(note.id)) return;
     if (viewedNotes.length >= FREE_LIMIT) { setShowLock(true); return; }
     setViewedNotes(prev => [...prev, note.id]);
-    if (note.fileUrl) window.open(note.fileUrl, '_blank');
+  };
+
+  const handleDownloadNote = (note) => {
+    if (note.downloadUrl) window.open(note.downloadUrl, '_blank');
+    if (viewedNotes.includes(note.id)) return;
+    if (viewedNotes.length >= FREE_LIMIT) { setShowLock(true); return; }
+    setViewedNotes(prev => [...prev, note.id]);
   };
 
   const isLocked = (note, idx) => {
@@ -686,13 +693,20 @@ export default function Landing() {
               </span>
             </div>
 
-            {/* HEADLINE */}
             <h1 className="fade-up fade-up-1"
               style={{
                 fontSize: 'clamp(32px,5vw,52px)', fontWeight: 900, lineHeight: 1.15,
                 letterSpacing: '-1.5px', color: '#0f172a', maxWidth: 840, marginBottom: 40
               }}>
-              Search thousands of student notes instantly.
+              Your ultimate shortcut to{' '}
+              <span style={{ 
+                background: `linear-gradient(135deg, ${C.green}, ${C.teal})`,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                display: 'inline-block'
+              }}>
+                academic excellence.
+              </span>
             </h1>
 
             {/* SEARCH BAR */}
@@ -756,9 +770,10 @@ export default function Landing() {
               <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginTop: 32 }}>
                 {subjects.slice(0, -1).map(topic => ( // slice to exclude 'Other' if needed, or just iterate all
                   <Link key={topic} to={`/notes?subject=${encodeURIComponent(topic)}`} className="topic-pill" style={{
-                    padding: '8px 18px', borderRadius: 12, fontSize: 11, fontWeight: 900, textDecoration: 'none',
-                    background: 'rgba(255,255,255,0.4)', color: '#334155', border: '1px solid rgba(255,255,255,0.3)',
-                    backdropFilter: 'blur(10px)', transition: 'all 0.3s ease', textTransform: 'uppercase', letterSpacing: 0.5
+                    padding: '8px 20px', borderRadius: 12, fontSize: 11, fontWeight: 900, textDecoration: 'none',
+                    background: 'rgba(255,255,255,0.7)', color: '#0f172a', border: '1px solid rgba(15, 23, 42, 0.12)',
+                    backdropFilter: 'blur(16px)', transition: 'all 0.3s ease', textTransform: 'uppercase', letterSpacing: '0.8px',
+                    boxShadow: '0 4px 12px rgba(15, 23, 42, 0.04)'
                   }}>
                     {topic}
                   </Link>
@@ -766,23 +781,6 @@ export default function Landing() {
               </div>
             </div>
 
-            {/* SOCIAL PROOF */}
-            <div className="fade-up fade-up-4" style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 48 }}>
-              <div style={{ display: 'flex' }}>
-                {[C.pinkBg, C.tealBg, C.lavender, C.softMint].map((bg, i) => (
-                  <div key={i} style={{
-                    width: 32, height: 32, borderRadius: '50%', border: '2px solid #fff',
-                    background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 12, fontWeight: 900, color: '#0f172a', marginLeft: i ? -8 : 0, boxShadow: '0 2px 6px rgba(0,0,0,.1)'
-                  }}>
-                    {['A', 'P', 'R', 'S'][i]}
-                  </div>
-                ))}
-              </div>
-              <p style={{ fontSize: 13, color: '#64748b', fontWeight: 700 }}>
-                <span style={{ color: '#0f172a', fontWeight: 900 }}>{counts.users > 0 ? counts.users : 'Many'}</span> students studying smarter
-              </p>
-            </div>
           </section>
         </HeroBg>
 
@@ -790,25 +788,38 @@ export default function Landing() {
         <section style={{ background: '#fff', padding: '40px 24px 60px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 20 }}>
             {dynamicStats.map((s, i) => (
-              <div key={i} className={`stat-card ${i % 2 === 0 ? 'asym-up' : 'asym-down'}`}
-                style={{
-                  borderRadius: 24, padding: '32px 20px',
-                  background: PASTELS[i % PASTELS.length], border: '1px solid rgba(0,0,0,0.02)',
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-                  boxShadow: '0 4px 12px rgba(0,0,0,.02)'
-                }}>
-                <span style={{ fontSize: 32, fontWeight: 900, color: '#0f172a', letterSpacing: '-1.5px' }}>{s.value}</span>
-                <span style={{ fontSize: 12, fontWeight: 800, color: '#64748b', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{s.label}</span>
-              </div>
+                <div key={i} className={`stat-card ${i % 2 === 0 ? 'asym-up' : 'asym-down'}`}
+                  style={{
+                    borderRadius: 24, padding: '32px 20px',
+                    background: PASTELS[i % PASTELS.length], 
+                    border: '1.5px solid rgba(15, 23, 42, 0.08)',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                    boxShadow: '0 12px 32px rgba(15, 23, 42, 0.06)'
+                  }}>
+                  <span style={{ fontSize: 34, fontWeight: 900, color: '#0f172a', letterSpacing: '-1.5px' }}>{s.value}</span>
+                  <span style={{ fontSize: 13, fontWeight: 900, color: '#1e293b', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.8px' }}>{s.label}</span>
+                </div>
             ))}
           </div>
         </section>
 
         {/* ══════ BROWSE / RESULTS ══════ */}
-        <section id="results" ref={resultsRef} className="grid-bg" style={{ background: '#fafafa', padding: '52px 24px' }}>
-          <div style={{ maxWidth: 1140, margin: '0 auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 28 }}>
-              <h2 style={{ fontSize: 22, fontWeight: 800, color: '#111', letterSpacing: '-0.5px' }}>
+        <section id="results" ref={resultsRef} className="grid-bg" style={{
+          background: 'linear-gradient(180deg, #fafafa 0%, #fff 100%)',
+          padding: '88px 24px',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          {/* Blobs for depth - subtle opacity */}
+          <div className="ln-bg" style={{ opacity: 0.5 }}>
+            <div className="ln-blob-teal" style={{ top: '10%', left: '70%', width: '45%', height: '45%' }} />
+            <div className="ln-blob-pink" style={{ top: '60%', left: '-5%', width: '40%', height: '40%' }} />
+            <div className="ln-blob-sage" style={{ top: '30%', left: '20%', width: '50%', height: '50%' }} />
+          </div>
+
+          <div style={{ maxWidth: 1140, margin: '0 auto', position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 40 }}>
+              <h2 style={{ fontSize: 28, fontWeight: 900, color: '#000', letterSpacing: '-1px' }}>
                 Browse Popular Notes
               </h2>
             </div>
@@ -833,7 +844,8 @@ export default function Landing() {
                       <NoteCard key={note.id} note={note} index={idx}
                         locked={isLocked(note, idx)}
                         onLock={() => setShowLock(true)}
-                        onView={handleViewNote} />
+                        onView={handleViewNote}
+                        onDownload={handleDownloadNote} />
                     ))}
                   </div>
                 ) : (
@@ -848,9 +860,10 @@ export default function Landing() {
             {/* VIEW ALL BUTTON */}
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 48 }}>
               <button onClick={() => navigate('/notes')} className="btn-press" style={{
-                  padding: '14px 40px', borderRadius: 99, background: '#fff', border: '1px solid #e2e8f0',
-                  color: '#0f172a', fontWeight: 800, fontSize: 15, cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.05)', transition: 'all 0.3s'
+                padding: '14px 40px', borderRadius: 99, background: '#fff',
+                border: '1px solid rgba(15, 23, 42, 0.15)',
+                color: '#0f172a', fontWeight: 800, fontSize: 15, cursor: 'pointer',
+                boxShadow: '0 12px 32px rgba(15, 23, 42, 0.12)', transition: 'all 0.3s'
               }}>
                 View All Notes →
               </button>
@@ -893,15 +906,24 @@ export default function Landing() {
         </section>
 
         {/* ══════ HOW IT WORKS ══════ */}
-        <section id="how-it-works" style={{ background: '#fff', padding: '72px 24px' }}>
+        <section id="how-it-works" style={{
+          background: '#fff',
+          padding: '72px 24px',
+          position: 'relative'
+        }}>
+          {/* Soft-fade divider to match reference */}
+          <div style={{
+            height: '1px',
+            background: 'linear-gradient(to right, transparent, rgba(15, 23, 42, 0.08) 50%, transparent)',
+            width: '100%',
+            position: 'absolute',
+            top: 0,
+            left: 0
+          }} />
+
           <div style={{ maxWidth: 1100, margin: '0 auto' }}>
             <div style={{ textAlign: 'center', marginBottom: 52 }}>
-              <p style={{
-                fontSize: 11, fontWeight: 800, textTransform: 'uppercase',
-                letterSpacing: 3, color: C.green, marginBottom: 10
-              }}>
-                Simple Process
-              </p>
+
               <h2 style={{ fontSize: 34, fontWeight: 900, color: '#111827', letterSpacing: '-1px', marginBottom: 10 }}>
                 How It Works
               </h2>
@@ -941,18 +963,10 @@ export default function Landing() {
         <section id="features" className="grid-bg" style={{ background: '#fafafa', padding: '72px 24px' }}>
           <div style={{ maxWidth: 1100, margin: '0 auto' }}>
             <div style={{ textAlign: 'center', marginBottom: 52 }}>
-              <p style={{
-                fontSize: 11, fontWeight: 800, textTransform: 'uppercase',
-                letterSpacing: 3, color: C.green, marginBottom: 10
-              }}>
-                Everything You Need
-              </p>
-              <h2 style={{ fontSize: 34, fontWeight: 900, color: '#111', letterSpacing: '-1px', marginBottom: 10 }}>
+
+              <h2 style={{ fontSize: 42, fontWeight: 900, color: '#000', letterSpacing: '-1.5px', marginBottom: 0 }}>
                 Key Features
               </h2>
-              <p style={{ fontSize: 14, color: '#9ca3af', fontWeight: 600, maxWidth: 480, margin: '0 auto', lineHeight: 1.7 }}>
-                A comprehensive suite of tools to enhance your entire learning journey.
-              </p>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 20 }}>
               {FEATURES.map((f, i) => {
@@ -969,8 +983,7 @@ export default function Landing() {
                     }}>
                       <Icon name={f.icon} size={24} color="#0f172a" strokeWidth={2} />
                     </div>
-                    <h3 style={{ fontSize: 17, fontWeight: 900, color: '#0f172a', letterSpacing: '-0.3px' }}>{f.title}</h3>
-                    <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.7, fontWeight: 600 }}>{f.desc}</p>
+                    <h3 style={{ fontSize: 19, fontWeight: 900, color: '#0f172a', letterSpacing: '-0.3px' }}>{f.title}</h3>
                   </div>
                 );
               })}
@@ -1037,17 +1050,22 @@ export default function Landing() {
           maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center',
           justifyContent: 'space-between', flexWrap: 'wrap', gap: 16
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{
-              width: 32, height: 32, borderRadius: 9,
-              background: `linear-gradient(135deg,${C.green},${C.teal})`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
+              width: 36, height: 36, borderRadius: 10,
+              background: `linear-gradient(135deg, ${C.green}, ${C.teal})`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: `0 4px 12px ${C.teal}40`
             }}>
-              <svg fill="white" height="14" viewBox="0 0 256 256" width="14">
-                <path d="M88,96a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H96A8,8,0,0,1,88,96Zm8,40h64a8,8,0,0,0,0-16H96a8,8,0,0,0,0,16Zm32,16H96a8,8,0,0,0,0,16h32a8,8,0,0,0,0-16ZM224,48V156.69A15.86,15.86,0,0,1,219.31,168L168,219.31A15.86,15.86,0,0,1,156.69,224H48a16,16,0,0,1-16-16V48A16,16,0,0,1,48,32H208A16,16,0,0,1,224,48ZM48,208H152V160a8,8,0,0,1,8-8h48V48H48Zm120-40v28.7L196.69,168Z" />
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
               </svg>
             </div>
-            <span style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>StuNotes</span>
+            <span style={{ fontSize: 16, fontWeight: 900, color: '#0f172a', letterSpacing: '-0.3px' }}>StuNotes</span>
           </div>
           <nav style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
             {[['About', '/about'], ['Contact', '/contact'], ['Privacy Policy', '/privacy'], ['Terms', '/terms']].map(([l, to]) => (

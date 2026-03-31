@@ -8,8 +8,6 @@ import NoteSkeleton from './components/NoteSkeleton';
 import LockModal from './components/LockModal';
 import './NotesExplorer.css';
 
-const FILE_TYPES = ["All Types", "PDF", "PPT", "DOCX", "Image"];
-const DIFFICULTIES = ["All Levels", "Easy", "Medium", "Hard"];
 const SORT_OPTIONS = [
   { label: "Latest", value: "latest" },
   { label: "Popular", value: "popular" }
@@ -31,8 +29,6 @@ export default function NotesExplorer() {
   // Filters (Synced with URL)
   const query = searchParams.get('query') || '';
   const subject = searchParams.get('subject') || '';
-  const fileType = searchParams.get('fileType') || '';
-  const difficulty = searchParams.get('difficulty') || '';
   const sort = searchParams.get('sort') || 'latest';
   const [page, setPage] = useState(0);
 
@@ -41,7 +37,7 @@ export default function NotesExplorer() {
     try { return JSON.parse(localStorage.getItem('stunotes_viewed')) || []; }
     catch { return []; }
   });
-  const FREE_LIMIT = 3;
+  const FREE_LIMIT = 10;
 
   useEffect(() => {
     localStorage.setItem('stunotes_viewed', JSON.stringify(viewedNotes));
@@ -68,8 +64,6 @@ export default function NotesExplorer() {
       const params = {
         query,
         subject: subject !== 'All Subjects' ? subject : '',
-        fileType: fileType !== 'All Types' ? fileType : '',
-        difficulty: difficulty !== 'All Levels' ? difficulty.toLowerCase() : '',
         sort,
         limit,
         skip
@@ -93,12 +87,12 @@ export default function NotesExplorer() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [query, subject, fileType, difficulty, sort, page]);
+  }, [query, subject, sort, page]);
 
   // Initial fetch and on filter change
   useEffect(() => {
     fetchNotes(false);
-  }, [query, subject, fileType, difficulty, sort, fetchNotes]);
+  }, [query, subject, sort, fetchNotes]);
 
   // Handlers
   const handleFilterChange = (key, value) => {
@@ -120,17 +114,25 @@ export default function NotesExplorer() {
   };
 
   const handleViewNote = (note) => {
+    if (note.fileUrl) window.open(note.fileUrl, '_blank');
     const id = note._id || note.id;
-    if (viewedNotes.includes(id)) {
-        if (note.fileUrl) window.open(note.fileUrl, '_blank');
-        return;
-    }
+    if (viewedNotes.includes(id)) return;
     if (viewedNotes.length >= FREE_LIMIT) {
         setShowLock(true);
         return;
     }
     setViewedNotes(prev => [...prev, id]);
-    if (note.fileUrl) window.open(note.fileUrl, '_blank');
+  };
+
+  const handleDownloadNote = (note) => {
+    if (note.downloadUrl) window.open(note.downloadUrl, '_blank');
+    const id = note._id || note.id;
+    if (viewedNotes.includes(id)) return;
+    if (viewedNotes.length >= FREE_LIMIT) {
+        setShowLock(true);
+        return;
+    }
+    setViewedNotes(prev => [...prev, id]);
   };
 
   const isLocked = (note, index) => {
@@ -142,20 +144,37 @@ export default function NotesExplorer() {
   return (
     <div className="ne-root">
       <div className="ne-bg">
-        <div className="ne-bg__blob" style={{ background: 'rgba(126, 200, 200, 0.2)', top: '10%', left: '5%', width: '40vw', height: '40vw' }} />
-        <div className="ne-bg__blob" style={{ background: 'rgba(249, 168, 201, 0.15)', bottom: '10%', right: '5%', width: '35vw', height: '35vw', animationDelay: '-5s' }} />
+        <div className="ne-bg__blob" style={{ background: 'rgba(126, 200, 200, 0.15)', top: '5%', left: '0%', width: '50vw', height: '50vw' }} />
+        <div className="ne-bg__blob" style={{ background: 'rgba(249, 168, 201, 0.12)', bottom: '5%', right: '0%', width: '45vw', height: '45vw', animationDelay: '-5s' }} />
+        <div className="ne-bg__blob" style={{ background: 'rgba(254, 215, 170, 0.1)', top: '30%', left: '40%', width: '40vw', height: '40vw', animationDelay: '-8s' }} />
       </div>
       <div className="ne-grid" />
 
       <div className="ne-wrap">
         <header className="ne-header">
-          <button onClick={() => navigate('/')} style={{ 
-              display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', 
-              color: 'var(--ne-muted)', fontWeight: 700, cursor: 'pointer', marginBottom: 20 
-          }}>
+          <button onClick={() => navigate('/')} className="ne-btn-back">
             <Icon name="search" size={16} /> Back to Home
           </button>
-          <h1 className="ne-title">Explore <span style={{ color: C.teal }}>Notes</span></h1>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+            <span style={{ 
+              fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px',
+              padding: '4px 12px', background: 'rgba(126, 200, 200, 0.15)', color: C.teal, borderRadius: 99
+            }}>
+              ✨ Community Favorite
+            </span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#64748b' }}>
+              Join 50k+ students studying smarter
+            </span>
+          </div>
+
+          <h1 className="ne-title">
+            Explore <span style={{ 
+              background: `linear-gradient(135deg, ${C.green}, ${C.teal})`,
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}>Notes</span>
+          </h1>
           <p className="ne-subtitle">Browse thousands of high-quality study materials shared by students worldwide.</p>
         </header>
 
@@ -175,14 +194,6 @@ export default function NotesExplorer() {
             <select className="ne-select" value={subject || 'All Subjects'} onChange={(e) => handleFilterChange('subject', e.target.value)}>
               <option>All Subjects</option>
               {subjects.map(s => <option key={s} value={s}>{s}</option>)}
-            </select>
-
-            <select className="ne-select" value={fileType || 'All Types'} onChange={(e) => handleFilterChange('fileType', e.target.value)}>
-              {FILE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
-
-            <select className="ne-select" value={difficulty || 'All Levels'} onChange={(e) => handleFilterChange('difficulty', e.target.value)}>
-              {DIFFICULTIES.map(d => <option key={d} value={d}>{d}</option>)}
             </select>
 
             <select className="ne-select" value={sort} onChange={(e) => handleFilterChange('sort', e.target.value)} style={{ marginLeft: 'auto' }}>
@@ -211,6 +222,7 @@ export default function NotesExplorer() {
                 locked={isLocked(note, i)}
                 onLock={() => setShowLock(true)}
                 onView={handleViewNote}
+                onDownload={handleDownloadNote}
               />
             ))
           )}
@@ -219,10 +231,25 @@ export default function NotesExplorer() {
         </div>
 
         {!loading && notes.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '100px 0', opacity: 0.5 }}>
-            <Icon name="doc" size={48} />
-            <p style={{ marginTop: 16, fontWeight: 700 }}>No results found.</p>
-            <p style={{ fontSize: 13 }}>Try adjusting your filters or search terms.</p>
+          <div style={{ textAlign: 'center', padding: '100px 0', opacity: 1 }} className="fade-up">
+            <div style={{ 
+              width: 100, height: 100, borderRadius: '50%', background: 'rgba(126, 200, 200, 0.1)',
+              margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <Icon name="doc" size={48} color={C.teal} opacity={0.6} />
+            </div>
+            <p style={{ marginTop: 16, fontWeight: 900, fontSize: 18, color: '#0f172a' }}>No results found.</p>
+            <p style={{ fontSize: 14, color: '#64748b', maxWidth: 400, margin: '12px auto 24px' }}>
+              We couldn't find any notes matching your search. Try adjusting your filters or search terms.
+            </p>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+              {['Biology', 'Machine Learning', 'Chemistry'].map(term => (
+                <button key={term} onClick={() => handleFilterChange('query', term)} className="topic-pill"
+                   style={{ background: '#fff', border: '1px solid rgba(15,23,42,0.1)', padding: '8px 16px', borderRadius: 12, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                  Try "{term}"
+                </button>
+              ))}
+            </div>
           </div>
         )}
 

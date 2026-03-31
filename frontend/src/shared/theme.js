@@ -23,9 +23,7 @@ export const C = {
 export const PASTELS = [C.paleLavender, C.paleRose, C.paleTeal, C.paleOrange, C.mintBg, C.peach];
 
 export const NOTE_OMBRES = [
-  'linear-gradient(135deg, #fff5f5 0%, #fff0f6 100%)', // Rose
-  'linear-gradient(135deg, #f0fdfa 0%, #f0fdf4 100%)', // Teal-Mint
-  'linear-gradient(135deg, #f5f3ff 0%, #eff6ff 100%)', // Lavender-Sky
-  'linear-gradient(135deg, #fffbeb 0%, #fff7ed 100%)', // Honey
-  'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', // Slate-Cool
+  'linear-gradient(135deg, #fff1f2 0%, #fff5f5 100%)', // Rose
+  'linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%)', // Teal
+  'linear-gradient(135deg, #f5f3ff 0%, #ddd6fe 100%)', // Lavender
 ];
