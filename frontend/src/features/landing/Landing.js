@@ -85,8 +85,8 @@ const GLOBAL_CSS = `
   .ln-grid {
     position:absolute; inset:0; pointer-events:none;
     background-image:
-      linear-gradient(rgba(126,200,200,0.08) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(126,200,200,0.08) 1px, transparent 1px);
+      linear-gradient(rgba(126,200,200,0.18) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(126,200,200,0.18) 1px, transparent 1px);
     background-size: 40px 40px;
   }
 
@@ -114,13 +114,19 @@ const GLOBAL_CSS = `
 
   .grid-bg {
     background-image:
-      linear-gradient(rgba(29,201,98,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(29,201,98,0.03) 1px, transparent 1px);
+      linear-gradient(rgba(29,201,98,0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(29,201,98,0.08) 1px, transparent 1px);
     background-size: 40px 40px;
   }
 
-  .note-card  { transition: transform .3s cubic-bezier(.22,1,0.36,1), box-shadow .3s ease; }
-  .note-card:hover { transform: translateY(-6px) rotate(0.5deg); box-shadow: 0 12px 32px rgba(0,0,0,.08); }
+  .note-card { 
+    transition: all 0.4s cubic-bezier(.22,1,0.36,1);
+    border: 1px solid rgba(0,0,0,0.03) !important;
+  }
+  .note-card:hover { 
+    transform: translateY(-5px) rotate(0.4deg); 
+    box-shadow: 0 24px 60px rgba(0,0,0,.08) !important; 
+  }
 
   .feat-card, .how-card, .stat-card { 
     transition: transform .3s cubic-bezier(.22,1,0.36,1), box-shadow .3s ease;
@@ -178,8 +184,15 @@ const GLOBAL_CSS = `
   .modal-pop { animation: modalPop .3s cubic-bezier(.22,.68,0,1.2) both; }
 
   .lock-overlay {
-    background: linear-gradient(to bottom, rgba(255,255,255,.12) 0%, rgba(255,255,255,.88) 36%, rgba(255,255,255,.98) 100%);
-    backdrop-filter: blur(3px);
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(8px) saturate(120%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+    z-index: 20;
   }
 
   @keyframes bannerGlow {
@@ -239,6 +252,14 @@ const SUGGESTIONS = ['Machine Learning', 'Data Structures', 'Organic Chemistry',
 
 const PASTELS = [C.paleLavender, C.paleRose, C.paleTeal, C.paleOrange, C.mintBg, C.peach];
 
+const NOTE_OMBRES = [
+  'linear-gradient(135deg, #fff5f5 0%, #fff0f6 100%)', // Rose
+  'linear-gradient(135deg, #f0fdfa 0%, #f0fdf4 100%)', // Teal-Mint
+  'linear-gradient(135deg, #f5f3ff 0%, #eff6ff 100%)', // Lavender-Sky
+  'linear-gradient(135deg, #fffbeb 0%, #fff7ed 100%)', // Honey
+  'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', // Slate-Cool
+];
+
 /* ═══════════════════════════════════════════════
    ICON COMPONENTS  (SVG stroked icons matching app style)
 ═══════════════════════════════════════════════ */
@@ -265,12 +286,12 @@ function HeroBg({ children, id }) {
   return (
     <div id={id} className="relative overflow-hidden"
       style={{ background: 'linear-gradient(135deg,#e8faf0 0%,#f0fdf8 40%,#fce7f3 75%,#ccfbf1 100%)' }}>
+      <div className="ln-grid" />
       <div className="ln-bg">
         <div className="ln-blob-teal" />
         <div className="ln-blob-pink" />
         <div className="ln-blob-sage" />
       </div>
-      <div className="ln-grid" />
       <div style={{ position: 'relative', zIndex: 10 }}>{children}</div>
     </div>
   );
@@ -360,107 +381,113 @@ function LockModal({ onClose }) {
    NOTE CARD — matches screenshot exactly
 ═══════════════════════════════════════════════ */
 function NoteCard({ note, locked, onLock, onView, index }) {
-  const cardBg = PASTELS[index % PASTELS.length];
+  const ombreBg = NOTE_OMBRES[index % NOTE_OMBRES.length];
 
   return (
-    <div className={`note-card fade-up fade-up-${Math.min(index + 1, 5)}`}
+    <div className={`note-card fade-up fade-up-${Math.min(index + 2, 5)}`}
       style={{
-        position: 'relative', borderRadius: 24, border: '1px solid rgba(0,0,0,0.03)',
-        background: cardBg,
-        padding: '24px', boxShadow: '0 4px 12px rgba(0,0,0,.03)',
-        display: 'flex', flexDirection: 'column', gap: 14,
-        transform: `rotate(${index % 2 === 0 ? '-0.5deg' : '0.5deg'})`
+        position: 'relative', borderRadius: '28px', border: '1px solid rgba(0,0,0,0.05)',
+        background: ombreBg,
+        padding: '28px', boxShadow: '0 12px 32px rgba(0,0,0,.04)',
+        display: 'flex', flexDirection: 'column', gap: 16,
+        overflow: 'hidden'
       }}>
 
-      {/* LOCK OVERLAY */}
+      {/* LOCK OVERLAY: CENTERED PREMIUM STYLE */}
       {locked && (
-        <div className="lock-overlay" style={{
-          position: 'absolute', inset: 0, zIndex: 10, borderRadius: 24,
-          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', paddingBottom: 28
-        }}>
+        <div className="lock-overlay" style={{ position: 'absolute', inset: 0, borderRadius: '28px' }}>
           <div className="float-slow" style={{
-            width: 52, height: 52, borderRadius: 16, background: '#fff',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12, boxShadow: '0 8px 24px rgba(0,0,0,.08)'
+            width: 56, height: 56, borderRadius: '50%', background: '#fff',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.08)'
           }}>
-            <Icon name="lock" size={24} color="#7c3aed" strokeWidth={2.2} />
+            <Icon name="lock" size={24} color="#7c3aed" strokeWidth={2.5} />
           </div>
-          <p style={{ fontSize: 13, fontWeight: 800, color: '#1e293b', marginBottom: 4 }}>Free limit reached</p>
-          <p style={{ fontSize: 11, color: '#64748b', marginBottom: 16 }}>Sign up for full access</p>
+          <h4 style={{ fontSize: 15, fontWeight: 900, color: '#1e293b', marginBottom: 4 }}>Free limit reached</h4>
+          <p style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 20 }}>Sign up for full access</p>
           <button onClick={onLock} className="btn-press"
             style={{
-              fontSize: 12, fontWeight: 800, padding: '10px 24px', borderRadius: 99, color: '#fff',
+              fontSize: 12, fontWeight: 800, padding: '12px 32px', borderRadius: 99, color: '#fff',
               background: '#0f172a', border: 'none', cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(15,23,42,0.2)'
+              boxShadow: '0 8px 20px rgba(15,23,42,0.15)'
             }}>
             Unlock Now →
           </button>
         </div>
       )}
 
-      {/* BADGE ROW */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', minHeight: 24 }}>
-        {note.badge ? (
-          <span style={{
-            fontSize: 10, fontWeight: 900, padding: '4px 12px', borderRadius: 99,
-            background: '#fff', color: note.badge.includes('🔥') ? C.pink : C.teal,
-            boxShadow: '0 2px 6px rgba(0,0,0,0.05)', textTransform: 'uppercase', letterSpacing: '0.5px'
-          }}>
-            {note.badge}
-          </span>
-        ) : <span />}
-      </div>
-
-      {/* TITLE ROW */}
-      <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-        <div style={{
-          width: 48, height: 48, borderRadius: 16, background: 'rgba(255,255,255,0.6)', flexShrink: 0,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)'
-        }}>
-          <Icon name="doc" size={22} color="#475569" strokeWidth={2} />
+      {/* CONTENT: Slightly blurred and lower opacity when locked */}
+      <div style={{
+       filter: locked ? 'blur(1.5px)' : 'none',
+       opacity: locked ? 0.45 : 1,
+       transition: 'all 0.4s ease',
+       display: 'flex', flexDirection: 'column', gap: 16, height: '100%'
+      }}>
+        {/* BADGE ROW */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', minHeight: 24 }}>
+          {note.badge ? (
+            <span style={{
+              fontSize: 9, fontWeight: 900, padding: '4px 14px', borderRadius: 99,
+              background: '#fff', color: note.badge.includes('🔥') ? C.pink : C.teal,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)', textTransform: 'uppercase', letterSpacing: '0.8px'
+            }}>
+              {note.badge}
+            </span>
+          ) : <span />}
         </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{
-            fontSize: 14, fontWeight: 900, color: '#0f172a', lineHeight: 1.4, marginBottom: 4,
-            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'
-          }}>
-            {note.title}
-          </p>
-          <p style={{ fontSize: 12, fontWeight: 700, color: '#64748b' }}>{note.subject}</p>
-        </div>
-      </div>
 
-      {/* TAGS */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-        {note.tags.map(t => {
-          return (
+        {/* TITLE ROW */}
+        <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+          <div style={{
+            width: 52, height: 52, borderRadius: 16, background: 'rgba(255,255,255,0.7)', flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.02)'
+          }}>
+            <Icon name="doc" size={24} color="#475569" strokeWidth={2.2} />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{
+              fontSize: 15, fontWeight: 900, color: '#0f172a', lineHeight: 1.4, marginBottom: 5,
+              display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+              letterSpacing: '-0.3px'
+            }}>
+              {note.title}
+            </p>
+            <p style={{ fontSize: 12, fontWeight: 700, color: '#64748b' }}>{note.subject}</p>
+          </div>
+        </div>
+
+        {/* TAGS */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          {note.tags.map(t => (
             <span key={t} style={{
-              fontSize: 10, fontWeight: 800, padding: '4px 12px', borderRadius: 99,
-              background: 'rgba(255,255,255,0.5)', color: '#475569',
-              border: '1px solid rgba(0,0,0,0.03)'
+              fontSize: 10, fontWeight: 800, padding: '4px 14px', borderRadius: 99,
+              background: 'rgba(255,255,255,0.6)', color: '#4b5563',
+              border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 1px 4px rgba(0,0,0,0.02)'
             }}>
               {t}
             </span>
-          );
-        })}
-      </div>
+          ))}
+        </div>
 
-      {/* FOOTER */}
-      <div style={{
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        paddingTop: 14, borderTop: '1px solid rgba(0,0,0,0.05)', marginTop: 'auto'
-      }}>
-        <span style={{ fontSize: 11, color: '#64748b', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 5 }}>
-          <Icon name="user" size={13} color="#94a3b8" strokeWidth={2} />
-          {note.uploader}
-        </span>
-        <button onClick={locked ? onLock : () => onView(note)} className="btn-press"
-          style={{
-            fontSize: 11, fontWeight: 900, padding: '7px 16px', borderRadius: 99,
-            background: '#fff', color: '#0f172a', border: '1px solid rgba(0,0,0,0.08)', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-          }}>
-          {locked ? <span>🔒 Unlock</span> : <><Icon name="eye" size={14} color="#0f172a" strokeWidth={2} /> View</>}
-        </button>
+        {/* FOOTER */}
+        <div style={{
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          paddingTop: 18, borderTop: '1px solid rgba(0,0,0,0.06)', marginTop: 'auto'
+        }}>
+          <span style={{ fontSize: 11, color: '#64748b', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Icon name="user" size={14} color="#94a3b8" strokeWidth={2.2} />
+            {note.uploader}
+          </span>
+          <button onClick={locked ? onLock : () => onView(note)} className="btn-press"
+            style={{
+              fontSize: 11, fontWeight: 900, padding: '8px 18px', borderRadius: 99,
+              background: '#fff', color: '#0f172a', border: '1px solid rgba(0,0,0,0.06)', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+            }}>
+            {locked ? <span>🔒 Unlock</span> : <><Icon name="eye" size={14} color="#0f172a" strokeWidth={2.2} /> View</>}
+          </button>
+        </div>
       </div>
     </div>
   );
