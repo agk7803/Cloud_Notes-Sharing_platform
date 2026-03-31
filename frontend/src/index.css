@@ -12,11 +12,19 @@ code {
     monospace;
 }
 
-/* Global scrollability */
-html,
+/* Global scrollability — override Tailwind preflight height:100% */
+html {
+  height: auto !important;
+  overflow-x: clip;
+}
+
 body {
-  overflow-x: hidden;
-  height: 100%;
+  min-height: 100vh;
+  overflow-x: clip;
+}
+
+#root {
+  min-height: 100vh;
 }
 
 /* Custom Scrollbar Styles */

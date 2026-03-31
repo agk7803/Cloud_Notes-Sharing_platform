@@ -480,7 +480,15 @@ export default function Landing() {
   const [loading, setLoading] = useState(false);
   const [modal, setModal] = useState(false);
   const [activeNav, setActiveNav] = useState('home');
+  const [showSearch, setShowSearch] = useState(false);
   const resultsRef = useRef(null);
+  const searchInputRef = useRef(null);
+
+  useEffect(() => {
+    if (showSearch && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [showSearch]);
 
   /* localStorage freemium */
   const [viewedNotes, setViewedNotes] = useState(() => {
@@ -537,7 +545,7 @@ export default function Landing() {
 
   /* ──────────── RENDER ──────────── */
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#fff', overflowX: 'hidden' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#fff', overflowX: 'clip' }}>
 
       {/* ══════ HEADER ══════ */}
       <header style={{
@@ -652,76 +660,118 @@ export default function Landing() {
               Search anything. Study smarter.
             </p>
 
-            {/* SEARCH BAR */}
-            <div className="fade-up fade-up-4" style={{ width: '100%', maxWidth: 580 }}>
-              <div className="search-wrap" style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                background: '#fff', border: '1.5px solid #e5e7eb', borderRadius: 16,
-                padding: '10px 10px 10px 16px',
-                boxShadow: '0 4px 24px rgba(29,201,98,.10)', transition: 'box-shadow .2s'
-              }}>
-                {loading ? (
-                  <svg style={{ width: 20, height: 20, flexShrink: 0, animation: 'spin 1s linear infinite', color: C.green }}
-                    fill="none" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5" opacity=".25" />
-                    <path fill="currentColor" opacity=".75" d="M4 12a8 8 0 018-8v3l3.5-3.5L12 0v3A9 9 0 003 12h1z" />
-                  </svg>
-                ) : (
-                  <Icon name="search" size={20} color="#9ca3af" strokeWidth={2} />
-                )}
-                <input type="text" value={query}
-                  onChange={e => setQuery(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && doSearch()}
-                  placeholder="Search notes by subject, topic, or keyword…"
-                  style={{
-                    flex: 1, border: 'none', outline: 'none', fontSize: 14, color: '#374151',
-                    fontFamily: 'Nunito,sans-serif', fontWeight: 600, background: 'transparent', padding: '4px 0'
-                  }} />
-                <button onClick={() => doSearch()} disabled={loading} className="btn-press"
-                  style={{
-                    padding: '9px 24px', borderRadius: 12, fontSize: 14, fontWeight: 800,
-                    color: '#fff', background: `linear-gradient(135deg,${C.green},${C.teal})`,
-                    border: 'none', cursor: 'pointer', flexShrink: 0, opacity: loading ? .6 : 1, transition: 'opacity .2s'
-                  }}>
-                  {loading ? 'Searching…' : 'Search'}
-                </button>
-              </div>
-
-              <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 10, fontWeight: 600 }}>
-                💡 Try:{' '}
-                <span style={{ color: C.teal, cursor: 'pointer', textDecoration: 'underline' }} onClick={() => doSearch('Machine Learning')}>Machine Learning</span>,{' '}
-                <span style={{ color: C.pink, cursor: 'pointer', textDecoration: 'underline' }} onClick={() => doSearch('Chemistry')}>Chemistry</span>,{' '}
-                <span style={{ color: C.greenDark, cursor: 'pointer', textDecoration: 'underline' }} onClick={() => doSearch('Calculus')}>Calculus</span>
-              </p>
-
-              {/* Topic pills */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginTop: 14 }}>
-                {TOPICS.map(t => (
-                  <button key={t} onClick={() => doSearch(t)} className="topic-pill"
-                    style={{
-                      borderRadius: 99, border: '1px solid rgba(29,201,98,.28)', padding: '6px 14px',
-                      fontSize: 12, fontWeight: 800, color: C.greenDark,
-                      background: 'rgba(255,255,255,.65)', cursor: 'pointer'
+            {/* DYNAMIC CTA / SEARCH CONTAINER */}
+            <div className="fade-up fade-up-4" style={{ width: '100%', maxWidth: 580, minHeight: 180, position: 'relative' }}>
+              
+              {!showSearch ? (
+                <div style={{ animation: 'fadeUp 0.4s ease-out forwards', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <p style={{ fontSize: 13, color: '#9ca3af', fontWeight: 600, marginBottom: 8 }}>
+                    Built for students who need notes fast — not forms and logins.
+                  </p>
+                  <p style={{ fontSize: 16, color: '#374151', fontWeight: 800, marginBottom: 24 }}>
+                    Search from <span style={{ color: C.green }}>12,000+</span> student notes — no login required.
+                  </p>
+                  <button 
+                    onClick={() => setShowSearch(true)}
+                    className="btn-primary"
+                    style={{ 
+                      padding: '14px 32px', fontSize: 16, borderRadius: 14,
+                      boxShadow: '0 8px 24px rgba(0,201,110,.25)', transition: 'all 0.3s ease'
                     }}>
-                    {t}
+                    🔍 Start Searching Notes
                   </button>
-                ))}
-              </div>
-
-              {/* Free counter bars */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 18 }}>
-                <div style={{ display: 'flex', gap: 5 }}>
-                  {[0, 1, 2].map(i => (
-                    <div key={i} style={{
-                      width: 28, height: 7, borderRadius: 99,
-                      background: i < freeLeft ? C.green : '#e5e7eb', transition: 'background .3s'
-                    }} />
-                  ))}
                 </div>
-                <p style={{ fontSize: 12, fontWeight: 700, color: '#9ca3af' }}>
-                  <span style={{ color: C.green, fontWeight: 800 }}>{freeLeft} free note{freeLeft !== 1 ? 's' : ''}</span> remaining
-                </p>
-              </div>
+              ) : (
+                <div style={{ animation: 'fadeUp 0.5s ease-out forwards', width: '100%' }}>
+                  <div className="search-wrap" style={{
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    background: '#fff', border: '1.5px solid #e5e7eb', borderRadius: 16,
+                    padding: '10px 10px 10px 16px',
+                    boxShadow: '0 4px 24px rgba(29,201,98,.10)', transition: 'box-shadow .2s'
+                  }}>
+                    {loading ? (
+                      <svg style={{ width: 20, height: 20, flexShrink: 0, animation: 'spin 1s linear infinite', color: C.green }}
+                        fill="none" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5" opacity=".25" />
+                        <path fill="currentColor" opacity=".75" d="M4 12a8 8 0 018-8v3l3.5-3.5L12 0v3A9 9 0 003 12h1z" />
+                      </svg>
+                    ) : (
+                      <Icon name="search" size={20} color="#9ca3af" strokeWidth={2} />
+                    )}
+                    <input type="text" value={query} ref={searchInputRef}
+                      onChange={e => setQuery(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && doSearch()}
+                      placeholder="Search notes by subject, topic, or keyword…"
+                      style={{
+                        flex: 1, border: 'none', outline: 'none', fontSize: 14, color: '#374151',
+                        fontFamily: 'Nunito,sans-serif', fontWeight: 600, background: 'transparent', padding: '4px 0'
+                      }} />
+                    <button onClick={() => doSearch()} disabled={loading} className="btn-press"
+                      style={{
+                        padding: '9px 24px', borderRadius: 12, fontSize: 14, fontWeight: 800,
+                        color: '#fff', background: `linear-gradient(135deg,${C.green},${C.teal})`,
+                        border: 'none', cursor: 'pointer', flexShrink: 0, opacity: loading ? .6 : 1, transition: 'opacity .2s'
+                      }}>
+                      {loading ? 'Searching…' : 'Search'}
+                    </button>
+                  </div>
+
+                  {/* MINI FEATURE ROW */}
+                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 20, marginTop: 22, flexWrap: 'wrap' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#4b5563', fontWeight: 700 }}>
+                      <Icon name="search" size={16} color={C.green} strokeWidth={2.5} /> Search notes instantly
+                    </span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#4b5563', fontWeight: 700 }}>
+                      <Icon name="eye" size={16} color={C.teal} strokeWidth={2.5} /> Preview 3 notes free
+                    </span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#4b5563', fontWeight: 700 }}>
+                      <Icon name="lock" size={15} color={C.pink} strokeWidth={2.5} /> Unlock full access
+                    </span>
+                  </div>
+
+                  {/* IMPROVED SUGGESTIONS TEXT */}
+                  <p style={{ fontSize: 12, color: '#9ca3af', marginTop: 24, fontWeight: 600 }}>
+                    💡 Try searching:{' '}
+                    <span style={{ color: C.teal, cursor: 'pointer', textDecoration: 'underline' }} onClick={() => doSearch('Machine Learning notes')}>"Machine Learning notes"</span>,{' '}
+                    <span style={{ color: C.pink, cursor: 'pointer', textDecoration: 'underline' }} onClick={() => doSearch('Chemistry notes')}>"Chemistry notes"</span>,{' '}
+                    <span style={{ color: C.greenDark, cursor: 'pointer', textDecoration: 'underline' }} onClick={() => doSearch('Calculus notes')}>"Calculus notes"</span>
+                  </p>
+
+                  {/* TRUST INDICATOR */}
+                  <p style={{ fontSize: 12, color: '#9ca3af', marginTop: 14, fontWeight: 600 }}>
+                    No signup required • Instant access • 3 free previews
+                  </p>
+
+                  {/* Topic pills */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginTop: 20 }}>
+                    {TOPICS.map(t => (
+                      <button key={t} onClick={() => doSearch(t)} className="topic-pill"
+                        style={{
+                          borderRadius: 99, border: '1px solid rgba(29,201,98,.28)', padding: '6px 14px',
+                          fontSize: 12, fontWeight: 800, color: C.greenDark,
+                          background: 'rgba(255,255,255,.65)', cursor: 'pointer'
+                        }}>
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Free counter bars */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 18 }}>
+                    <div style={{ display: 'flex', gap: 5 }}>
+                      {[0, 1, 2].map(i => (
+                        <div key={i} style={{
+                          width: 28, height: 7, borderRadius: 99,
+                          background: i < freeLeft ? C.green : '#e5e7eb', transition: 'background .3s'
+                        }} />
+                      ))}
+                    </div>
+                    <p style={{ fontSize: 12, fontWeight: 700, color: '#9ca3af' }}>
+                      <span style={{ color: C.green, fontWeight: 800 }}>{freeLeft} free note{freeLeft !== 1 ? 's' : ''}</span> remaining
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Social proof */}
