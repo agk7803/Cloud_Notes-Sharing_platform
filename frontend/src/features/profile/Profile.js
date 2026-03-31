@@ -6,7 +6,7 @@ import api from "../../services/api";
 
 export default function Profile() {
   const outlet = useOutletContext() || {};
-  const user = outlet.user;
+  const { user, refreshUser } = outlet;
 
   const streak = outlet.streak || 0;
   const { notes } = useNotes();
@@ -18,6 +18,7 @@ export default function Profile() {
   const [preview, setPreview] = useState(
     user?.profilePicture || user?.photoURL || ""
   );
+  const [imgError, setImgError] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const totalNotes = notes.length;
@@ -28,6 +29,7 @@ export default function Profile() {
     if (selected) {
       setFile(selected);
       setPreview(URL.createObjectURL(selected));
+      setImgError(false); // Reset error on new selection
     }
   };
 
@@ -60,8 +62,16 @@ export default function Profile() {
         profilePicture: updatedPhotoURL,
       });
 
+      // Update localStorage to keep it in sync
+      const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+      localStorage.setItem("user", JSON.stringify({ 
+        ...storedUser, 
+        displayName: name, 
+        photoURL: updatedPhotoURL 
+      }));
+
+      if (refreshUser) refreshUser();
       alert("Profile updated successfully!");
-      window.location.reload();
 
     } catch (err) {
       console.error("Profile Update Error:", err);
@@ -105,12 +115,14 @@ export default function Profile() {
               onChange={handleFileChange}
               className="hidden"
               accept="image/*"
+              autoComplete="off"
             />
 
-            {preview ? (
+            {(preview && !imgError) ? (
               <img
                 src={preview}
                 alt="Profile"
+                onError={() => setImgError(true)}
                 className="w-28 h-28 rounded-full object-cover border-4 border-white shadow-md"
               />
             ) : (

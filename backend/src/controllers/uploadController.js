@@ -48,20 +48,11 @@ const uploadProfilePicture = async (req, res) => {
             return res.status(400).json({ message: 'No image file uploaded' });
         }
 
-        const fileKey = `profile-pics/${req.user.uid}/${uuidv4()}-${req.file.originalname}`;
+        // High-authority Buffer-to-Base64 transformation
+        const base64String = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
 
-        const command = new PutObjectCommand({
-            Bucket: process.env.AWS_BUCKET_NAME,
-            Key: fileKey,
-            Body: req.file.buffer,
-            ContentType: req.file.mimetype,
-        });
-
-        await s3.send(command);
-
-        const location = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`;
-
-        res.json({ imageUrl: location });
+        // Return the world-class encoded identity to the frontend
+        res.json({ imageUrl: base64String });
     } catch (error) {
         console.error("Profile Pic Upload Error:", error);
         res.status(500).json({ message: 'Image upload failed' });

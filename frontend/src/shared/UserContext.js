@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../services/firebase';
 import api from '../services/api';
@@ -9,7 +9,7 @@ export const UserProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const fetchUserData = async (currentUser) => {
+    const fetchUserData = useCallback(async (currentUser) => {
         if (!user) setLoading(true);
         try {
             const res = await api.get('/users/me');
@@ -25,7 +25,7 @@ export const UserProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user]);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -38,7 +38,7 @@ export const UserProvider = ({ children }) => {
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [fetchUserData]);
 
     const refreshUser = () => {
         if (auth.currentUser) {

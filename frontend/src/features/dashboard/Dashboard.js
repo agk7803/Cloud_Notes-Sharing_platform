@@ -41,7 +41,36 @@ const getViewUrl = (url) => {
     )}&embedded=true`;
   }
 
-  return url;
+};
+
+
+/* ================= AVATAR ================= */
+
+const Avatar = ({ user }) => {
+  const [imgError, setImgError] = useState(false);
+
+  // High-authority live-sync: reset error state if the URL changes (e.g. after upload)
+  useEffect(() => {
+    setImgError(false);
+  }, [user?.profilePicture]);
+
+  // If no pic or error, show high-authority letter fallback
+  if (!user?.profilePicture || imgError) {
+    return (
+      <div className="w-full h-full flex items-center justify-center font-bold text-[#1dc962] bg-[#f0fdf4]">
+        {user?.name?.[0]?.toUpperCase() || "U"}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={user.profilePicture}
+      alt="Profile"
+      onError={() => setImgError(true)}
+      className="w-full h-full object-cover rounded-full"
+    />
+  );
 };
 
 
@@ -92,27 +121,15 @@ const Header = ({ user }) => {
 
           </div>
 
-          {/* Profile */}
-          <div
-            onClick={() => navigate("/profile")}
-            className="w-11 h-11 rounded-full bg-white p-0.5 cursor-pointer shadow-sm hover:shadow-md transition-all border border-gray-100"
-          >
-            <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
-
-              {user?.profilePicture ? (
-                <img
-                  src={user.profilePicture}
-                  alt="Profile"
-                  className="w-full h-full object-cover rounded-full"
-                />
-              ) : (
-                <span className="text-[#1dc962] font-bold">
-                  {user?.name?.[0]?.toUpperCase() || "U"}
-                </span>
-              )}
-
-            </div>
-          </div>
+      {/* Profile */}
+      <div
+        onClick={() => navigate("/profile")}
+        className="w-11 h-11 rounded-full bg-white p-0.5 cursor-pointer shadow-sm hover:shadow-md transition-all border border-gray-100"
+      >
+        <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
+          <Avatar user={user} />
+        </div>
+      </div>
 
         </div>
 

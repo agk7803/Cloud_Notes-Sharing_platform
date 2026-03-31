@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import RegisterImage from "../../assets/register.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { FaHome } from "react-icons/fa";
 import { C } from "../../shared/theme";
@@ -17,7 +16,7 @@ import { auth, db } from "../../services/firebase";
 
 function Register() {
     const { setUser } = useUser();
-    const [role, setRole] = useState("student");
+    const role = "student";
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");

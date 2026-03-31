@@ -1,6 +1,5 @@
 import React, { useState, useRef } from "react";
 import LoginImage from "../../assets/login.jpg";
-import RegisterBg from "../../assets/register.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { FaHome } from "react-icons/fa";
 import { C } from "../../shared/theme";
