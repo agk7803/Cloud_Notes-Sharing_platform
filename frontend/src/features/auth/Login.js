@@ -3,6 +3,8 @@ import LoginImage from "../../assets/login.jpg";
 import RegisterBg from "../../assets/register.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { FaHome } from "react-icons/fa";
+import { C } from "../../shared/theme";
+import "../landing/Landing.css";
 
 import {
     signInWithEmailAndPassword,
@@ -134,23 +136,31 @@ function Login() {
     };
 
     return (
-        <div
-            className="min-h-screen flex items-center justify-center relative"
-            style={{
-                backgroundImage: `url(${RegisterBg})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-            }}
-        >
-            {/* Home */}
+        <div className="ne-root" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+            {/* VIVID BACKGROUND FOUNDATION */}
+            <div className="ne-bg">
+                <div className="ne-bg__blob" style={{ background: 'rgba(126, 200, 200, 0.65)', top: '5%', left: '-5%', width: '60vw', height: '60vw' }} />
+                <div className="ne-bg__blob" style={{ background: 'rgba(249, 168, 201, 0.45)', bottom: '5%', right: '0%', width: '50vw', height: '50vw', animationDelay: '-5s' }} />
+                <div className="ne-bg__blob" style={{ background: 'rgba(254, 215, 170, 0.35)', top: '25%', left: '40%', width: '45vw', height: '45vw', animationDelay: '-8s' }} />
+                <div className="ne-bg__blob" style={{ background: 'rgba(126, 200, 200, 0.4)', bottom: '15%', left: '10%', width: '40vw', height: '40vw', animationDelay: '-3s' }} />
+            </div>
+            <div className="ne-grid" style={{ opacity: 0.8 }} />
+
+            {/* Home Pill */}
             <Link
                 to="/"
-                className="absolute top-6 left-6 flex items-center gap-2 bg-white/80 px-4 py-2 rounded-full shadow-md font-bold text-gray-700 hover:text-[#38e07b]"
+                className="ne-btn-back"
+                style={{ position: 'absolute', top: 24, left: 24, zIndex: 100, textDecoration: 'none' }}
             >
-                <FaHome /> Home
+                <FaHome size={14} /> Back to Home
             </Link>
 
-            <div className="relative flex flex-col md:flex-row max-w-5xl w-full shadow-2xl rounded-2xl bg-white overflow-hidden">
+            <div className="relative flex flex-col md:flex-row max-w-5xl w-full"
+                style={{ 
+                    zIndex: 10, background: 'rgba(255, 255, 255, 0.7)', backdropFilter: 'blur(28px)',
+                    borderRadius: '28px', border: '1px solid rgba(15, 23, 42, 0.08)',
+                    boxShadow: '0 32px 64px rgba(15, 23, 42, 0.12)', overflow: 'hidden'
+                }}>
 
                 {/* Left */}
                 <div className="w-full md:w-1/2 flex justify-center p-8">
@@ -159,65 +169,84 @@ function Login() {
 
                         {/* Header */}
                         <div className="text-center">
-                            <h1 className="text-3xl font-bold">StuNotes</h1>
-                            <h2 className="text-lg text-[#38e07b] font-bold mt-1">
+                            <h1 style={{ fontSize: 40, fontWeight: 900, color: '#0f172a', letterSpacing: '-1.5px' }}>StuNotes</h1>
+                            <h2 style={{ fontSize: 18, color: '#0d9488', fontWeight: 900, margin: '8px 0 4px' }}>
                                 Login to your account
                             </h2>
-                            <p className="text-sm text-gray-500 mt-1">
+                            <p style={{ fontSize: 13, fontWeight: 600, color: '#64748b' }}>
                                 Welcome back!
                             </p>
                         </div>
 
                         {/* Email Login */}
-                        <form onSubmit={handleLogin} className="space-y-4">
-
-                            <input
-                                type="email"
-                                placeholder="Username or Email"
-                                required
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="w-full border p-2 rounded bg-gray-50"
-                            />
-
-                            <div className="relative">
-
+                        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                <label style={{ fontSize: 11, fontWeight: 900, color: '#64748b', textTransform: 'uppercase', paddingLeft: 4 }}>Email Address</label>
                                 <input
-                                    type={showPassword ? "text" : "password"}
-                                    placeholder="Password"
+                                    type="email"
+                                    placeholder="Enter your email"
                                     required
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full border p-2 rounded bg-gray-50 pr-16"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    style={{
+                                        width: '100%', padding: '14px 20px', borderRadius: '14px',
+                                        border: '1px solid rgba(15, 23, 42, 0.08)', background: '#fff',
+                                        fontSize: 14, fontWeight: 600, outline: 'none', transition: 'all 0.3s'
+                                    }}
                                 />
-
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-2 text-sm text-gray-500"
-                                >
-                                    {showPassword ? "Hide" : "Show"}
-                                </button>
-
                             </div>
 
-                            <div className="flex justify-end">
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                <label style={{ fontSize: 11, fontWeight: 900, color: '#64748b', textTransform: 'uppercase', paddingLeft: 4 }}>Security Password</label>
+                                <div style={{ position: 'relative' }}>
+                                    <input
+                                        type={showPassword ? "text" : "password"}
+                                        placeholder="••••••••"
+                                        required
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        style={{
+                                            width: '100%', padding: '14px 20px', borderRadius: '14px',
+                                            border: '1px solid rgba(15, 23, 42, 0.08)', background: '#fff',
+                                            fontSize: 14, fontWeight: 600, outline: 'none', transition: 'all 0.3s'
+                                        }}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        style={{
+                                            position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)',
+                                            background: 'none', border: 'none', fontSize: 11, fontWeight: 800, color: C.teal, cursor: 'pointer'
+                                        }}
+                                    >
+                                        {showPassword ? "HIDE" : "SHOW"}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                                 <button
                                     type="button"
                                     onClick={handleForgotPassword}
-                                    className="text-sm text-[#38e07b]"
+                                    style={{ background: 'none', border: 'none', padding: 0, fontSize: 12, fontWeight: 800, color: C.teal, cursor: 'pointer' }}
                                 >
-                                    Forgot password?
+                                    Forgot security password?
                                 </button>
                             </div>
 
                             <button
                                 type="submit"
-                                className="w-full bg-black text-white py-2 rounded-full"
+                                style={{
+                                    width: '100%', padding: '14px', borderRadius: '99px',
+                                    background: `linear-gradient(135deg, ${C.teal} 0%, #0d9488 100%)`,
+                                    color: '#fff', fontWeight: 900, border: 'none', cursor: 'pointer',
+                                    boxShadow: `0 8px 24px rgba(13, 148, 136, 0.25)`, transition: 'all 0.3s',
+                                    marginTop: 8
+                                }}
+                                className="btn-press"
                             >
-                                Login
+                                Login to Account
                             </button>
-
                         </form>
 
                         {/* Divider */}
@@ -234,15 +263,20 @@ function Login() {
                         </div>
 
                         {/* Social */}
-                        <div className="flex gap-3">
-
+                        <div style={{ display: 'flex', gap: 12 }}>
                             <button
                                 onClick={handleGoogleLogin}
-                                className="flex-1 border py-2 rounded hover:bg-gray-50 flex justify-center gap-2"
+                                style={{
+                                    flex: 1, padding: '12px', borderRadius: '14px', background: '#fff',
+                                    border: '1px solid rgba(15, 23, 42, 0.08)', fontWeight: 900,
+                                    fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.03)', cursor: 'pointer', transition: 'all 0.3s'
+                                }}
+                                className="btn-alt"
                             >
                                 <img
                                     src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                                    className="w-5"
+                                    style={{ width: 18 }}
                                     alt="Google"
                                 />
                                 Google
@@ -250,54 +284,70 @@ function Login() {
 
                             <button
                                 onClick={() => setShowPhone(!showPhone)}
-                                className="flex-1 border py-2 rounded hover:bg-gray-50"
+                                style={{
+                                    flex: 1, padding: '12px', borderRadius: '14px', background: '#fff',
+                                    border: '1px solid rgba(15, 23, 42, 0.08)', fontWeight: 900,
+                                    fontSize: 13, cursor: 'pointer', transition: 'all 0.3s'
+                                }}
+                                className="btn-alt"
                             >
-                                📞 Phone
+                                📞 Mobile
                             </button>
-
                         </div>
 
                         {/* Phone Input */}
                         {showPhone && !confirmation && (
-                            <div className="space-y-2">
-
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                                 <input
                                     type="text"
-                                    placeholder="+91XXXXXXXXXX"
+                                    placeholder="+91 XXXXX XXXXX"
                                     value={phone}
                                     onChange={(e) => setPhone(e.target.value)}
-                                    className="w-full border p-2 rounded"
+                                    style={{
+                                        width: '100%', padding: '14px 20px', borderRadius: '14px',
+                                        border: '1px solid rgba(15, 23, 42, 0.08)', background: '#fff',
+                                        fontSize: 14, fontWeight: 600, outline: 'none'
+                                    }}
                                 />
-
                                 <button
                                     onClick={sendOTP}
-                                    className="w-full bg-blue-500 text-white py-2 rounded"
+                                    style={{
+                                        width: '100%', padding: '12px', borderRadius: '99px',
+                                        background: `linear-gradient(135deg, ${C.teal} 0%, #0d9488 100%)`,
+                                        color: '#fff', fontWeight: 900, border: 'none', cursor: 'pointer',
+                                        boxShadow: `0 8px 20px rgba(13, 148, 136, 0.2)`
+                                    }}
                                 >
-                                    Send OTP
+                                    GET VERIFICATION CODE
                                 </button>
-
                             </div>
                         )}
 
                         {/* OTP */}
                         {confirmation && (
-                            <div className="space-y-2">
-
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                                 <input
                                     type="text"
-                                    placeholder="Enter OTP"
+                                    placeholder="Enter 6-digit OTP"
                                     value={otp}
                                     onChange={(e) => setOtp(e.target.value)}
-                                    className="w-full border p-2 rounded"
+                                    style={{
+                                        width: '100%', padding: '14px 20px', borderRadius: '14px',
+                                        border: '1px solid rgba(15, 23, 42, 0.08)', background: '#fff',
+                                        fontSize: 14, fontWeight: 600, outline: 'none'
+                                    }}
                                 />
-
                                 <button
                                     onClick={verifyOTP}
-                                    className="w-full bg-green-500 text-white py-2 rounded"
+                                    style={{
+                                        width: '100%', padding: '12px', borderRadius: '99px',
+                                        background: `linear-gradient(135deg, ${C.teal} 0%, #0d9488 100%)`,
+                                        color: '#fff', fontWeight: 900, border: 'none', cursor: 'pointer',
+                                        boxShadow: `0 8px 20px rgba(13, 148, 136, 0.2)`
+                                    }}
                                 >
-                                    Verify OTP
+                                    VERIFY & LOGIN
                                 </button>
-
                             </div>
                         )}
 
@@ -305,10 +355,10 @@ function Login() {
                         <div ref={recaptchaRef}></div>
 
                         {/* Register */}
-                        <p className="text-center text-sm text-gray-600">
+                        <p style={{ textAlign: 'center', fontSize: 14, fontWeight: 600, color: '#64748b' }}>
                             Don't have an account?{" "}
-                            <Link to="/register" className="text-[#38e07b] font-medium">
-                                Register
+                            <Link to="/register" style={{ color: C.teal, fontWeight: 900, textDecoration: 'none' }}>
+                                Create Account
                             </Link>
                         </p>
 
@@ -316,11 +366,12 @@ function Login() {
                 </div>
 
                 {/* Right */}
-                <div className="hidden md:flex w-1/2 items-center justify-center">
+                <div className="hidden md:flex w-1/2 items-center justify-center" 
+                     style={{ background: '#ffffff', borderLeft: '1px solid rgba(15, 23, 42, 0.05)' }}>
                     <img
                         src={LoginImage}
-                        alt="Login"
-                        className="w-10/12 h-4/6 object-contain"
+                        alt="LoginIllustration"
+                        style={{ width: '85%', height: '70%', objectFit: 'contain', mixBlendMode: 'multiply' }}
                     />
                 </div>
 
