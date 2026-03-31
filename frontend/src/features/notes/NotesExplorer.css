@@ -5,21 +5,21 @@
     --ne-pink-light: #fce8f3;
     --ne-pink-border: #f3b8d5;
     --ne-pink-deep: #b5376e;
-    --ne-teal: #7ec8c8;
-    --ne-teal-light: #e0f5f5;
-    --ne-teal-border: #a8dcdc;
-    --ne-teal-deep: #1a7a7a;
-    --ne-green: #00c96e;
-    --ne-green-light: #ecfdf5;
-    --ne-green-border: #86efac;
+    --ne-teal: #1dc962; /* High-authority Teal Sync */
+    --ne-teal-light: #e8faf0;
+    --ne-teal-border: rgba(29, 201, 98, 0.2);
+    --ne-teal-deep: #159e4d;
+    --ne-green: #1dc962;
+    --ne-green-light: #f0fdf4;
+    --ne-green-border: #bbf7d0;
     --ne-sage: #b8e0c8;
     --ne-sage-light: #e8f5e3;
     --ne-sage-deep: #4a7a42;
-    --ne-cream: #f8fafc; /* Lighter cream for cleaner look */
-    --ne-grid-line: rgba(126, 200, 200, 0.12);
+    --ne-cream: #e8faf0; /* Mesh Matching */
+    --ne-grid-line: rgba(29, 201, 98, 0.08);
     --ne-text: #0f172a;
     --ne-muted: #64748b;
-    --ne-border: rgba(0, 0, 0, 0.08);
+    --ne-border: rgba(0, 0, 0, 0.05);
     --ne-white: #ffffff;
 }
 
@@ -27,7 +27,7 @@
 .ne-root {
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
     min-height: 100vh;
-    background: var(--ne-cream);
+    background: linear-gradient(135deg, #e8faf0 0%, #ccfbf1 100%);
     position: relative;
     color: var(--ne-text);
     overflow-x: hidden;
@@ -122,12 +122,12 @@
     position: sticky;
     top: 20px;
     z-index: 100;
-    background: rgba(224, 245, 245, 0.4);
+    background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(28px);
     padding: 24px;
     border-radius: 28px;
-    border: 1px solid rgba(126, 200, 200, 0.25);
-    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.06);
     margin-bottom: 48px;
     display: flex;
     flex-direction: column;

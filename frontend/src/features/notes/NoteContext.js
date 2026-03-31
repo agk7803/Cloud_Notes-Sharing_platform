@@ -37,31 +37,11 @@ export const NoteProvider = ({ children }) => {
         return () => unsubscribe();
     }, []);
 
-    const addNote = async (newNoteData) => {
-        try {
-            const formData = new FormData();
-            formData.append('title', newNoteData.title);
-            formData.append('subject', newNoteData.subject);
-            formData.append('file', newNoteData.file);
-            // authorId and authorName are handled by backend via token
-            formData.append('visibility', newNoteData.visibility);
-
-            if (newNoteData.sharedGroups) {
-                formData.append('sharedGroups', JSON.stringify(newNoteData.sharedGroups));
-            }
-
-            const res = await api.post('/notes', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-
-            alert("Upload Successful!"); // Feedback for user
-            setNotes((prev) => [res.data, ...prev]);
-        } catch (error) {
-            console.error("Error uploading note:", error);
-            const msg = error.response?.data?.message || error.message;
-            alert(`Upload Failed: ${msg}`);
-        }
+    // High-Authority State Sync (API handled by UploadModal)
+    const addNote = (newNote) => {
+        setNotes((prev) => [newNote, ...prev]);
     };
+
 
     const deleteNote = async (id) => {
         try {

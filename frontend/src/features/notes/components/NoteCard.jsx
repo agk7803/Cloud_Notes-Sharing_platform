@@ -2,7 +2,7 @@ import React from 'react';
 import Icon from '../../../shared/components/Icon';
 import { C, NOTE_OMBRES } from '../../../shared/theme';
 
-export default function NoteCard({ note, locked, onLock, onView, onDownload, index }) {
+export default function NoteCard({ note, locked, onLock, onView, onDownload, onDelete, index }) {
   // Use a stable index based on the note's ID to ensure consistent coloring everywhere
   const getStableIndex = (id) => {
     if (!id) return index || 0;
@@ -99,9 +99,17 @@ export default function NoteCard({ note, locked, onLock, onView, onDownload, ind
         display: 'flex', flexDirection: 'column', gap: 16, height: '100%',
         zIndex: 1
       }}>
-        {/* BADGE */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', minHeight: 24 }}>
-          {note.badge ? (
+        {/* VISIBILITY & BADGE */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', minHeight: 24, gap: 8 }}>
+          <span style={{
+            fontSize: 10, fontWeight: 800, padding: '4px 12px', borderRadius: 99,
+            background: 'rgba(255,255,255,0.9)', color: note.visibility === 'public' ? C.teal : '#64748b',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.04)', textTransform: 'uppercase', letterSpacing: '0.5px',
+            display: 'flex', alignItems: 'center', gap: 4
+          }}>
+            {note.visibility === 'public' ? '🌍 Public' : '🔒 Private'}
+          </span>
+          {note.badge && (
             <span style={{
               fontSize: 9, fontWeight: 900, padding: '4px 14px', borderRadius: 99,
               background: '#fff', color: note.badge.includes('🔥') ? C.pink : C.teal,
@@ -109,7 +117,7 @@ export default function NoteCard({ note, locked, onLock, onView, onDownload, ind
             }}>
               {note.badge}
             </span>
-          ) : <span />}
+          )}
         </div>
 
         {/* TITLE + SUBJECT */}
@@ -158,6 +166,16 @@ export default function NoteCard({ note, locked, onLock, onView, onDownload, ind
               </button>
             ) : (
               <>
+                {onDelete && (
+                  <button onClick={(e) => { e.stopPropagation(); onDelete(note._id || note.id); }} className="btn-press"
+                    style={{
+                      fontSize: 11, fontWeight: 900, padding: '8px 14px', borderRadius: 99,
+                      background: '#fee2e2', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 4px 12px rgba(239, 68, 68, 0.1)'
+                    }}>
+                    <span>Delete</span>
+                  </button>
+                )}
                 <button onClick={() => onView(note)} className="btn-press"
                   style={{
                     fontSize: 11, fontWeight: 900, padding: '8px 18px', borderRadius: 99,
@@ -170,10 +188,10 @@ export default function NoteCard({ note, locked, onLock, onView, onDownload, ind
                 <button onClick={() => onDownload(note)} className="btn-press"
                   style={{
                     fontSize: 11, fontWeight: 900, padding: '8px 18px', borderRadius: 99,
-                    background: '#fff', color: '#059669', border: '1px solid rgba(0,0,0,0.06)', cursor: 'pointer',
+                    background: '#fff', color: C.teal, border: '1px solid rgba(0,0,0,0.06)', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
                   }}>
-                  <Icon name="download" size={14} color="#059669" strokeWidth={2.2} />
+                  <Icon name="download" size={14} color={C.teal} strokeWidth={2.2} />
                   <span>Get</span>
                 </button>
               </>

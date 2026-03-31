@@ -4,7 +4,7 @@ export const C = {
   greenLight: '#e8faf0',
   pink: '#ec4899',
   pinkBg: '#fce7f3',
-  teal: '#0d9488',
+  teal: '#1dc962', // High-authority Teal Sync
   tealBg: '#ccfbf1',
   mintBg: '#d1fae5',
   lavender: '#ede9fe',

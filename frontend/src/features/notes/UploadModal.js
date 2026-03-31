@@ -8,9 +8,7 @@ const UploadModal = ({ onClose, onUpload }) => {
     const [title, setTitle] = useState('');
     const [subject, setSubject] = useState('');
     const [file, setFile] = useState(null);
-    const [visibility] = useState('private');
-    const [userGroups, setUserGroups] = useState([]);
-    const [selectedGroups, setSelectedGroups] = useState([]);
+    const [visibility, setVisibility] = useState('private');
     const [loading, setLoading] = useState(false);
     const [fetchedSubjects, setFetchedSubjects] = useState(SUBJECTS);
 
@@ -21,33 +19,15 @@ const UploadModal = ({ onClose, onUpload }) => {
                 if (Array.isArray(res.data)) setFetchedSubjects(res.data);
             })
             .catch(err => console.error("Error subjects:", err));
-
-        // Fetch user's groups for sharing
-        const fetchGroups = async () => {
-            try {
-                const res = await api.get('/groups?filter=my');
-                setUserGroups(res.data);
-            } catch (error) {
-                console.error("Failed to fetch groups", error);
-            }
-        };
-        fetchGroups();
     }, []);
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
     };
 
-    const toggleGroupSelection = (groupId) => {
-        if (selectedGroups.includes(groupId)) {
-            setSelectedGroups(selectedGroups.filter(id => id !== groupId));
-        } else {
-            setSelectedGroups([...selectedGroups, groupId]);
-        }
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (loading) return; // High-authority Gatekeeper: Prevents duplicate broadcast
         if (!file) {
             alert("Please select a file");
             return;
@@ -58,17 +38,11 @@ const UploadModal = ({ onClose, onUpload }) => {
         formData.append('title', title);
         formData.append('subject', subject);
         formData.append('file', file);
-        formData.append('visibility', visibility); // 'private' or 'groups'
-
-        if (selectedGroups.length > 0) {
-            formData.append('sharedGroups', JSON.stringify(selectedGroups));
-            // If groups selected, force visibility to groups logic if not set
-            // But backend handles visibility tag. 
-            // Ideally if groups selected, visibility should indicate that.
-        }
+        formData.append('visibility', visibility); // 'private' or 'public'
 
         try {
             const res = await api.post('/notes', formData);
+            alert("Upload Successful!");
             onUpload(res.data);
             onClose();
         } catch (error) {
@@ -112,30 +86,25 @@ const UploadModal = ({ onClose, onUpload }) => {
                         <p className="text-xs text-gray-400 mt-1">PDF, Word, PPT up to 10MB</p>
                     </div>
 
-                    {/* Sharing Section */}
+                    {/* Visibility Section */}
                     <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Share with Groups (Optional)</label>
-                        {userGroups.length > 0 ? (
-                            <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto p-2 border rounded-xl bg-gray-50">
-                                {userGroups.map(group => (
-                                    <div
-                                        key={group._id}
-                                        onClick={() => toggleGroupSelection(group._id)}
-                                        className={`p-2 rounded-lg text-sm font-medium cursor-pointer border transition-all flex items-center gap-2 ${selectedGroups.includes(group._id)
-                                            ? 'bg-green-50 border-green-200 text-green-700'
-                                            : 'bg-white border-gray-100 text-gray-600 hover:border-green-200'
-                                            }`}
-                                    >
-                                        <div className={`w-4 h-4 rounded border flex items-center justify-center ${selectedGroups.includes(group._id) ? 'bg-[#1dc962] border-[#1dc962]' : 'border-gray-300'}`}>
-                                            {selectedGroups.includes(group._id) && <span className="text-white text-[10px]">✓</span>}
-                                        </div>
-                                        <span className="truncate">{group.name}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className="text-sm text-gray-400 italic">Join groups to share notes!</p>
-                        )}
+                        <label className="block text-sm font-bold text-gray-700 mb-2">Visibility</label>
+                        <div className="flex gap-4">
+                            <label className="flex items-center gap-3 cursor-pointer p-4 border rounded-xl flex-1 hover:bg-gray-50 transition-colors">
+                                <input type="radio" value="private" checked={visibility === 'private'} onChange={() => setVisibility('private')} className="accent-[#1dc962] w-5 h-5" />
+                                <div>
+                                    <div className="font-bold text-sm text-gray-800">Private</div>
+                                    <div className="text-xs text-gray-500">Only you can access</div>
+                                </div>
+                            </label>
+                            <label className="flex items-center gap-3 cursor-pointer p-4 border rounded-xl flex-1 hover:bg-gray-50 transition-colors">
+                                <input type="radio" value="public" checked={visibility === 'public'} onChange={() => setVisibility('public')} className="accent-[#1dc962] w-5 h-5" />
+                                <div>
+                                    <div className="font-bold text-sm text-gray-800">Public</div>
+                                    <div className="text-xs text-gray-500">Visible to all users</div>
+                                </div>
+                            </label>
+                        </div>
                     </div>
 
                     <button disabled={loading} type="submit" className="w-full py-4 bg-[#1dc962] text-white font-bold rounded-xl hover:bg-green-600 transition-colors shadow-lg shadow-green-200 disabled:opacity-50">
