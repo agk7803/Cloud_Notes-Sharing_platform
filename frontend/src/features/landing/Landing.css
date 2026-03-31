@@ -499,14 +499,14 @@ body {
 
 /* Individual positions — engineering theme */
 .sv-chip {
-  top: 6%;
-  left: 3%;
+  top: 10%;
+  left: 4%;
   width: 60px;
 }
 
 .sv-resistor {
-  top: 4%;
-  right: 4%;
+  top: 62%;
+  right: 5%;
   width: 52px;
 }
 
@@ -517,14 +517,14 @@ body {
 }
 
 .sv-gear {
-  top: 38%;
-  left: 2%;
+  top: 35%;
+  left: 3%;
   width: 64px;
 }
 
 .sv-oscwave {
-  top: 30%;
-  right: 2%;
+  top: 38%;
+  right: 3%;
   width: 76px;
 }
 
@@ -535,8 +535,8 @@ body {
 }
 
 .sv-binary {
-  top: 70%;
-  left: 4%;
+  top: 60%;
+  left: 5%;
   width: 76px;
 }
 
@@ -559,20 +559,20 @@ body {
 }
 
 .sv-books {
-  top: 12%;
-  left: 6%;
+  top: 85%;
+  left: 4%;
   width: 72px;
 }
 
 .sv-clock {
-  top: 10%;
-  right: 6%;
+  top: 12%;
+  right: 4%;
   width: 58px;
 }
 
 .sv-trophy {
-  top: 66%;
-  right: 6%;
+  top: 88%;
+  right: 4%;
   width: 54px;
 }
 

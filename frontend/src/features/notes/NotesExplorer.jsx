@@ -25,7 +25,7 @@ export default function NotesExplorer() {
   const [hasMore, setHasMore] = useState(false);
   const [subjects, setSubjects] = useState([]);
   const [showLock, setShowLock] = useState(false);
-  
+
   // Filters (Synced with URL)
   const query = searchParams.get('query') || '';
   const subject = searchParams.get('subject') || '';
@@ -70,7 +70,7 @@ export default function NotesExplorer() {
       };
 
       const res = await api.get('/notes/public', { params });
-      
+
       if (isLoadMore) {
         setNotes(prev => [...prev, ...res.data.notes]);
         setPage(currentPage);
@@ -78,7 +78,7 @@ export default function NotesExplorer() {
         setNotes(res.data.notes || []);
         setPage(0);
       }
-      
+
       setTotal(res.data.total);
       setHasMore(res.data.hasMore);
     } catch (err) {
@@ -118,8 +118,8 @@ export default function NotesExplorer() {
     const id = note._id || note.id;
     if (viewedNotes.includes(id)) return;
     if (viewedNotes.length >= FREE_LIMIT) {
-        setShowLock(true);
-        return;
+      setShowLock(true);
+      return;
     }
     setViewedNotes(prev => [...prev, id]);
   };
@@ -129,8 +129,8 @@ export default function NotesExplorer() {
     const id = note._id || note.id;
     if (viewedNotes.includes(id)) return;
     if (viewedNotes.length >= FREE_LIMIT) {
-        setShowLock(true);
-        return;
+      setShowLock(true);
+      return;
     }
     setViewedNotes(prev => [...prev, id]);
   };
@@ -155,9 +155,9 @@ export default function NotesExplorer() {
           <button onClick={() => navigate('/')} className="ne-btn-back">
             <Icon name="search" size={16} /> Back to Home
           </button>
-          
+
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-            <span style={{ 
+            <span style={{
               fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px',
               padding: '4px 12px', background: 'rgba(126, 200, 200, 0.15)', color: C.teal, borderRadius: 99
             }}>
@@ -169,22 +169,22 @@ export default function NotesExplorer() {
           </div>
 
           <h1 className="ne-title">
-            Explore <span style={{ 
+            Explore <span style={{
               background: `linear-gradient(135deg, ${C.green}, ${C.teal})`,
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent'
             }}>Notes</span>
           </h1>
-          <p className="ne-subtitle">Browse thousands of high-quality study materials shared by students worldwide.</p>
+
         </header>
 
         <section className="ne-controls">
           <div className="ne-search-box">
             <Icon name="search" size={20} color={C.teal} />
-            <input 
-              type="text" 
-              className="ne-search-input" 
-              placeholder="Search by title, subject, or keywords..." 
+            <input
+              type="text"
+              className="ne-search-input"
+              placeholder="Search by title, subject, or keywords..."
               value={query}
               onChange={handleSearch}
             />
@@ -214,10 +214,10 @@ export default function NotesExplorer() {
             Array(8).fill(0).map((_, i) => <NoteSkeleton key={i} />)
           ) : (
             notes.map((note, i) => (
-              <NoteCard 
-                key={note._id} 
-                note={note} 
-                index={i} 
+              <NoteCard
+                key={note._id}
+                note={note}
+                index={i}
                 isExplorer={true}
                 locked={isLocked(note, i)}
                 onLock={() => setShowLock(true)}
@@ -226,13 +226,13 @@ export default function NotesExplorer() {
               />
             ))
           )}
-          
+
           {!loading && loadingMore && Array(4).fill(0).map((_, i) => <NoteSkeleton key={i} />)}
         </div>
 
         {!loading && notes.length === 0 && (
           <div style={{ textAlign: 'center', padding: '100px 0', opacity: 1 }} className="fade-up">
-            <div style={{ 
+            <div style={{
               width: 100, height: 100, borderRadius: '50%', background: 'rgba(126, 200, 200, 0.1)',
               margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center'
             }}>
@@ -245,7 +245,7 @@ export default function NotesExplorer() {
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
               {['Biology', 'Machine Learning', 'Chemistry'].map(term => (
                 <button key={term} onClick={() => handleFilterChange('query', term)} className="topic-pill"
-                   style={{ background: '#fff', border: '1px solid rgba(15,23,42,0.1)', padding: '8px 16px', borderRadius: 12, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                  style={{ background: '#fff', border: '1px solid rgba(15,23,42,0.1)', padding: '8px 16px', borderRadius: 12, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
                   Try "{term}"
                 </button>
               ))}

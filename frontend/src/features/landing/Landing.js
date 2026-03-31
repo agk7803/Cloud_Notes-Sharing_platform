@@ -136,17 +136,7 @@ function HeroBg({ children, id }) {
           <line x1="36" y1="4" x2="36" y2="16" stroke="#534AB7" strokeWidth="0.8" />
         </svg>
       </div>
-      <div className="sv-float-el sv-beaker sv-float-c">
-        <svg viewBox="0 0 40 58" xmlns="http://www.w3.org/2000/svg">
-          <rect x="16" y="0" width="8" height="12" rx="2" fill="#B5D4F4" stroke="#378ADD" strokeWidth="1" />
-          <path d="M10 12 L6 50 Q6 56 20 56 Q34 56 34 50 L30 12 Z" fill="#E6F1FB" stroke="#185FA5" strokeWidth="1" />
-          <path d="M6 38 Q6 56 20 56 Q34 56 34 38 Z" fill="#B5D4F4" opacity="0.6" />
-          <circle cx="14" cy="44" r="2.5" fill="#378ADD" opacity="0.7" />
-          <circle cx="24" cy="48" r="2" fill="#378ADD" opacity="0.5" />
-          <circle cx="18" cy="50" r="1.5" fill="#185FA5" opacity="0.6" />
-          <line x1="12" y1="26" x2="28" y2="26" stroke="#B5D4F4" strokeWidth="1" />
-        </svg>
-      </div>
+
       <div className="sv-float-el sv-gear sv-float-d">
         <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
           <path d="M26 4 L28 4 L30 8 L34 6 L36 8 L34 12 Q38 14 40 18 L44 16 L46 18 L44 22 L48 26 L48 28 L44 30 L46 34 L44 36 L40 34 Q38 38 34 40 L36 44 L34 46 L30 44 L28 48 L26 48 L24 44 L20 46 L18 44 L20 40 Q16 38 14 34 L10 36 L8 34 L10 30 L6 28 L6 26 L10 24 L8 20 L10 18 L14 20 Q16 16 20 14 L18 10 L20 8 L24 10 Z" fill="#9FE1CB" stroke="#1D9E75" strokeWidth="1" />
@@ -164,15 +154,7 @@ function HeroBg({ children, id }) {
           <circle cx="8" cy="25" r="1.5" fill="#FAC775" />
         </svg>
       </div>
-      <div className="sv-float-el sv-sticker sv-float-a" style={{ animationDelay: '1s' }}>
-        <svg viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="26" cy="26" r="24" fill="#FAEEDA" stroke="#EF9F27" strokeWidth="1.2" />
-          <circle cx="26" cy="26" r="20" fill="none" stroke="#FAC775" strokeWidth="0.6" strokeDasharray="3 3" />
-          <text x="26" y="22" textAnchor="middle" fontFamily="Georgia,serif" fontSize="9" fontWeight="700" fill="#EF9F27">GREAT</text>
-          <text x="26" y="33" textAnchor="middle" fontFamily="Georgia,serif" fontSize="9" fontWeight="700" fill="#EF9F27">WORK!</text>
-          <polygon points="26,6 28,12 34,12 29,16 31,22 26,18 21,22 23,16 18,12 24,12" fill="#EF9F27" opacity="0.3" />
-        </svg>
-      </div>
+
       <div className="sv-float-el sv-binary sv-float-f">
         <svg viewBox="0 0 76 50" xmlns="http://www.w3.org/2000/svg">
           <rect x="0" y="0" width="76" height="50" rx="6" fill="#1a1a2e" stroke="#534AB7" strokeWidth="1" />
@@ -183,50 +165,7 @@ function HeroBg({ children, id }) {
           <text x="62" y="11" textAnchor="middle" fontFamily="monospace" fontSize="7" fill="#EEEDFE">BIN</text>
         </svg>
       </div>
-      <div className="sv-float-el sv-wrench sv-float-d" style={{ animationDelay: '0.5s' }}>
-        <svg viewBox="0 0 44 56" xmlns="http://www.w3.org/2000/svg">
-          <path d="M28 4 Q38 4 38 12 Q38 18 32 20 L20 44 Q20 52 12 52 Q4 52 4 44 Q4 36 12 36 L36 22 Q38 16 38 12" fill="none" stroke="#9FE1CB" strokeWidth="2" strokeLinecap="round" />
-          <path d="M12 4 Q4 8 6 16 L14 14 L16 6 Z" fill="#5DCAA5" stroke="#1D9E75" strokeWidth="0.8" />
-          <circle cx="12" cy="44" r="5" fill="#9FE1CB" stroke="#1D9E75" strokeWidth="1" />
-          <circle cx="12" cy="44" r="2" fill="#1D9E75" />
-        </svg>
-      </div>
-      <div className="sv-float-el sv-ruler sv-float-g">
-        <svg viewBox="0 0 70 24" xmlns="http://www.w3.org/2000/svg">
-          <rect x="0" y="0" width="70" height="24" rx="3" fill="#B5D4F4" stroke="#185FA5" strokeWidth="1" />
-          <line x1="8" y1="14" x2="8" y2="24" stroke="#185FA5" strokeWidth="1" />
-          <line x1="16" y1="16" x2="16" y2="24" stroke="#185FA5" strokeWidth="0.8" />
-          <line x1="24" y1="14" x2="24" y2="24" stroke="#185FA5" strokeWidth="1" />
-          <line x1="32" y1="16" x2="32" y2="24" stroke="#185FA5" strokeWidth="0.8" />
-          <line x1="40" y1="14" x2="40" y2="24" stroke="#185FA5" strokeWidth="1" />
-          <line x1="48" y1="16" x2="48" y2="24" stroke="#185FA5" strokeWidth="0.8" />
-          <line x1="56" y1="14" x2="56" y2="24" stroke="#185FA5" strokeWidth="1" />
-          <line x1="64" y1="16" x2="64" y2="24" stroke="#185FA5" strokeWidth="0.8" />
-          <text x="8" y="11" textAnchor="middle" fontFamily="sans-serif" fontSize="7" fill="#0C447C">1</text>
-          <text x="24" y="11" textAnchor="middle" fontFamily="sans-serif" fontSize="7" fill="#0C447C">2</text>
-          <text x="40" y="11" textAnchor="middle" fontFamily="sans-serif" fontSize="7" fill="#0C447C">3</text>
-          <text x="56" y="11" textAnchor="middle" fontFamily="sans-serif" fontSize="7" fill="#0C447C">4</text>
-        </svg>
-      </div>
-      <div className="sv-float-el sv-compass sv-float-e" style={{ animationDelay: '0.7s' }}>
-        <svg viewBox="0 0 48 56" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="24" cy="6" r="4" fill="#FAC775" stroke="#BA7517" strokeWidth="1" />
-          <line x1="24" y1="10" x2="14" y2="40" stroke="#EF9F27" strokeWidth="1.5" strokeLinecap="round" />
-          <line x1="24" y1="10" x2="34" y2="40" stroke="#EF9F27" strokeWidth="1.5" strokeLinecap="round" />
-          <line x1="16" y1="30" x2="32" y2="30" stroke="#BA7517" strokeWidth="1" />
-          <polygon points="14,40 10,52 18,46" fill="#BA7517" />
-          <polygon points="34,40 30,46 38,52" fill="#FAC775" stroke="#BA7517" strokeWidth="0.8" />
-          <path d="M18 22 Q24 18 30 22" fill="none" stroke="#FAC775" strokeWidth="0.8" strokeDasharray="2 2" />
-        </svg>
-      </div>
-      <div className="sv-float-el sv-pi sv-float-b" style={{ animationDelay: '1.2s' }}>
-        <svg viewBox="0 0 34 40" xmlns="http://www.w3.org/2000/svg">
-          <rect x="0" y="0" width="34" height="40" rx="6" fill="#EEEDFE" stroke="#534AB7" strokeWidth="1" />
-          <line x1="6" y1="10" x2="28" y2="10" stroke="#7F77DD" strokeWidth="1.5" strokeLinecap="round" />
-          <line x1="12" y1="10" x2="10" y2="34" stroke="#534AB7" strokeWidth="1.4" strokeLinecap="round" />
-          <path d="M22 10 Q26 10 26 16 Q26 34 22 34" fill="none" stroke="#534AB7" strokeWidth="1.4" strokeLinecap="round" />
-        </svg>
-      </div>
+
       {/* Stacked textbooks */}
       <div className="sv-float-el sv-books sv-float-h">
         <svg viewBox="0 0 72 64" xmlns="http://www.w3.org/2000/svg">
