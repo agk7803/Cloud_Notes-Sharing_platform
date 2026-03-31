@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Landing.css';
 import api from '../../services/api';
 import logo from '../../assets/generated-image.png';
@@ -381,35 +381,55 @@ function NoteCard({ note, locked, onLock, onView, index }) {
         overflow: 'hidden'
       }}>
 
-      {/* LOCK OVERLAY: CENTERED PREMIUM STYLE */}
-      {locked && (
-        <div className="lock-overlay" style={{ position: 'absolute', inset: 0, borderRadius: '28px' }}>
-          <div className="float-slow" style={{
-            width: 56, height: 56, borderRadius: '50%', background: '#fff',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16,
-            boxShadow: '0 8px 24px rgba(0,0,0,0.08)'
-          }}>
-            <Icon name="lock" size={24} color="#7c3aed" strokeWidth={2.5} />
-          </div>
-          <h4 style={{ fontSize: 15, fontWeight: 900, color: '#1e293b', marginBottom: 4 }}>Free limit reached</h4>
-          <p style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 20 }}>Sign up for full access</p>
-          <button onClick={onLock} className="btn-press"
-            style={{
-              fontSize: 12, fontWeight: 800, padding: '12px 32px', borderRadius: 99, color: '#fff',
-              background: '#0f172a', border: 'none', cursor: 'pointer',
-              boxShadow: '0 8px 20px rgba(15,23,42,0.15)'
-            }}>
-            Unlock Now →
-          </button>
-        </div>
-      )}
-
-      {/* CONTENT: Slightly blurred and lower opacity when locked */}
+      {/* 1. PREVIEW SECTION (Top - Blurred if locked) */}
       <div style={{
-        filter: locked ? 'blur(1.5px)' : 'none',
-        opacity: locked ? 0.45 : 1,
-        transition: 'all 0.4s ease',
-        display: 'flex', flexDirection: 'column', gap: 16, height: '100%'
+        position: 'relative',
+        height: '160px',
+        borderRadius: '20px',
+        overflow: 'hidden',
+        background: 'rgba(255,255,255,0.4)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        border: '1px solid rgba(0,0,0,0.03)',
+      }}>
+        {/* Actual Preview Content (Blurred if locked) */}
+        <div style={{
+          position: 'absolute', inset: 0, 
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          filter: locked ? 'blur(10px)' : 'none',
+          opacity: locked ? 0.6 : 1,
+          transition: 'all 0.4s ease'
+        }}>
+            <Icon name="doc" size={64} color="rgba(0,0,0,0.15)" strokeWidth={1} />
+            <div style={{ 
+                position: 'absolute', inset: 0, 
+                background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.2))' 
+            }} />
+        </div>
+
+        {/* Lock Overlay (Centered over preview only) */}
+        {locked && (
+            <div style={{ 
+                position: 'absolute', inset: 0, 
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                background: 'rgba(255,255,255,0.1)'
+            }}>
+                <div style={{ 
+                    width: 52, height: 52, borderRadius: '50%', background: '#fff',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.08)'
+                }}>
+                    <Icon name="lock" size={24} color="#7c3aed" strokeWidth={2.5} />
+                </div>
+            </div>
+        )}
+      </div>
+
+      {/* 2. CONTENT SECTION (Bottom - Always Clear) */}
+      <div style={{
+        display: 'flex', flexDirection: 'column', gap: 16, height: '100%',
+        zIndex: 1
       }}>
         {/* BADGE ROW */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', minHeight: 24 }}>
@@ -426,13 +446,6 @@ function NoteCard({ note, locked, onLock, onView, index }) {
 
         {/* TITLE ROW */}
         <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
-          <div style={{
-            width: 52, height: 52, borderRadius: 16, background: 'rgba(255,255,255,0.7)', flexShrink: 0,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.02)'
-          }}>
-            <Icon name="doc" size={24} color="#475569" strokeWidth={2.2} />
-          </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <p style={{
               fontSize: 15, fontWeight: 900, color: '#0f172a', lineHeight: 1.4, marginBottom: 5,
@@ -485,6 +498,7 @@ function NoteCard({ note, locked, onLock, onView, index }) {
    MAIN COMPONENT
 ═══════════════════════════════════════════════ */
 export default function Landing() {
+  const navigate = useNavigate();
   const [notes, setNotes] = useState([]);
   const [subjects, setSubjects] = useState(TOPICS);
   const [counts, setCounts] = useState({ notes: 0, users: 0 });
@@ -492,7 +506,6 @@ export default function Landing() {
   const [showSearch, setShowSearch] = useState(false);
   const [query, setQuery] = useState('');
   const [showLock, setShowLock] = useState(false);
-  const [searched, setSearched] = useState(false);
   const [activeNav, setActiveNav] = useState('home');
   const resultsRef = useRef(null);
   const searchInputRef = useRef(null);
@@ -500,7 +513,10 @@ export default function Landing() {
   useEffect(() => {
     // 1. Fetch live notes
     api.get('/notes/public')
-      .then(res => setNotes(res.data || []))
+      .then(res => {
+          // res.data is { notes, total, hasMore }
+          setNotes(res.data.notes || []);
+      })
       .catch(err => console.error("Error fetching landing stats:", err));
 
     // 2. Fetch total counts
@@ -528,6 +544,7 @@ export default function Landing() {
   });
   useEffect(() => {
     localStorage.setItem('stunotes_viewed', JSON.stringify(viewedNotes));
+    localStorage.setItem('notes_viewed_count', viewedNotes.length.toString());
   }, [viewedNotes]);
 
   const scrollToSection = (id) => {
@@ -535,13 +552,13 @@ export default function Landing() {
     setActiveNav(id);
   };
 
-  const scrollToResults = () => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-  const doSearch = (override) => {
-    if (loading) return;
-    if (override !== undefined) setQuery(override);
-    setLoading(true);
-    setTimeout(() => { setSearched(true); setLoading(false); setTimeout(scrollToResults, 80); }, 660);
+  const doSearch = (term) => {
+    const s = term || query || '';
+    if (s.trim()) {
+      navigate(`/notes?query=${encodeURIComponent(s.trim())}`);
+    } else {
+      navigate('/notes');
+    }
   };
 
   const handleViewNote = (note) => {
@@ -564,11 +581,7 @@ export default function Landing() {
     badge: (new Date() - new Date(n.createdAt)) < 604800000 ? '✨ NEW' : null
   }));
 
-  const filteredNotes = searched
-    ? displayNotes.filter(n => !query
-      || n.title.toLowerCase().includes(query.toLowerCase())
-      || (n.subject && n.subject.toLowerCase().includes(query.toLowerCase())))
-    : displayNotes;
+  const filteredNotes = displayNotes;
 
   const freeUsed = Math.min(viewedNotes.length, FREE_LIMIT);
 
@@ -768,7 +781,7 @@ export default function Landing() {
           <div style={{ maxWidth: 1140, margin: '0 auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 28 }}>
               <h2 style={{ fontSize: 22, fontWeight: 800, color: '#111', letterSpacing: '-0.5px' }}>
-                {searched ? `Results for "${query || 'all notes'}"` : 'Browse Popular Notes'}
+                Browse Popular Notes
               </h2>
             </div>
 
@@ -778,24 +791,6 @@ export default function Landing() {
               </div>
             )}
 
-            {!loading && filteredNotes.length === 0 && (
-              <div style={{ textAlign: 'center', padding: '60px 0' }}>
-                <p style={{ fontSize: 48, marginBottom: 16 }}>📭</p>
-                <h3 style={{ fontSize: 18, fontWeight: 800, color: '#374151', marginBottom: 8 }}>No notes found</h3>
-                <p style={{ fontSize: 14, color: '#9ca3af', marginBottom: 20 }}>Try a different keyword:</p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8 }}>
-                  {subjects.slice(0, 6).map(s => (
-                    <button key={s} onClick={() => doSearch(s)} className="topic-pill"
-                      style={{
-                        borderRadius: 99, padding: '7px 14px', fontSize: 12, fontWeight: 700,
-                        background: C.lavender, color: '#5b21b6', border: 'none', cursor: 'pointer'
-                      }}>
-                      {s}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Cards grid */}
             <div style={{ position: 'relative' }}>
@@ -820,6 +815,17 @@ export default function Landing() {
                   </div>
                 )
               )}
+            </div>
+
+            {/* VIEW ALL BUTTON */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 48 }}>
+              <button onClick={() => navigate('/notes')} className="btn-press" style={{
+                  padding: '14px 40px', borderRadius: 99, background: '#fff', border: '1px solid #e2e8f0',
+                  color: '#0f172a', fontWeight: 800, fontSize: 15, cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.05)', transition: 'all 0.3s'
+              }}>
+                View All Notes →
+              </button>
             </div>
 
             {/* Freemium banner */}
@@ -1027,7 +1033,7 @@ export default function Landing() {
         </div>
       </footer>
 
-      {showLock && <LockModal onClose={() => setShowLock(false)} />}
+      {showLock && <LockModal onClose={() => setShowLock(false)} freeUsed={viewedNotes.length} />}
     </div>
   );
 }

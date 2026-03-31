@@ -18,7 +18,12 @@ const noteSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Group'
     }], // Array of Group ObjectIds
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    difficulty: {
+        type: String,
+        enum: ['easy', 'medium', 'hard'],
+        default: 'medium'
+    }
 });
 
 module.exports = mongoose.model('Note', noteSchema);

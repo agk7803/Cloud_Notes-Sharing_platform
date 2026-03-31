@@ -20,7 +20,7 @@ import Layout from '../shared/Layout';
 import Dashboard from '../features/dashboard/Dashboard';
 import ViewNotes from '../features/notes/ViewNotes';
 import { NoteProvider } from '../features/notes/NoteContext';
-import SearchResults from '../features/notes/SearchResults';
+import NotesExplorer from '../features/notes/NotesExplorer';
 import Assessments from '../features/assessments/Assessments';
 import TestWindow from '../features/assessments/TestWindow';
 import TakeAssessment from '../features/assessments/TakeAssessment';
@@ -48,7 +48,7 @@ function App() {
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/search" element={<SearchResults />} />
+                <Route path="/notes" element={<NotesExplorer />} />
 
 
                 {/* Routes with Persistent Sidebar + NoteProvider */}

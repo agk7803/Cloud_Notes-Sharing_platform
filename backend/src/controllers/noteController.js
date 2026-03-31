@@ -118,10 +118,40 @@ const getNotes = async (req, res) => {
 // @access  Public
 const getPublicNotes = async (req, res) => {
     try {
-        const notes = await Note.find({})
-            .sort({ createdAt: -1 })
-            .limit(10);
+        const { query, subject, fileType, difficulty, sort, limit = 10, skip = 0 } = req.query;
 
+        // 1. Build Filter Object
+        const filter = { visibility: 'public' };
+
+        if (query) {
+            filter.$or = [
+                { title: { $regex: query, $options: 'i' } },
+                { subject: { $regex: query, $options: 'i' } }
+            ];
+        }
+
+        if (subject) filter.subject = subject;
+        if (fileType) filter.fileType = fileType;
+        if (difficulty) filter.difficulty = difficulty;
+
+        // 2. Build Sort Object
+        const sortOptions = {};
+        if (sort === 'popular') {
+            // Placeholder: Sort by popularity if implemented later
+            sortOptions.createdAt = -1;
+        } else {
+            sortOptions.createdAt = -1; // Default: Latest
+        }
+
+        // 3. Execute Query
+        const notes = await Note.find(filter)
+            .sort(sortOptions)
+            .skip(Number(skip))
+            .limit(Number(limit));
+
+        const total = await Note.countDocuments(filter);
+
+        // 4. Generate Signed URLs
         const notesWithSignedUrls = await Promise.all(notes.map(async (note) => {
             const noteObj = note.toObject();
             if (note.s3Key) {
@@ -139,7 +169,12 @@ const getPublicNotes = async (req, res) => {
             return noteObj;
         }));
 
-        res.json(notesWithSignedUrls);
+        res.json({
+            notes: notesWithSignedUrls,
+            total,
+            hasMore: Number(skip) + Number(limit) < total
+        });
+
     } catch (error) {
         console.error("Error fetching public notes:", error);
         res.status(500).json({ message: 'Server Error' });
