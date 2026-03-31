@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { FaRobot } from "react-icons/fa";
+import logo from "../assets/generated-image.png";
 
 import {
     FaBook,
@@ -50,7 +51,7 @@ const Sidebar = ({ active, setActive, onLogout, navigate }) => {
             {/* Logo */}
             <div>
                 <div className={`flex items-center gap-3 px-2 mb-10 ${collapsed ? "justify-center" : ""}`}>
-                    <img src="/generated-image.png" alt="Logo" className="w-10 h-10" />
+                    <img src={logo} alt="Logo" className="w-10 h-10 object-cover rounded-xl" />
 
                     {!collapsed && (
                         <span className="text-2xl font-bold text-gray-800">

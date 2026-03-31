@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import './Landing.css';
+import logo from '../../assets/generated-image.png';
 
 /* ═══════════════════════════════════════════════
    DESIGN TOKENS
@@ -27,192 +29,7 @@ const C = {
   paleMuted: '#f8fafc',
 };
 
-/* ═══════════════════════════════════════════════
-   GLOBAL CSS
-═══════════════════════════════════════════════ */
-const GLOBAL_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
-  * { box-sizing: border-box; margin:0; padding:0; }
-  body { font-family: 'Nunito', sans-serif; color: #1e293b; }
 
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(24px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .fade-up   { animation: fadeUp 0.55s cubic-bezier(.22,.68,0,1.2) both; }
-  .fade-up-1 { animation-delay: 0.05s; }
-  .fade-up-2 { animation-delay: 0.13s; }
-  .fade-up-3 { animation-delay: 0.22s; }
-  .fade-up-4 { animation-delay: 0.32s; }
-  .fade-up-5 { animation-delay: 0.42s; }
-
-  /* mesh blobs — matches Academic AI page exactly */
-  @keyframes blob1 {
-    0%,100% { transform: translate(0,0) scale(1); }
-    33%      { transform: translate(30px,-20px) scale(1.08); }
-    66%      { transform: translate(-15px,25px) scale(0.95); }
-  }
-  @keyframes blob2 {
-    0%,100% { transform: translate(0,0) scale(1); }
-    33%      { transform: translate(-25px,20px) scale(1.05); }
-    66%      { transform: translate(20px,-30px) scale(0.97); }
-  }
-  @keyframes blob3 {
-    0%,100% { transform: translate(0,0) scale(1); }
-    33%      { transform: translate(15px,25px) scale(0.93); }
-    66%      { transform: translate(-20px,-15px) scale(1.06); }
-  }
-
-  .ln-bg { position:absolute; inset:0; overflow:hidden; pointer-events:none; }
-  .ln-blob-teal {
-    position:absolute; top:-15%; left:-10%; width:55%; height:55%;
-    border-radius:50%;
-    background: radial-gradient(circle, rgba(126,200,200,0.25) 0%, rgba(126,200,200,0.06) 45%, transparent 70%);
-    animation: blob1 14s ease-in-out infinite; filter:blur(2px);
-  }
-  .ln-blob-pink {
-    position:absolute; top:-10%; right:-12%; width:50%; height:50%;
-    border-radius:50%;
-    background: radial-gradient(circle, rgba(249,168,201,0.20) 0%, rgba(249,168,201,0.05) 45%, transparent 70%);
-    animation: blob2 17s ease-in-out infinite; filter:blur(2px);
-  }
-  .ln-blob-sage {
-    position:absolute; bottom:-18%; left:25%; width:52%; height:52%;
-    border-radius:50%;
-    background: radial-gradient(circle, rgba(184,224,200,0.22) 0%, rgba(0,201,110,0.04) 45%, transparent 70%);
-    animation: blob3 20s ease-in-out infinite; filter:blur(2px);
-  }
-  .ln-grid {
-    position:absolute; inset:0; pointer-events:none;
-    background-image:
-      linear-gradient(rgba(126,200,200,0.18) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(126,200,200,0.18) 1px, transparent 1px);
-    background-size: 40px 40px;
-  }
-
-  @keyframes floatBadge {
-    0%,100% { transform: translateY(0) rotate(var(--rot, -1deg)); }
-    50%      { transform: translateY(-8px) rotate(var(--rot, -1deg)); }
-  }
-  .float-slow { animation: floatBadge 3.8s ease-in-out infinite; }
-  @keyframes pulseDot {
-    0%,100% { opacity:1; transform:scale(1); }
-    50%      { opacity:.45; transform:scale(1.5); }
-  }
-  .pulse-dot { animation: pulseDot 1.8s ease-in-out infinite; }
-
-  @keyframes shimmer {
-    0%   { background-position: -500px 0; }
-    100% { background-position:  500px 0; }
-  }
-  .shimmer {
-    background: linear-gradient(90deg,#f0f0f0 25%,#f9fafb 50%,#f0f0f0 75%);
-    background-size: 1000px 100%;
-    animation: shimmer 1.5s infinite;
-    border-radius: 8px;
-  }
-
-  .grid-bg {
-    background-image:
-      linear-gradient(rgba(29,201,98,0.08) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(29,201,98,0.08) 1px, transparent 1px);
-    background-size: 40px 40px;
-  }
-
-  .note-card { 
-    transition: all 0.4s cubic-bezier(.22,1,0.36,1);
-    border: 1px solid rgba(0,0,0,0.03) !important;
-  }
-  .note-card:hover { 
-    transform: translateY(-5px) rotate(0.4deg); 
-    box-shadow: 0 24px 60px rgba(0,0,0,.08) !important; 
-  }
-
-  .feat-card, .how-card, .stat-card { 
-    transition: transform .3s cubic-bezier(.22,1,0.36,1), box-shadow .3s ease;
-  }
-  .feat-card:hover, .how-card:hover, .stat-card:hover { 
-    transform: translateY(-5px); box-shadow: 0 10px 24px rgba(0,0,0,.05);
-  }
-
-  .sticker-highlight {
-    display: inline-block;
-    border-radius: 8px;
-    padding: 2px 10px;
-    transform: rotate(var(--r, -1.5deg));
-    transition: transform 0.2s ease;
-  }
-  .sticker-highlight:hover { transform: rotate(0deg) scale(1.05); }
-
-  .btn-press { transition: all 0.2s cubic-bezier(.22,1,0.36,1); }
-  .btn-press:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
-  .btn-press:active { transform: scale(0.96); }
-
-  .glass-search {
-    background: rgba(255, 255, 255, 0.65);
-    backdrop-filter: blur(16px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow: 
-      0 10px 40px rgba(0, 0, 0, 0.04),
-      0 0 0 1px rgba(0, 0, 0, 0.02);
-    transition: all 0.4s cubic-bezier(.22,1,0.36,1);
-  }
-  .glass-search:hover {
-    background: rgba(255, 255, 255, 0.85);
-    transform: translateY(-2px);
-    box-shadow: 0 14px 48px rgba(0, 0, 0, 0.06);
-  }
-  .search-focus {
-    background: #fff !important;
-    transform: translateY(-2px) scale(1.01);
-    box-shadow: 
-      0 20px 60px rgba(0, 0, 0, 0.1),
-      0 0 0 4px rgba(29, 201, 98, 0.12) !important;
-    border-color: rgba(29, 201, 98, 0.3) !important;
-  }
-
-  .topic-pill { transition: background .15s, transform .15s; }
-  .topic-pill:hover { background: rgba(255,255,255,0.95) !important; transform: translateY(-2px) rotate(1deg); }
-
-  .asym-up { transform: translateY(-12px); }
-  .asym-down { transform: translateY(12px); }
-
-  @keyframes modalPop {
-    from { opacity:0; transform: scale(.90) translateY(16px); }
-    to   { opacity:1; transform: scale(1) translateY(0); }
-  }
-  .modal-pop { animation: modalPop .3s cubic-bezier(.22,.68,0,1.2) both; }
-
-  .lock-overlay {
-    background: rgba(255, 255, 255, 0.45);
-    backdrop-filter: blur(8px) saturate(120%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 24px;
-    z-index: 20;
-  }
-
-  @keyframes bannerGlow {
-    0%,100% { box-shadow: 0 0 0 0 rgba(253,184,128,0); }
-    50%      { box-shadow: 0 0 0 8px rgba(253,184,128,.18); }
-  }
-  .banner-glow { animation: bannerGlow 2.6s ease-in-out infinite; }
-
-  .nav-link { position: relative; }
-  .nav-link::after {
-    content:''; position:absolute; bottom:-5px; left:0; right:0; height:2px;
-    background:#1dc962; border-radius:99px; transform:scaleX(0);
-    transition:transform .2s ease;
-  }
-  .nav-link:hover::after { transform:scaleX(1); }
-  .nav-active { font-weight:900 !important; color:#111 !important; }
-  .nav-active::after { transform:scaleX(1) !important; }
-
-  @keyframes spin { to { transform:rotate(360deg); } }
-`;
 
 /* ═══════════════════════════════════════════════
    DATA
@@ -521,15 +338,7 @@ export default function Landing() {
     localStorage.setItem('stunotes_viewed', JSON.stringify(viewedNotes));
   }, [viewedNotes]);
 
-  /* inject CSS once */
-  useEffect(() => {
-    const id = 'stunotes-landing-css';
-    if (!document.getElementById(id)) {
-      const el = document.createElement('style');
-      el.id = id; el.textContent = GLOBAL_CSS;
-      document.head.appendChild(el);
-    }
-  }, []);
+
 
   const scrollToSection = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -576,16 +385,15 @@ export default function Landing() {
         background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(14px)'
       }}>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{
-            width: 36, height: 36, borderRadius: 10, background: `linear-gradient(135deg,${C.green},${C.teal})`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(29,201,98,.25)'
+            width: 42, height: 42, borderRadius: 12, overflow: 'hidden',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 4px 16px rgba(29,201,98,0.15)', background: '#fff'
           }}>
-            <svg fill="white" height="17" viewBox="0 0 256 256" width="17">
-              <path d="M88,96a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H96A8,8,0,0,1,88,96Zm8,40h64a8,8,0,0,0,0-16H96a8,8,0,0,0,0,16Zm32,16H96a8,8,0,0,0,0,16h32a8,8,0,0,0,0-16ZM224,48V156.69A15.86,15.86,0,0,1,219.31,168L168,219.31A15.86,15.86,0,0,1,156.69,224H48a16,16,0,0,1-16-16V48A16,16,0,0,1,48,32H208A16,16,0,0,1,224,48ZM48,208H152V160a8,8,0,0,1,8-8h48V48H48Zm120-40v28.7L196.69,168Z" />
-            </svg>
+            <img src={logo} alt="StuNotes Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
-          <span style={{ fontSize: 17, fontWeight: 800, color: '#111', letterSpacing: '-0.3px' }}>StuNotes</span>
+          <span style={{ fontSize: 19, fontWeight: 900, color: '#0f172a', letterSpacing: '-0.5px' }}>StuNotes</span>
         </div>
 
         <nav style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
