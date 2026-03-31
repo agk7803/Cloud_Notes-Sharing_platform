@@ -6,6 +6,8 @@ import { useOutletContext, useLocation } from 'react-router-dom';
 import api from '../../services/api';
 import NoteCard from './components/NoteCard';
 import NoteSkeleton from './components/NoteSkeleton';
+import '../landing/Landing.css'; // True Landing Page UI tokens
+import { C } from '../../shared/theme'; // High-authority gradients
 
 const SUBJECTS = [
   "Machine Learning", "Compiler Design", "Computer Networks", 
@@ -25,11 +27,12 @@ export default function ViewNotes() {
   // State
   const [activeTab, setActiveTab] = useState('My Notes'); // 'My Notes', 'Public', 'Private'
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [pubSearchFocused, setPubSearchFocused] = useState(false);
   
   // Public notes fetching
   const [publicNotes, setPublicNotes] = useState([]);
   const [publicLoading, setPublicLoading] = useState(false);
-  const [hasFetchedPublic, setHasFetchedPublic] = useState(false); // New explicit tracking
+  const [hasFetchedPublic, setHasFetchedPublic] = useState(false); 
 
   // Filters
   const [search, setSearch] = useState('');
@@ -142,120 +145,184 @@ export default function ViewNotes() {
   });
 
   return (
-      <div className="min-h-screen p-8 bg-gray-50/20">
-        <div className="max-w-6xl mx-auto">
-          {/* HEADER */}
-          <div className="mb-8">
-            <header className="flex flex-col md:flex-row justify-between md:items-center gap-6">
+    <div className="relative overflow-x-clip" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      
+      {/* ══════ EXACT LANDING HERO BACKGROUND (FIXED TO VIEWPORT) ══════ */}
+      <div style={{ 
+        position: 'fixed', inset: 0, zIndex: 0, 
+        background: 'linear-gradient(135deg,#e8faf0 0%,#f0fdf8 40%,#fce7f3 75%,#ccfbf1 100%)'
+      }} />
+      <div className="ln-grid" style={{ position: 'fixed', inset: 0, zIndex: 0 }} />
+      <div className="ln-bg" style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
+        <div className="ln-blob-teal" />
+        <div className="ln-blob-pink" />
+        <div className="ln-blob-sage" />
+      </div>
+
+      {/* ══════ DASHBOARD CONTENT ══════ */}
+      <div style={{ position: 'relative', zIndex: 10, padding: '60px 24px 100px', flex: 1 }}>
+          <div className="max-w-6xl mx-auto">
+            
+            {/* HEADER */}
+            <header className="flex flex-col md:flex-row justify-between md:items-center gap-6 mb-10 fade-up">
               <div className="space-y-2">
-                <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">
-                  Notes Library
+                <h1 style={{
+                  fontSize: 'clamp(32px,5vw,46px)', fontWeight: 900, lineHeight: 1.15,
+                  letterSpacing: '-1.5px', color: '#0f172a'
+                }}>
+                  Notes{' '}
+                  <span style={{ 
+                    color: C.teal,
+                    display: 'inline-block'
+                  }}>
+                    Library
+                  </span>
                 </h1>
-                <p className="text-gray-500 text-lg">
-                  Organize, discover, and manage your academic resources
+                <p style={{ fontSize: 16, color: '#4b5563', fontWeight: 600 }}>
+                   Manage your private notes or explore the public community.
                 </p>
               </div>
               <button
                 onClick={() => setIsUploadOpen(true)}
-                className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-[#1dc962] text-white font-bold hover:bg-green-600 hover:shadow-xl shadow-green-200 shadow-lg active:scale-95 transition-all duration-200"
+                className="btn-press"
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8, padding: '14px 28px',
+                  borderRadius: 16, background: '#111',
+                  color: '#fff', fontWeight: 800, fontSize: 15, border: 'none', cursor: 'pointer',
+                  boxShadow: `0 8px 24px rgba(0,0,0,0.15)`, alignSelf: 'flex-start'
+                }}
               >
-                <FaPlus className="transition-transform duration-300 group-hover:rotate-90" />
+                <FaPlus />
                 Upload Note
               </button>
             </header>
-          </div>
 
-          {/* TAB BAR ALIGNMENT */}
-          <div className="flex bg-white p-1 rounded-2xl shadow-sm border border-gray-100 mb-6 w-fit">
-             {['My Notes', 'Public', 'Private'].map(tab => (
-                 <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-8 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${activeTab === tab ? 'bg-[#1dc962] text-white shadow-md' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}
-                 >
-                    {tab}
-                 </button>
-             ))}
-          </div>
+            {/* TAB BAR ALIGNMENT */}
+            <div className="fade-up fade-up-1" style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
+               {['My Notes', 'Public', 'Private'].map(tab => (
+                   <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className="topic-pill btn-press"
+                      style={{
+                        padding: '10px 24px', 
+                        borderRadius: 14, 
+                        fontSize: 13, 
+                        fontWeight: 800, 
+                        border: '1px solid rgba(15, 23, 42, 0.12)',
+                        background: activeTab === tab ? '#111' : 'rgba(255,255,255,0.7)',
+                        color: activeTab === tab ? '#fff' : '#0f172a',
+                        boxShadow: activeTab === tab ? `0 8px 20px rgba(0,0,0,0.15)` : '0 4px 12px rgba(15, 23, 42, 0.04)',
+                        backdropFilter: activeTab === tab ? 'none' : 'blur(16px)',
+                        cursor: 'pointer'
+                      }}
+                   >
+                      {tab}
+                   </button>
+               ))}
+            </div>
 
-          {/* SEARCH & FILTERS BAR */}
-          <div className="bg-white p-4 rounded-xl shadow-sm border mb-8 flex flex-col lg:flex-row gap-4 justify-between">
-            <h3 className="text-gray-400 font-bold self-center px-2 uppercase tracking-widest text-xs hidden lg:block">Filters</h3>
-            <div className="flex gap-3 flex-wrap w-full lg:w-auto">
-              <select
-                value={subjectFilter}
-                onChange={e => setSubjectFilter(e.target.value)}
-                className="px-4 py-2 rounded-lg border focus:ring-2 focus:ring-[#1dc962] outline-none bg-gray-50 text-sm font-semibold text-gray-700"
-              >
-                <option value="">All Subjects</option>
-                {fetchedSubjects.map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
+            {/* SEARCH & FILTERS BAR */}
+            <div className={`fade-up fade-up-2 glass-search ${pubSearchFocused ? 'search-focus' : ''}`} style={{ 
+              display: 'flex', flexDirection: 'column', gap: 16,
+              borderRadius: 24, padding: '16px 24px', marginBottom: '40px',
+              position: 'relative', zIndex: 2
+            }}>
+              <div className="flex flex-col lg:flex-row gap-4 items-center w-full">
+                
+                <div className="relative flex-1 w-full" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <FaSearch style={{ color: C.teal, fontSize: 20 }} />
+                  <input
+                    type="text"
+                    value={search}
+                    onFocus={() => setPubSearchFocused(true)}
+                    onBlur={() => setPubSearchFocused(false)}
+                    onChange={e => setSearch(e.target.value)}
+                    placeholder="Search your library..."
+                    style={{
+                      flex: 1, border: 'none', outline: 'none', fontSize: 16, color: '#0f172a',
+                      fontFamily: 'inherit', fontWeight: 600, background: 'transparent'
+                    }}
+                  />
+                </div>
 
-              <select
-                value={monthFilter}
-                onChange={e => setMonthFilter(e.target.value)}
-                className="px-4 py-2 rounded-lg border focus:ring-2 focus:ring-[#1dc962] outline-none bg-gray-50 text-sm font-semibold text-gray-700"
-              >
-                <option value="">All Months</option>
-                {MONTHS.map(m => <option key={m}>{m}</option>)}
-              </select>
+                <div className="flex gap-3 w-full lg:w-auto mt-2 lg:mt-0">
+                  <select
+                    value={subjectFilter}
+                    onChange={e => setSubjectFilter(e.target.value)}
+                    className="topic-pill"
+                    style={{
+                      padding: '8px 16px', borderRadius: 12, border: '1px solid rgba(15, 23, 42, 0.12)',
+                      background: 'rgba(255,255,255,0.7)', color: '#0f172a', fontWeight: 800, fontSize: 12,
+                      outline: 'none', cursor: 'pointer', appearance: 'auto'
+                    }}
+                  >
+                    <option value="">All Subjects</option>
+                    {fetchedSubjects.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
 
-              <div className="relative flex-1 lg:flex-none">
-                <input
-                  type="text"
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  placeholder="Search notes..."
-                  className="w-full pl-10 pr-4 py-2 rounded-lg border focus:ring-2 focus:ring-[#1dc962] outline-none bg-gray-50 font-semibold text-sm"
-                />
-                <FaSearch className="absolute left-3 top-3 text-gray-400" />
+                  <select
+                    value={monthFilter}
+                    onChange={e => setMonthFilter(e.target.value)}
+                    className="topic-pill"
+                    style={{
+                      padding: '8px 16px', borderRadius: 12, border: '1px solid rgba(15, 23, 42, 0.12)',
+                      background: 'rgba(255,255,255,0.7)', color: '#0f172a', fontWeight: 800, fontSize: 12,
+                      outline: 'none', cursor: 'pointer', appearance: 'auto'
+                    }}
+                  >
+                    <option value="">All Months</option>
+                    {MONTHS.map(m => <option key={m}>{m}</option>)}
+                  </select>
+                </div>
+
               </div>
             </div>
+
+            {/* DYNAMIC RESULTS GRID */}
+            {isLoading ? (
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 fade-up fade-up-3">
+                  {Array(6).fill(0).map((_, i) => <NoteSkeleton key={i} />)}
+               </div>
+            ) : filteredNotes.length > 0 ? (
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10 fade-up fade-up-3">
+                  {filteredNotes.map((note, i) => {
+                     const isOwnNote = note.authorId === user?.uid;
+                     return (
+                       <NoteCard 
+                          key={note._id || i}
+                          note={note}
+                          index={i}
+                          locked={false}
+                          onView={handleView}
+                          onDownload={handleDownload}
+                          onDelete={isOwnNote ? handleDelete : null}
+                       />
+                     );
+                  })}
+               </div>
+            ) : (
+               <div className="fade-up fade-up-3 text-center py-20 bg-white/60 rounded-[32px] border border-dashed border-gray-300 shadow-sm backdrop-blur-md">
+                  <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: `rgba(13, 148, 136, 0.1)` }}>
+                     <FaSearch className="text-3xl" style={{ color: C.teal }} />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">No Notes Found</h3>
+                  <p className="text-gray-600 font-semibold max-w-sm mx-auto">
+                     There are no notes available in the "{activeTab}" tab matching your current filters.
+                  </p>
+               </div>
+            )}
+
+            {/* MODALS */}
+            {isUploadOpen && (
+               <UploadModal
+                  onClose={() => setIsUploadOpen(false)}
+                  onUpload={handleSubmit}
+               />
+            )}
+
           </div>
-
-          {/* DYNAMIC RESULTS GRID */}
-          {isLoading ? (
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {Array(6).fill(0).map((_, i) => <NoteSkeleton key={i} />)}
-             </div>
-          ) : filteredNotes.length > 0 ? (
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
-                {filteredNotes.map((note, i) => {
-                   const isOwnNote = note.authorId === user?.uid;
-                   return (
-                     <NoteCard 
-                        key={note._id || i}
-                        note={note}
-                        index={i}
-                        locked={false}
-                        onView={handleView}
-                        onDownload={handleDownload}
-                        onDelete={isOwnNote ? handleDelete : null}
-                     />
-                   );
-                })}
-             </div>
-          ) : (
-             <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200 shadow-sm">
-                <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                   <FaSearch className="text-3xl text-green-200" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-2">No Notes Found</h3>
-                <p className="text-gray-500 max-w-sm mx-auto">
-                   There are no notes available in the "{activeTab}" tab matching your current filters.
-                </p>
-             </div>
-          )}
-
-          {/* MODALS */}
-          {isUploadOpen && (
-             <UploadModal
-                onClose={() => setIsUploadOpen(false)}
-                onUpload={handleSubmit}
-             />
-          )}
-
         </div>
-      </div>
+    </div>
   );
 }
