@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
 import api from "../../services/api";
 import {
@@ -49,6 +49,7 @@ export default function Assessments() {
 
   const navigate = useNavigate();
   const { user, refreshUser } = useUser();
+  const { streak } = useOutletContext();
 
   // ── All logic unchanged ──
   useEffect(() => {
@@ -159,7 +160,7 @@ export default function Assessments() {
                 Test your knowledge and climb the leaderboard.
               </p>
               <div className="as-badges">
-                <span className="as-badge">🔥 Streak: 5</span>
+                <span className="as-badge">🔥 Streak: {streak || 0}</span>
                 <span className="as-badge">🏆 Rank: #12</span>
               </div>
             </div>
@@ -350,7 +351,7 @@ export default function Assessments() {
                       </div>
                       <div className="as-mini-card as-mini-card--pink">
                         <div className="as-mini-card__label">Active Streak</div>
-                        <div className="as-mini-card__val">5 Days 🔥</div>
+                        <div className="as-mini-card__val">{streak || 0} Day{streak !== 1 ? 's' : ''} 🔥</div>
                       </div>
                     </div>
                   )}

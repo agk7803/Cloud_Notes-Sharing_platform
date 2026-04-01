@@ -220,6 +220,43 @@ export default function Layout() {
     const { user, loading, refreshUser } = useUser();
     const navigate = useNavigate();
     const location = useLocation();
+    
+    // Streak logic
+    const [streak, setStreak] = useState(0);
+
+    useEffect(() => {
+        if (!user) return;
+        const today = new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD
+        let storedData;
+        try {
+            storedData = JSON.parse(localStorage.getItem(`stu_streak_${user.uid}`)) || { count: 0, lastLogin: "" };
+        } catch {
+            storedData = { count: 0, lastLogin: "" };
+        }
+
+        const lastLogin = storedData.lastLogin;
+        
+        if (lastLogin !== today) {
+            let newStreak = storedData.count;
+            if (lastLogin) {
+                // Check if last login was exactly yesterday
+                const yesterday = new Date(Date.now() - 86400000).toLocaleDateString("en-CA");
+                if (lastLogin === yesterday) {
+                    newStreak += 1;
+                } else {
+                    newStreak = 1; // Streak broken
+                }
+            } else {
+                newStreak = 1; // First ever login tracker
+            }
+            
+            const updatedData = { count: newStreak, lastLogin: today };
+            localStorage.setItem(`stu_streak_${user.uid}`, JSON.stringify(updatedData));
+            setStreak(newStreak);
+        } else {
+            setStreak(storedData.count);
+        }
+    }, [user]);
 
     useEffect(() => {
         const path = location.pathname;
@@ -271,18 +308,17 @@ export default function Layout() {
                 navigate={navigate}
             />
 
-            {/* main content */}
+            {/* main content, native scrolling */}
             <div style={{
                 flex: 1,
                 display: "flex",
                 flexDirection: "column",
                 minWidth: 0,
-                height: "100vh",
-                overflowY: "auto",
+                minHeight: "100vh",
                 position: "relative",
                 zIndex: 1,
             }}>
-                <Outlet context={{ user, refreshUser }} />
+                <Outlet context={{ user, refreshUser, streak }} />
             </div>
         </div>
     );

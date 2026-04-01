@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import api from '../../services/api';
 import "../../styles/Calendar.css";
@@ -6,29 +6,7 @@ import "../../styles/Calendar.css";
 /* ════════════════════════════════════════
    STATIC DATA
 ════════════════════════════════════════ */
-const INITIAL_EVENTS = [];
-
-const TYPES = ['study', 'exam', 'deadline', 'group'];
-const TYPE_LABEL = { exam: 'Exam', study: 'Study', group: 'Group', deadline: 'Deadline' };
-const TYPE_ICON = { exam: '📋', study: '📖', group: '👥', deadline: '⏰' };
-const TYPE_EMOJI = { study: '📖 Study', exam: '📋 Exam', deadline: '⏰ Deadline', group: '👥 Group' };
-const TYPE_BG = { exam: '#7ec8c8', study: '#7ec8c8', group: '#7ec8c8', deadline: '#7ec8c8' };
-const TYPE_FG = { exam: '#1a1a2e', study: '#1a1a2e', group: '#1a1a2e', deadline: '#1a1a2e' };
-
 const todayStr = new Date().toLocaleDateString('en-CA');
-const streakDays = [todayStr, new Date(Date.now() - 86400000).toLocaleDateString('en-CA')];
-
-function Logo({ size = 20 }) {
-    return (
-        <span className="bs-logo" style={{ fontSize: size }}>
-            <span className="bs-logo__bracket">[</span>
-            <span className="bs-logo__text">byte</span>
-            <span className="bs-logo__dot">.</span>
-            <span className="bs-logo__text">scholar</span>
-            <span className="bs-logo__bracket">]</span>
-        </span>
-    );
-}
 
 const fmt = (y, m, d) => new Date(y, m, d).toLocaleDateString('en-CA');
 const fmt12 = (t) => {
@@ -122,7 +100,7 @@ function DetailCard({ selectedDate, events, onClear, onDelete, flashRef }) {
 ════════════════════════════════════════ */
 function AddCard({ selectedDate, onAdd }) {
     const [title, setTitle] = useState('');
-    const [type, setType] = useState('study');
+    const [type] = useState('study');
     const [date, setDate] = useState(selectedDate || todayStr);
     const [time, setTime] = useState('');
     const [duration, setDuration] = useState('');
@@ -236,14 +214,25 @@ function AddCard({ selectedDate, onAdd }) {
    MAIN CALENDAR
 ════════════════════════════════════════ */
 export default function Calendar() {
-    const { user } = useOutletContext();
+    const { user, streak } = useOutletContext();
     const [events, setEvents] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(null);
-    const [activeView, setActiveView] = useState('month');
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQuery] = useState('');
     const detailCardRef = useRef(null);
+
+    // Dynamic Streak Days Calculator
+    const streakDays = useMemo(() => {
+        const days = [];
+        const todayAtMidnight = new Date();
+        todayAtMidnight.setHours(0, 0, 0, 0); // standardize to local midnight
+
+        for (let i = 0; i < (streak || 0); i++) {
+            const d = new Date(todayAtMidnight.getTime() - i * 86400000);
+            days.push(d.toLocaleDateString('en-CA'));
+        }
+        return days;
+    }, [streak]);
 
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -270,15 +259,12 @@ export default function Calendar() {
     const fetchEvents = useCallback(async () => {
         if (!user) return;
         try {
-            setLoading(true);
             const res = await api.get('/events');
             // Backend returns _id, frontend expects id for existing code compatibility
             const normalized = res.data.map(ev => ({ ...ev, id: ev._id }));
             setEvents(normalized);
         } catch (error) {
             console.error("Failed to fetch events:", error);
-        } finally {
-            setLoading(false);
         }
     }, [user]);
 
@@ -300,7 +286,7 @@ export default function Calendar() {
             setSelectedDate(saved.date);
 
             // Auto-navigate to the added event's month
-            const [y, m, d] = saved.date.split('-').map(Number);
+            const [y, m] = saved.date.split('-').map(Number);
             setCurrentDate(new Date(y, m - 1, 1));
 
             if (detailCardRef.current) {
