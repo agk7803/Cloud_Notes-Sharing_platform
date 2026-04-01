@@ -72,53 +72,6 @@ function Dots() {
   );
 }
 
-function CodeBlock({ lang, code }) {
-  const [copied, setCopied] = useState(false);
-  const copy = () => {
-    navigator.clipboard.writeText(code).catch(() => { });
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  };
-  return (
-    <div className="bs-code-block">
-      <div className="bs-code-block__header">
-        <span className="bs-code-block__lang">{lang?.toUpperCase() || "CODE"}</span>
-        <button
-          className="bs-code-block__copy"
-          onClick={copy}
-          style={{ color: copied ? PLM.green : PLM.muted }}
-        >
-          {copied ? "Copied!" : "Copy"}
-        </button>
-      </div>
-      <pre className="bs-code-block__pre">{code}</pre>
-    </div>
-  );
-}
-
-function TextPart({ text }) {
-  return (
-    <div>
-      {text.split("\n").map((line, li) => {
-        if (!line.trim()) return <br key={li} />;
-        const segs = [];
-        const re = /\*\*(.*?)\*\*|`([^`]+)`/g;
-        let last = 0, m;
-        while ((m = re.exec(line)) !== null) {
-          if (m.index > last) segs.push(<span key={`t${last}`}>{line.slice(last, m.index)}</span>);
-          if (m[1] !== undefined)
-            segs.push(<strong key={`b${m.index}`} style={{ color: PLM.text, fontWeight: 600 }}>{m[1]}</strong>);
-          if (m[2] !== undefined)
-            segs.push(<code key={`c${m.index}`} className="bs-inline-code">{m[2]}</code>);
-          last = m.index + m[0].length;
-        }
-        if (last < line.length) segs.push(<span key={`e${last}`}>{line.slice(last)}</span>);
-        return <p key={li} style={{ marginBottom: 7, lineHeight: 1.75 }}>{segs.length ? segs : line}</p>;
-      })}
-    </div>
-  );
-}
-
 function MsgBody({ text }) {
   return (
     <div className="react-markdown-container">
@@ -321,7 +274,7 @@ export default function AcademicAI() {
       }
       setLoading(false);
     }
-  }, [input, loading, sessions]);
+  }, [input, loading, sessions, activeTools]);
 
   const handleKey = (e) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }

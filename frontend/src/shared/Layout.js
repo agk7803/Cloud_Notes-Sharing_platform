@@ -333,7 +333,6 @@ export default function Layout() {
                 minWidth: 0,
                 minHeight: "100vh",
                 position: "relative",
-                zIndex: 1,
             }}>
                 <Outlet context={{ user, refreshUser, streak }} />
             </div>

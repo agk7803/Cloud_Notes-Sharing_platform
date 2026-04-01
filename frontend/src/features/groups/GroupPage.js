@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useOutletContext, useNavigate } from 'react-router-dom';
-import { FaUsers, FaGlobe, FaLock, FaTrash, FaDownload, FaEye, FaUserPlus, FaChevronLeft, FaFileUpload, FaSearch } from 'react-icons/fa';
+import { FaGlobe, FaLock, FaUserPlus, FaChevronLeft, FaFileUpload, FaSearch } from 'react-icons/fa';
 
 import api from '../../services/api';
 import GroupChat from './GroupChat';
@@ -9,7 +9,7 @@ import NoteCard from '../notes/components/NoteCard';
 import NoteSkeleton from '../notes/components/NoteSkeleton';
 import UploadModal from '../notes/UploadModal';
 import { C } from '../../shared/theme';
-import { getSubjectColor, getAvatarColor, getFileIcon, getViewUrl, ROLE_STYLES } from './Constants';
+import { getAvatarColor } from './Constants';
 import '../../styles/GroupPage.css';
 
 // ─── Shared Avatar ─────────────────────────────────────────────────────────────
@@ -44,18 +44,6 @@ const NotesTab = ({ groupId, isCreator, user }) => {
             .catch(() => { })
             .finally(() => setLoading(false));
     }, [groupId]);
-
-    const handleUpload = async (file) => {
-        const form = new FormData();
-        form.append('file', file);
-        form.append('groupId', groupId);
-        try {
-            const res = await api.post('/notes/upload', form);
-            setNotes(prev => [res.data, ...prev]);
-        } catch (err) {
-            alert(err.response?.data?.message || 'Update failed');
-        }
-    };
 
     const handleDelete = async (id) => {
         if (!window.confirm("Delete this material permanently?")) return;
@@ -179,7 +167,6 @@ const GroupPage = () => {
     if (!group) return <div className="gp-page" style={{ alignItems: 'center', justifyContent: 'center' }}>Authenticating Hub...</div>;
 
     const isCreator = group.creatorId === user?.uid;
-    const sc = getSubjectColor(group.subject);
 
     return (
         <div className="gp-page">

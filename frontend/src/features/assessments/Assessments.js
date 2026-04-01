@@ -5,7 +5,7 @@ import api from "../../services/api";
 import {
   FaArrowLeft, FaCheck, FaChevronDown, FaChevronUp,
   FaBookOpen, FaPlayCircle, FaFileAlt, FaTrophy,
-  FaPlus, FaTimes, FaTrash, FaDownload, FaEye
+  FaPlus, FaTimes, FaTrash, FaEye
 } from 'react-icons/fa';
 import { useUser } from '../../shared/UserContext';
 

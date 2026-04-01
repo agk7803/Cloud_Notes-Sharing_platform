@@ -2,7 +2,7 @@ import React from 'react';
 import Icon from '../../../shared/components/Icon';
 import { C } from '../../../shared/theme';
 
-const FREE_LIMIT = 3;
+const FREE_LIMIT = 10;
 
 export default function LockModal({ onClose, freeUsed = 3 }) {
   return (

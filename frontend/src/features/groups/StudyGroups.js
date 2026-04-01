@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
-import { FaGlobe, FaLock, FaSearch, FaUsers, FaArrowRight, FaPlus } from 'react-icons/fa';
+import { FaGlobe, FaLock, FaSearch, FaUsers, FaPlus } from 'react-icons/fa';
 
 import api from '../../services/api';
 import CreateGroupModal from './Creategroupmodal';
@@ -55,8 +55,6 @@ const StudyGroups = () => {
     const [groups, setGroups] = useState([]);
     const [myGroups, setMyGroups] = useState([]);
     const [search, setSearch] = useState('');
-    const [subjectFilter, setSubjectFilter] = useState('');
-    const [typeFilter, setTypeFilter] = useState('');
     const [activeTab, setActiveTab] = useState('discovery');
     const [showCreate, setShowCreate] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -99,13 +97,8 @@ const StudyGroups = () => {
 
     const displayGroups = activeTab === 'discovery' ? groups : myGroups;
     const filtered = displayGroups.filter(g => {
-        const inSearch = !search || g.name.toLowerCase().includes(search.toLowerCase()) || g.subject?.toLowerCase().includes(search.toLowerCase());
-        const inSubject = !subjectFilter || g.subject === subjectFilter;
-        const inType = !typeFilter || g.type === typeFilter;
-        return inSearch && inSubject && inType;
+        return !search || g.name.toLowerCase().includes(search.toLowerCase()) || g.subject?.toLowerCase().includes(search.toLowerCase());
     });
-
-    const subjects = [...new Set(groups.map(g => g.subject))];
 
     return (
         <div className="sg-page">

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import {
     FaClock, FaChevronLeft, FaChevronRight, FaCheckCircle,
-    FaTimesCircle, FaTrophy, FaExclamationTriangle
+    FaTimesCircle, FaExclamationTriangle
 } from 'react-icons/fa';
 import { useUser } from '../../shared/UserContext';
 
@@ -58,36 +58,7 @@ export default function TakeAssessment() {
         fetchAssessment();
     }, [id]);
 
-    // ── Timer (unchanged) ──
-    useEffect(() => {
-        if (loading || isSubmitted || !timeLeft) return;
-        const timer = setInterval(() => {
-            setTimeLeft((prev) => {
-                if (prev <= 1) { clearInterval(timer); handleSubmit(); return 0; }
-                return prev - 1;
-            });
-        }, 1000);
-        return () => clearInterval(timer);
-    }, [loading, isSubmitted, timeLeft]);
-
-    // ── Keyboard nav (unchanged) ──
-    const handleKeyDown = useCallback((e) => {
-        if (isSubmitted || loading || !assessment) return;
-        if (e.key === 'ArrowLeft') {
-            setCurrentIdx(prev => Math.max(0, prev - 1));
-        } else if (e.key === 'ArrowRight') {
-            const total = assessment.questions.length;
-            if (currentIdx < total - 1 && answers[currentIdx] !== undefined)
-                setCurrentIdx(prev => Math.min(total - 1, prev + 1));
-        }
-    }, [isSubmitted, loading, assessment, currentIdx, answers]);
-
-    useEffect(() => {
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [handleKeyDown]);
-
-    // ── Helpers (unchanged) ──
+    // ── Helpers ──
     const formatTime = (seconds) => {
         const m = Math.floor(seconds / 60);
         const s = seconds % 60;
@@ -98,7 +69,7 @@ export default function TakeAssessment() {
         setAnswers(prev => ({ ...prev, [currentIdx]: val }));
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = useCallback(async () => {
         if (!assessment) return;
         if (timeLeft > 0 && !window.confirm("Are you sure you want to submit your assessment?")) return;
         try {
@@ -121,7 +92,36 @@ export default function TakeAssessment() {
             console.error("Submit error:", err);
             alert("Failed to submit assessment. Please try again.");
         }
-    };
+    }, [assessment, timeLeft, answers, id, refreshUser]);
+
+    // ── Timer ──
+    useEffect(() => {
+        if (loading || isSubmitted || !timeLeft) return;
+        const timer = setInterval(() => {
+            setTimeLeft((prev) => {
+                if (prev <= 1) { clearInterval(timer); handleSubmit(); return 0; }
+                return prev - 1;
+            });
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [loading, isSubmitted, timeLeft, handleSubmit]);
+
+    // ── Keyboard nav ──
+    const handleKeyDown = useCallback((e) => {
+        if (isSubmitted || loading || !assessment) return;
+        if (e.key === 'ArrowLeft') {
+            setCurrentIdx(prev => Math.max(0, prev - 1));
+        } else if (e.key === 'ArrowRight') {
+            const total = assessment.questions.length;
+            if (currentIdx < total - 1 && answers[currentIdx] !== undefined)
+                setCurrentIdx(prev => Math.min(total - 1, prev + 1));
+        }
+    }, [isSubmitted, loading, assessment, currentIdx, answers]);
+
+    useEffect(() => {
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [handleKeyDown]);
 
     /* ─── LOADING ─── */
     if (loading) {
@@ -266,6 +266,21 @@ export default function TakeAssessment() {
                         </div>
 
                         <div className="ta-header__right">
+                            <button
+                                onClick={() => {
+                                    if (window.confirm("Are you sure you want to exit? Your current progress will not be saved.")) {
+                                        navigate('/assessments');
+                                    }
+                                }}
+                                className="btn-press"
+                                style={{
+                                    background: 'rgba(0,0,0,0.04)', color: '#64748b', border: 'none', borderRadius: 10,
+                                    padding: '8px 16px', fontSize: 11, fontWeight: 850, cursor: 'pointer',
+                                    display: 'flex', alignItems: 'center', gap: 6, textTransform: 'uppercase', letterSpacing: '0.5px'
+                                }}
+                            >
+                                <FaTimesCircle size={14} /> Exit
+                            </button>
                             <div className={`ta-timer${timeLeft < 120 ? ' ta-timer--warn' : ''}`}>
                                 <FaClock className={timeLeft < 120 ? "animate-pulse" : ""} />
                                 <span className="font-mono">{formatTime(timeLeft)}</span>

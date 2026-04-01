@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { io } from 'socket.io-client';
-import { FaPaperPlane, FaMicrophone, FaStop, FaTrash, FaCheck, FaReply, FaUsers, FaRobot } from 'react-icons/fa';
+import { FaPaperPlane, FaMicrophone, FaStop, FaRobot } from 'react-icons/fa';
 
 import api from '../../services/api';
 import { getAvatarColor } from './Constants';
