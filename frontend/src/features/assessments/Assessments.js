@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
 import api from "../../services/api";
 import {
-  FaClock, FaArrowLeft, FaCheck, FaChevronDown, FaChevronUp,
+  FaArrowLeft, FaCheck, FaChevronDown, FaChevronUp,
   FaBookOpen, FaPlayCircle, FaFileAlt, FaTrophy,
   FaPlus, FaTimes, FaTrash, FaDownload, FaEye
 } from 'react-icons/fa';
@@ -70,7 +70,7 @@ export default function Assessments() {
       }
     };
     fetchData();
-  }, []);
+  }, [refreshUser]);
 
   const handleStartTest = (testId) => navigate(`/assessment/${testId}`);
   const handlePrepare = (subject) => navigate('/view', { state: { subject } });
