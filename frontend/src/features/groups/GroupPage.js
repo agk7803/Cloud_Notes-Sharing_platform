@@ -156,11 +156,11 @@ const GroupPage = () => {
                         <div style={{ maxWidth: 800 }}>
                             <div style={{ fontSize: 11, fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 20 }}>Group Members · {members.length}</div>
                             {members.map(m => (
-                                <div key={m._id} className="gp-member-item">
-                                    <Avatar name={m.name} uid={m._id} size={36} />
+                                <div key={m.firebaseUid} className="gp-member-item">
+                                    <Avatar name={m.name} uid={m.firebaseUid} size={36} />
                                     <div style={{ flex: 1 }}>
                                         <div style={{ fontWeight: 850, fontSize: 13, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 6 }}>
-                                            {m.name} {m._id === user?.uid && <span style={{ fontSize: 9, padding: '2px 6px', background: '#e0f5f5', color: '#1a7a7a', borderRadius: 4 }}>YOU</span>}
+                                            {m.name} {(m.firebaseUid === user?.uid) && <span style={{ fontSize: 9, padding: '2px 6px', background: '#e0f5f5', color: '#1a7a7a', borderRadius: 4 }}>YOU</span>}
                                         </div>
                                         <div style={{ fontSize: 11, color: '#64748b' }}>{m.email}</div>
                                     </div>

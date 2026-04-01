@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Group = require('../models/Group');
 const Note = require('../models/Note');
+const User = require('../models/User');
 
 // @desc    Create a new group
 // @route   POST /api/groups
@@ -137,10 +138,35 @@ const leaveGroup = async (req, res) => {
     }
 };
 
+// @desc    Get all members in a group
+// @route   GET /api/groups/:id/members
+// @access  Private
+const getGroupMembers = async (req, res) => {
+    try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ message: 'Invalid Group ID' });
+        }
+        const group = await Group.findById(req.params.id);
+        if (!group) {
+            return res.status(404).json({ message: 'Group not found' });
+        }
+
+        // Find users based on the Firebase UIDs stored in the members array
+        const members = await User.find({
+            firebaseUid: { $in: group.members }
+        }).select('name email profilePicture firebaseUid');
+
+        res.json(members);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     createGroup,
     getGroups,
     getGroupById,
     joinGroup,
-    leaveGroup
+    leaveGroup,
+    getGroupMembers
 };

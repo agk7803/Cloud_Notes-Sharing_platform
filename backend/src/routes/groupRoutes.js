@@ -5,7 +5,8 @@ const {
     getGroups,
     getGroupById,
     joinGroup,
-    leaveGroup
+    leaveGroup,
+    getGroupMembers
 } = require('../controllers/groupController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -20,6 +21,9 @@ router.route('/:id')
 
 router.route('/:id/leave')
     .post(leaveGroup);
+
+router.route('/:id/members')
+    .get(getGroupMembers);
 
 // Chat Routes
 const { getGroupChats } = require('../controllers/chatController');
