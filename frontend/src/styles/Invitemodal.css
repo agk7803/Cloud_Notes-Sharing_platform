@@ -1,15 +1,16 @@
 /* ═══════════════════════════════════════════════
-   Invitemodal.css
+   Invitemodal.css — "ByteScholar Professional"
+   Premium Invite Interface for Academic Hubs.
 ═══════════════════════════════════════════════ */
 
 .inv-modal-box {
-    width: 440px;
+    width: 460px;
     max-width: 94vw;
 }
 
 /* ── Header ── */
 .inv-header {
-    padding: 22px 26px 16px;
+    padding: 24px 28px 18px;
     border-bottom: 1px solid #f1f5f9;
     display: flex;
     justify-content: space-between;
@@ -18,84 +19,103 @@
 
 .inv-header__title {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-weight: 800;
-    font-size: 17px;
-    color: #1e293b;
-    margin-bottom: 3px;
+    font-weight: 850;
+    font-size: 18px;
+    color: #0f172a;
+    letter-spacing: -0.01em;
 }
 
 .inv-header__sub {
-    font-size: 12px;
+    font-size: 13px;
     color: #94a3b8;
+    margin-top: 2px;
 }
 
 .inv-close {
     background: #f1f5f9;
     border: none;
     border-radius: 8px;
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 14px;
     color: #64748b;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all .15s;
+    transition: all .2s;
 }
 
 .inv-close:hover {
     background: #e2e8f0;
+    color: #1e293b;
+    transform: rotate(90deg);
 }
 
 /* ── Body ── */
 .inv-body {
-    padding: 20px 26px 24px;
+    padding: 24px 28px 28px;
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 20px;
 }
 
-/* Copy link row */
-.inv-link-row {
+.inv-group {
     display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.inv-label {
+    font-size: 11px;
+    font-weight: 850;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: flex;
+    align-items: center;
     gap: 8px;
 }
 
-.inv-link-box {
+/* Link Row */
+.inv-link-row {
+    display: flex;
+    gap: 10px;
+}
+
+.inv-box {
     flex: 1;
-    padding: 9px 12px;
-    border-radius: 9px;
+    padding: 12px 16px;
+    background: #f8fafc;
     border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
     font-size: 12px;
     color: #64748b;
-    background: #f8fafc;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    font-family: 'Fira Code', monospace;
 }
 
-.inv-copy-btn {
-    padding: 9px 16px;
-    border-radius: 9px;
+.inv-btn-copy {
+    padding: 12px 20px;
+    border-radius: 12px;
     border: none;
-    font-weight: 700;
-    font-size: 12px;
+    font-weight: 800;
+    font-size: 13px;
     cursor: pointer;
     font-family: inherit;
-    display: flex;
-    align-items: center;
-    gap: 5px;
     transition: all .2s;
     flex-shrink: 0;
 }
 
-.inv-copy-btn--default {
+.inv-btn-copy--default {
     background: linear-gradient(135deg, #7ec8c8, #1a7a7a);
     color: #fff;
+    box-shadow: 0 4px 12px rgba(126, 200, 200, 0.2);
 }
 
-.inv-copy-btn--copied {
+.inv-btn-copy--copied {
     background: #e0f5f5;
     color: #1a7a7a;
 }
@@ -104,7 +124,7 @@
 .inv-divider {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
 .inv-divider::before,
@@ -117,60 +137,70 @@
 
 .inv-divider span {
     font-size: 11px;
+    font-weight: 800;
     color: #94a3b8;
-    font-weight: 600;
-    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
-/* Email row */
-.inv-email-row {
-    display: flex;
-    gap: 8px;
+/* Email Input */
+.inv-input-modern {
+    width: 100%;
+    padding: 12px 16px;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #0f172a;
+    transition: all .2s;
 }
 
-.inv-send-btn {
-    padding: 9px 16px;
-    border-radius: 9px;
+.inv-input-modern:focus {
+    background: #fff;
+    border-color: #7ec8c8;
+    box-shadow: 0 0 0 4px rgba(126, 200, 200, 0.1);
+    outline: none;
+}
+
+.inv-btn-send {
+    padding: 12px 24px;
+    border-radius: 12px;
     border: none;
-    font-weight: 700;
-    font-size: 12px;
+    font-weight: 850;
+    font-size: 13px;
     cursor: pointer;
     font-family: inherit;
     transition: all .2s;
-    flex-shrink: 0;
-}
-
-.inv-send-btn--default {
     background: linear-gradient(135deg, #00c96e, #1a7a7a);
     color: #fff;
+    box-shadow: 0 4px 14px rgba(0, 201, 110, 0.2);
 }
 
-.inv-send-btn--sent {
-    background: #e0ffe8;
-    color: #166534;
+.inv-btn-send:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(0, 201, 110, 0.3);
 }
 
-.inv-send-btn--disabled {
-    background: #e2e8f0;
-    color: #94a3b8;
-    cursor: not-allowed;
-}
-
-/* Private notice */
+/* Notice */
 .inv-notice {
     display: flex;
-    gap: 10px;
-    padding: 12px 14px;
-    border-radius: 10px;
+    gap: 12px;
+    padding: 14px;
     background: #fff7ed;
-    border: 1px solid #fcd9a0;
+    border: 1px solid #fed7aa;
+    border-radius: 12px;
     font-size: 12px;
-    color: #92400e;
-    line-height: 1.55;
+    color: #9a3412;
+    line-height: 1.6;
 }
 
 .inv-error {
     font-size: 12px;
+    font-weight: 700;
     color: #ef4444;
-    margin-top: 6px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    padding: 8px 12px;
+    border-radius: 8px;
 }

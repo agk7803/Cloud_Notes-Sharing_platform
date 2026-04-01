@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Group = require('../models/Group');
 const Note = require('../models/Note');
 
@@ -61,6 +62,9 @@ const getGroups = async (req, res) => {
 // @access  Private
 const getGroupById = async (req, res) => {
     try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ message: 'Invalid Group ID' });
+        }
         const group = await Group.findById(req.params.id);
 
         if (!group) {
@@ -83,6 +87,9 @@ const getGroupById = async (req, res) => {
 // @access  Private
 const joinGroup = async (req, res) => {
     try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ message: 'Invalid Group ID' });
+        }
         const group = await Group.findById(req.params.id);
 
         if (!group) {
@@ -111,6 +118,9 @@ const joinGroup = async (req, res) => {
 // @access  Private
 const leaveGroup = async (req, res) => {
     try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ message: 'Invalid Group ID' });
+        }
         const group = await Group.findById(req.params.id);
 
         if (!group) {
