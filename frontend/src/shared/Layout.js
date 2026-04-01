@@ -142,13 +142,13 @@ const Sidebar = ({ active, setActive, onLogout, navigate }) => {
                                 style={{
                                     width: "100%",
                                     display: "flex", alignItems: "center",
-                                    gap: 10,
-                                    padding: "10px 12px",
+                                    gap: 12,
+                                    padding: "12px 14px",
                                     borderRadius: 14,
                                     border: "none",
                                     cursor: "pointer",
                                     fontFamily: "'Plus Jakarta Sans', sans-serif",
-                                    fontSize: 13,
+                                    fontSize: 15,
                                     fontWeight: 700,
                                     justifyContent: collapsed ? "center" : "flex-start",
                                     background: isActive
@@ -174,7 +174,7 @@ const Sidebar = ({ active, setActive, onLogout, navigate }) => {
                                     }
                                 }}
                             >
-                                <span style={{ fontSize: 15, flexShrink: 0 }}>{item.icon}</span>
+                                <span style={{ fontSize: 17, flexShrink: 0 }}>{item.icon}</span>
                                 {!collapsed && <span>{item.label}</span>}
                             </button>
                         );
@@ -187,13 +187,13 @@ const Sidebar = ({ active, setActive, onLogout, navigate }) => {
                 onClick={onLogout}
                 title={collapsed ? "Logout" : ""}
                 style={{
-                    display: "flex", alignItems: "center", gap: 10,
-                    padding: "10px 12px",
+                    display: "flex", alignItems: "center", gap: 12,
+                    padding: "12px 14px",
                     borderRadius: 14,
                     border: "none",
                     cursor: "pointer",
                     fontFamily: "'Plus Jakarta Sans', sans-serif",
-                    fontSize: 13,
+                    fontSize: 15,
                     fontWeight: 700,
                     justifyContent: collapsed ? "center" : "flex-start",
                     background: "transparent",
@@ -206,7 +206,7 @@ const Sidebar = ({ active, setActive, onLogout, navigate }) => {
                 onMouseEnter={e => { e.currentTarget.style.background = "#fef2f2"; }}
                 onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
             >
-                <FaSignOutAlt style={{ fontSize: 15, flexShrink: 0 }} />
+                <FaSignOutAlt style={{ fontSize: 17, flexShrink: 0 }} />
                 {!collapsed && <span>Logout</span>}
             </button>
         </aside>
