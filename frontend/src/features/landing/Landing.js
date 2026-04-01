@@ -746,7 +746,8 @@ export default function Landing() {
           position: 'relative',
           overflow: 'hidden'
         }}>
-          {/* Blobs for depth - subtle opacity */}
+          {/* Grid and Blobs for depth */}
+          <div className="ln-grid" />
           <div className="ln-bg" style={{ opacity: 0.5 }}>
             <div className="ln-blob-teal" style={{ top: '10%', left: '70%', width: '45%', height: '45%' }} />
             <div className="ln-blob-pink" style={{ top: '60%', left: '-5%', width: '40%', height: '40%' }} />

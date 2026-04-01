@@ -6,6 +6,7 @@ import Icon from '../../shared/components/Icon';
 import NoteCard from './components/NoteCard';
 import NoteSkeleton from './components/NoteSkeleton';
 import LockModal from './components/LockModal';
+import '../landing/Landing.css'; // Import Landing CSS for background
 import './NotesExplorer.css';
 
 const SORT_OPTIONS = [
@@ -143,12 +144,16 @@ export default function NotesExplorer() {
 
   return (
     <div className="ne-root">
-      <div className="ne-bg">
-        <div className="ne-bg__blob" style={{ background: 'rgba(126, 200, 200, 0.15)', top: '5%', left: '0%', width: '50vw', height: '50vw' }} />
-        <div className="ne-bg__blob" style={{ background: 'rgba(249, 168, 201, 0.12)', bottom: '5%', right: '0%', width: '45vw', height: '45vw', animationDelay: '-5s' }} />
-        <div className="ne-bg__blob" style={{ background: 'rgba(254, 215, 170, 0.1)', top: '30%', left: '40%', width: '40vw', height: '40vw', animationDelay: '-8s' }} />
+      <div style={{ 
+        position: 'fixed', inset: 0, zIndex: 0, 
+        background: 'linear-gradient(135deg,#e8faf0 0%,#f0fdf8 40%,#fce7f3 75%,#ccfbf1 100%)'
+      }} />
+      <div className="ln-grid" style={{ position: 'fixed', inset: 0, zIndex: 0 }} />
+      <div className="ln-bg" style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
+        <div className="ln-blob-teal" />
+        <div className="ln-blob-pink" />
+        <div className="ln-blob-sage" />
       </div>
-      <div className="ne-grid" />
 
       <div className="ne-wrap">
         <header className="ne-header">
