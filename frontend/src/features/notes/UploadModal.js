@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaCloudUploadAlt, FaTimes } from 'react-icons/fa';
 import api from '../../services/api';
 
-const SUBJECTS = ["Machine Learning", "Compiler Design", "Computer Networks", "Software Engineering", "Cloud Computing", "Web Engineering", "Other"];
+const SUBJECTS = ["Machine Learning", "Compiler Design", "Computer Networks", "Software Engineering", "Cloud Computing", "Other"];
 
 const UploadModal = ({ onClose, onUpload }) => {
     const [title, setTitle] = useState('');

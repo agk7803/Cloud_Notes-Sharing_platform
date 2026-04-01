@@ -11,7 +11,7 @@ import { C } from '../../shared/theme'; // High-authority gradients
 
 const SUBJECTS = [
   "Machine Learning", "Compiler Design", "Computer Networks", 
-  "Software Engineering", "Cloud Computing", "Web Engineering", "Other"
+  "Software Engineering", "Cloud Computing", "Other"
 ];
 
 const MONTHS = [

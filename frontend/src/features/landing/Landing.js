@@ -57,9 +57,6 @@ const TOPICS = [
   "Computer Networks",
   "Software Engineering",
   "Cloud Computing",
-  "Web Engineering",
-  "Data Structures",
-  "Calculus",
   "Other"
 ];
 const PASTELS = [C.paleLavender, C.paleRose, C.paleTeal, C.paleOrange, C.mintBg, C.peach];
@@ -638,7 +635,7 @@ export default function Landing() {
                 letterSpacing: '-1.5px', color: '#0f172a', maxWidth: 840, marginBottom: 40
               }}>
               Your ultimate shortcut to{' '}
-              <span style={{ 
+              <span style={{
                 background: `linear-gradient(135deg, ${C.green}, ${C.teal})`,
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
@@ -695,7 +692,7 @@ export default function Landing() {
               <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginTop: 28, flexWrap: 'wrap' }}>
                 {[
                   { icon: 'search', txt: 'Search instantly' },
-                  { icon: 'eye', txt: 'Preview 3 free' },
+                  { icon: 'eye', txt: 'Preview 10 free' },
                   { icon: 'lock', txt: 'Unlock full access' }
                 ].map(f => (
                   <div key={f.txt} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: '#4b5563' }}>
@@ -727,17 +724,17 @@ export default function Landing() {
         <section style={{ background: '#fff', padding: '40px 24px 60px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 20 }}>
             {dynamicStats.map((s, i) => (
-                <div key={i} className={`stat-card ${i % 2 === 0 ? 'asym-up' : 'asym-down'}`}
-                  style={{
-                    borderRadius: 24, padding: '32px 20px',
-                    background: PASTELS[i % PASTELS.length], 
-                    border: '1.5px solid rgba(15, 23, 42, 0.08)',
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-                    boxShadow: '0 12px 32px rgba(15, 23, 42, 0.06)'
-                  }}>
-                  <span style={{ fontSize: 34, fontWeight: 900, color: '#0f172a', letterSpacing: '-1.5px' }}>{s.value}</span>
-                  <span style={{ fontSize: 13, fontWeight: 900, color: '#1e293b', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.8px' }}>{s.label}</span>
-                </div>
+              <div key={i} className={`stat-card ${i % 2 === 0 ? 'asym-up' : 'asym-down'}`}
+                style={{
+                  borderRadius: 24, padding: '32px 20px',
+                  background: PASTELS[i % PASTELS.length],
+                  border: '1.5px solid rgba(15, 23, 42, 0.08)',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                  boxShadow: '0 12px 32px rgba(15, 23, 42, 0.06)'
+                }}>
+                <span style={{ fontSize: 34, fontWeight: 900, color: '#0f172a', letterSpacing: '-1.5px' }}>{s.value}</span>
+                <span style={{ fontSize: 13, fontWeight: 900, color: '#1e293b', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.8px' }}>{s.label}</span>
+              </div>
             ))}
           </div>
         </section>

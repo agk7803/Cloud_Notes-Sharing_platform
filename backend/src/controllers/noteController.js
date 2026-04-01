@@ -290,9 +290,6 @@ const getNoteSubjects = async (req, res) => {
             "Computer Networks",
             "Software Engineering",
             "Cloud Computing",
-            "Web Engineering",
-            "Data Structures",
-            "Calculus",
             "Other"
         ];
         res.json(subjects);

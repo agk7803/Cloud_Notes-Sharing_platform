@@ -12,7 +12,7 @@ import { useUser } from '../../shared/UserContext';
 import '../../styles/Assessments.css';
 
 
-const SUBJECTS = ["Machine Learning", "Compiler Design", "Computer Networks", "Software Engineering", "Cloud Computing", "Web Engineering"];
+const SUBJECTS = ["Machine Learning", "Compiler Design", "Computer Networks", "Software Engineering", "Cloud Computing", "Other"];
 
 const CountUp = ({ end, duration = 2000 }) => {
   const [count, setCount] = useState(0);
