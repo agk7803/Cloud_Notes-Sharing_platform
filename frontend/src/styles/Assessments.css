@@ -80,7 +80,7 @@
 .as-root {
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
     min-height: 100vh;
-    background: var(--cream);
+    background: transparent;
     position: relative;
     color: var(--text);
     overflow-x: hidden;

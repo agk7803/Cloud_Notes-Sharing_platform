@@ -168,17 +168,7 @@ export default function ViewNotes() {
   return (
     <div className="relative overflow-x-clip" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       
-      {/* ══════ EXACT LANDING HERO BACKGROUND (FIXED TO VIEWPORT) ══════ */}
-      <div style={{ 
-        position: 'fixed', inset: 0, zIndex: 0, 
-        background: 'linear-gradient(135deg,#e8faf0 0%,#f0fdf8 40%,#fce7f3 75%,#ccfbf1 100%)'
-      }} />
-      <div className="ln-grid" style={{ position: 'fixed', inset: 0, zIndex: 0 }} />
-      <div className="ln-bg" style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
-        <div className="ln-blob-teal" />
-        <div className="ln-blob-pink" />
-        <div className="ln-blob-sage" />
-      </div>
+      {/* ══════ USING GLOBAL BACKGROUND FROM LAYOUT ══════ */}
 
       {/* ══════ DASHBOARD CONTENT ══════ */}
       <div style={{ position: 'relative', zIndex: 10, padding: '60px 24px 100px', flex: 1 }}>

@@ -52,16 +52,15 @@ const menuItems = [
     { id: "academic-ai", label: "Academic AI",  icon: <FaRobot />,        path: "/academic-ai" },
 ];
 
-const Sidebar = ({ active, setActive, onLogout, navigate }) => {
-    const [collapsed, setCollapsed] = useState(false);
+const Sidebar = ({ active, setActive, onLogout, navigate, collapsed, setCollapsed }) => {
 
     return (
         <div style={{
-            position: "sticky",
+            position: "fixed",
             top: 16,
+            left: 16,
             height: "calc(100vh - 32px)",
             flexShrink: 0,
-            margin: "16px 0 16px 16px",
             width: collapsed ? 72 : 268,
             transition: "width 0.3s cubic-bezier(.22,1,.36,1)",
             zIndex: 50,
@@ -92,46 +91,44 @@ const Sidebar = ({ active, setActive, onLogout, navigate }) => {
             height: "100%",
             display: "flex",
             flexDirection: "column",
-            justifyContent: "space-between",
             borderRadius: 24,
             background: T.glass,
-            backdropFilter: "blur(18px)",
-            WebkitBackdropFilter: "blur(18px)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
             border: `1px solid ${T.border}`,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.08), 0 1px 0 rgba(255,255,255,0.6) inset",
-            padding: "20px 12px",
+            boxShadow: "0 10px 40px rgba(0,0,0,0.06), 0 1px 0 rgba(255,255,255,0.7) inset",
+            padding: "24px 14px",
             overflow: "hidden",
+            justifyContent: "space-between",
         }}>
 
-
-
             <div>
-                {/* logo */}
+                {/* ── Logo ── */}
                 <div style={{
-                    display: "flex", alignItems: "center", gap: 10,
-                    paddingLeft: collapsed ? 4 : 8, marginBottom: 28,
+                    display: "flex", alignItems: "center", gap: 12,
+                    paddingLeft: collapsed ? 0 : 10, marginBottom: 36,
                     justifyContent: collapsed ? "center" : "flex-start",
-                    overflow: "hidden",
                 }}>
                     <div style={{
-                        width: 36, height: 36, borderRadius: 10, overflow: "hidden",
-                        flexShrink: 0, boxShadow: "0 4px 12px rgba(29,201,98,0.20)",
+                        width: 40, height: 40, borderRadius: 12, overflow: "hidden",
+                        flexShrink: 0, boxShadow: "0 6px 16px rgba(13,148,136,0.18)",
+                        background: "#fff", padding: 2, border: "1px solid rgba(13,148,136,0.12)",
                     }}>
-                        <img src={logo} alt="StuNotes" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        <img src={logo} alt="StuNotes" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 10 }} />
                     </div>
                     {!collapsed && (
                         <span style={{
-                            fontSize: 17, fontWeight: 900, color: T.dark,
-                            letterSpacing: "-0.5px", whiteSpace: "nowrap",
-                            fontFamily: "'Nunito', 'Plus Jakarta Sans', sans-serif",
+                            fontSize: 19, fontWeight: 900, color: T.dark,
+                            letterSpacing: "-0.8px", whiteSpace: "nowrap",
+                            fontFamily: "'Plus Jakarta Sans', sans-serif",
                         }}>
-                            Stu<span style={{ color: T.green }}>Notes</span>
+                            Stu<span style={{ color: T.teal }}>Notes</span>
                         </span>
                     )}
                 </div>
 
-                {/* menu */}
-                <nav style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                {/* ── Navigation ── */}
+                <nav style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     {menuItems.map((item) => {
                         const isActive = active === item.id;
                         return (
@@ -143,7 +140,8 @@ const Sidebar = ({ active, setActive, onLogout, navigate }) => {
                                     width: "100%",
                                     display: "flex", alignItems: "center",
                                     gap: 12,
-                                    padding: "12px 14px",
+                                    padding: "10px 14px",
+                                    height: 48,
                                     borderRadius: 14,
                                     border: "none",
                                     cursor: "pointer",
@@ -152,13 +150,12 @@ const Sidebar = ({ active, setActive, onLogout, navigate }) => {
                                     fontWeight: 700,
                                     justifyContent: collapsed ? "center" : "flex-start",
                                     background: isActive
-                                        ? "linear-gradient(135deg,rgba(13,148,136,0.14),rgba(29,201,98,0.10))"
+                                        ? "linear-gradient(135deg,rgba(13,148,136,0.10),rgba(13,148,136,0.04))"
                                         : "transparent",
                                     color: isActive ? T.teal : T.muted,
-                                    borderLeft: isActive ? `3px solid ${T.teal}` : "3px solid transparent",
-                                    transition: "all 0.18s cubic-bezier(.22,1,.36,1)",
-                                    boxShadow: isActive ? "0 2px 10px rgba(13,148,136,0.10)" : "none",
-                                    whiteSpace: "nowrap",
+                                    boxShadow: isActive ? "0 4px 14px rgba(13,148,136,0.08)" : "none",
+                                    transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                                    position: "relative",
                                     overflow: "hidden",
                                 }}
                                 onMouseEnter={e => {
@@ -174,41 +171,56 @@ const Sidebar = ({ active, setActive, onLogout, navigate }) => {
                                     }
                                 }}
                             >
-                                <span style={{ fontSize: 17, flexShrink: 0 }}>{item.icon}</span>
-                                {!collapsed && <span>{item.label}</span>}
+                                {isActive && (
+                                    <div style={{
+                                        position: "absolute", left: 0, top: "25%", bottom: "25%",
+                                        width: 3, background: T.teal, borderRadius: 2
+                                    }} />
+                                )}
+                                <span style={{ fontSize: 18, flexShrink: 0, opacity: isActive ? 1 : 0.8 }}>{item.icon}</span>
+                                {!collapsed && <span style={{ opacity: isActive ? 1 : 0.9 }}>{item.label}</span>}
                             </button>
                         );
                     })}
                 </nav>
             </div>
 
-            {/* logout */}
-            <button
-                onClick={onLogout}
-                title={collapsed ? "Logout" : ""}
-                style={{
-                    display: "flex", alignItems: "center", gap: 12,
-                    padding: "12px 14px",
-                    borderRadius: 14,
-                    border: "none",
-                    cursor: "pointer",
-                    fontFamily: "'Plus Jakarta Sans', sans-serif",
-                    fontSize: 15,
-                    fontWeight: 700,
-                    justifyContent: collapsed ? "center" : "flex-start",
-                    background: "transparent",
-                    color: "#ef4444",
-                    transition: "all 0.18s",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    width: "100%",
-                }}
-                onMouseEnter={e => { e.currentTarget.style.background = "#fef2f2"; }}
-                onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
-            >
-                <FaSignOutAlt style={{ fontSize: 17, flexShrink: 0 }} />
-                {!collapsed && <span>Logout</span>}
-            </button>
+            {/* ── Footer / Logout ── */}
+            <div style={{ padding: "0 2px" }}>
+                <button
+                    onClick={onLogout}
+                    title={collapsed ? "Logout" : ""}
+                    style={{
+                        display: "flex", alignItems: "center", gap: 12,
+                        padding: "12px 14px",
+                        borderRadius: 16,
+                        border: "1px solid transparent",
+                        cursor: "pointer",
+                        fontFamily: "'Plus Jakarta Sans', sans-serif",
+                        fontSize: 14,
+                        fontWeight: 800,
+                        justifyContent: collapsed ? "center" : "flex-start",
+                        background: collapsed ? "transparent" : "rgba(239, 68, 68, 0.05)",
+                        color: "#ef4444",
+                        transition: "all 0.2s ease",
+                        width: "100%",
+                        boxShadow: "none",
+                    }}
+                    onMouseEnter={e => { 
+                        e.currentTarget.style.background = "rgba(239, 68, 68, 0.12)";
+                        e.currentTarget.style.borderColor = "rgba(239, 68, 68, 0.15)";
+                        e.currentTarget.style.transform = "translateY(-1px)";
+                    }}
+                    onMouseLeave={e => { 
+                        e.currentTarget.style.background = collapsed ? "transparent" : "rgba(239, 68, 68, 0.05)";
+                        e.currentTarget.style.borderColor = "transparent";
+                        e.currentTarget.style.transform = "none";
+                    }}
+                >
+                    <FaSignOutAlt style={{ fontSize: 18, flexShrink: 0 }} />
+                    {!collapsed && <span>Sign Out</span>}
+                </button>
+            </div>
         </aside>
         </div>
     );
@@ -216,6 +228,7 @@ const Sidebar = ({ active, setActive, onLogout, navigate }) => {
 
 /* ─── layout ─── */
 export default function Layout() {
+    const [collapsed, setCollapsed] = useState(false);
     const [activeTab, setActiveTab] = useState("dashboard");
     const { user, loading, refreshUser } = useUser();
     const navigate = useNavigate();
@@ -306,11 +319,15 @@ export default function Layout() {
                 setActive={setActiveTab}
                 onLogout={handleLogout}
                 navigate={navigate}
+                collapsed={collapsed}
+                setCollapsed={setCollapsed}
             />
 
             {/* main content, native scrolling */}
             <div style={{
                 flex: 1,
+                marginLeft: collapsed ? 88 : 284, // sidebar width (72|268) + 16px gap
+                transition: "margin-left 0.3s cubic-bezier(.22,1,.36,1)",
                 display: "flex",
                 flexDirection: "column",
                 minWidth: 0,

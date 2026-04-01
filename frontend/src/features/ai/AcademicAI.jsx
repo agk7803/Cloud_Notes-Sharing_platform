@@ -453,15 +453,7 @@ export default function AcademicAI() {
         {/* ══ MAIN ══ */}
         <div className="bs-main">
 
-          {/* Mesh gradient blobs */}
-          <div className="bs-bg">
-            <div className="bs-bg__blob-teal" />
-            <div className="bs-bg__blob-pink" />
-            <div className="bs-bg__blob-sage" />
-            <div className="bs-bg__blob-accent" />
-          </div>
-          {/* Grid overlay */}
-          <div className="bs-grid" />
+          {/* ── USING GLOBAL BACKGROUND FROM LAYOUT ── */}
 
           {/* ══ LANDING ══ */}
           {!started && (

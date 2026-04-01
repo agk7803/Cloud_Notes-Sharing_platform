@@ -154,14 +154,7 @@ export default function Assessments() {
     <>
       <div className="as-root">
 
-        {/* mesh background — same as AcademicAI */}
-        <div className="as-bg">
-          <div className="as-bg__blob-teal" />
-          <div className="as-bg__blob-pink" />
-          <div className="as-bg__blob-sage" />
-          <div className="as-bg__blob-accent" />
-        </div>
-        <div className="as-grid" />
+        {/* ── USING GLOBAL BACKGROUND FROM LAYOUT ── */}
 
         <div className="as-wrap">
 

@@ -138,12 +138,11 @@ body {
 ════════════════════════════════ */
 
 .bs-root {
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: #f0faf8;
+    background: transparent;
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-    overflow: hidden;
 }
 
 /* ════════════════════════════════

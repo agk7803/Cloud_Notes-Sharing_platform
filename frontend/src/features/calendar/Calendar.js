@@ -320,10 +320,7 @@ export default function Calendar() {
             <div className="cal-content">
                 {/* ── Left: Main Calendar ── */}
                 <div className="cal-pane">
-                    <div className="cal-blob cal-blob--pink" />
-                    <div className="cal-blob cal-blob--teal" />
-                    <div className="cal-blob cal-blob--sage" />
-                    <div className="cal-blob cal-blob--accent" />
+                    {/* ── USING GLOBAL BACKGROUND FROM LAYOUT ── */}
 
                     {/* Toolbar */}
                     <div className="cal-toolbar">
