@@ -81,8 +81,12 @@ exports.generateAssessment = async (req, res) => {
         // 3️⃣ GEMINI AI GENERATION (SAME AS CHATBOT)
         // =========================================
 
+        const subjectContext = subject && subject.toLowerCase() !== "other" 
+            ? `on the subject "${subject}" ` 
+            : "";
+
         const prompt = `
-            You are an expert educator. Generate a ${difficulty} difficulty ${type} assessment on the subject "${subject}" based on the following content:
+            You are an expert educator. Generate a ${difficulty} difficulty ${type} assessment ${subjectContext}based on the following content:
             "${extractedText}"
 
             The assessment should have exactly ${questionsCount} questions.
@@ -251,5 +255,67 @@ exports.getAnswerKey = async (req, res) => {
     } catch (error) {
         console.error("PDF GENERATION ERROR:", error);
         res.status(500).json({ message: "Failed to generate answer key PDF" });
+    }
+};
+
+exports.getQuestionPaper = async (req, res) => {
+    try {
+        const assessmentId = req.params.id;
+        const assessment = await Assessment.findById(assessmentId);
+
+        if (!assessment) {
+            return res.status(404).json({ message: "Assessment not found" });
+        }
+
+        const doc = new PDFDocument({ margin: 50 });
+
+        const isDownload = req.query.download === "true";
+
+        // Set response headers
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader(
+            "Content-Disposition",
+            `${isDownload ? "attachment" : "inline"}; filename=QuestionPaper_${assessment.title.replace(/\s+/g, "_")}.pdf`
+        );
+
+        doc.pipe(res);
+
+        // Header
+        doc.fontSize(20).text("Assessment Question Paper", { align: "center" });
+        doc.moveDown();
+        doc.fontSize(16).text(assessment.title, { align: "center", underline: true });
+        doc.fontSize(12).text(`Subject: ${assessment.subject}`, { align: "center" });
+        doc.moveDown(2);
+
+        // Questions
+        assessment.questions.forEach((q, index) => {
+            doc.fontSize(12).font("Helvetica-Bold").text(`Question ${index + 1}:`);
+            doc.font("Helvetica").text(q.questionText);
+            doc.moveDown(0.5);
+
+            if (assessment.type === "mcq" && Array.isArray(q.options)) {
+                q.options.forEach((opt, optIndex) => {
+                    const letter = String.fromCharCode(65 + optIndex); // A, B, C, D
+                    doc.font("Helvetica").text(`${letter}) ${opt}`);
+                });
+            } else {
+                // If written, leave some blank space for student to write
+                doc.moveDown(4);
+            }
+
+            doc.moveDown();
+            doc.lineWidth(0.5).moveTo(doc.x, doc.y).lineTo(550, doc.y).stroke();
+            doc.moveDown();
+
+            // Check if we need a new page
+            if (doc.y > 700) {
+                doc.addPage();
+            }
+        });
+
+        doc.end();
+    } catch (error) {
+        console.error("PDF GENERATION ERROR:", error);
+        res.status(500).json({ message: "Failed to generate question paper PDF" });
     }
 };

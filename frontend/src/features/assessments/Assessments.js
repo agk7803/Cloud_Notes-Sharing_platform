@@ -131,6 +131,23 @@ export default function Assessments() {
     }
   };
 
+  const handleViewQuestionPaper = async (testId, download = false) => {
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) {
+        alert("You must be logged in to view the question paper.");
+        return;
+      }
+      const token = await user.getIdToken();
+      const url = `http://localhost:5050/api/assessments/questionpaper/${testId}?token=${token}${download ? "&download=true" : ""}`;
+      window.open(url, "_blank");
+    } catch (error) {
+      console.error("Error opening question paper:", error);
+      alert("Failed to open question paper.");
+    }
+  };
+
   const diffChipClass = { easy: 'as-chip--easy', medium: 'as-chip--medium', hard: 'as-chip--hard' };
 
   return (
@@ -247,13 +264,15 @@ export default function Assessments() {
                         ) : (
                           <p className="as-no-notes">No notes available for this subject.</p>
                         )}
-                        <div className="as-actions">
-                          <button className="as-btn-scores" onClick={() => handleViewAnswerKey(test._id, false)} style={{ flex: 1 }}>
-                            <FaEye /> View Key
+                        <div className="as-actions" style={{ flexWrap: 'wrap' }}>
+                          <button className="as-btn-scores" onClick={() => handleViewQuestionPaper(test._id, false)} style={{ flex: 1 }} title="View Question Paper">
+                            <FaFileAlt /> Questions
                           </button>
-                          <button className="as-btn-scores-icon" onClick={() => handleViewAnswerKey(test._id, true)} title="Download Key">
-                            <FaDownload />
+                          
+                          <button className="as-btn-scores" onClick={() => handleViewAnswerKey(test._id, false)} style={{ flex: 1 }} title="View Answer Key">
+                            <FaEye /> Answer Key
                           </button>
+                          
                           <button className="as-btn-start" onClick={() => handleStartTest(test._id)} style={{ flex: 1.5 }}>
                             Start Assessment <FaArrowLeft style={{ transform: 'rotate(180deg)' }} />
                           </button>

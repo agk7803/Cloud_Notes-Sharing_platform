@@ -1,12 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const upload = require("../middleware/upload");
-const { generateAssessment, getAnswerKey } = require("../controllers/assessmentController");
+const { generateAssessment, getAnswerKey, getQuestionPaper } = require("../controllers/assessmentController");
 const { protect } = require("../middleware/authMiddleware");
 const fetch = require("node-fetch");
 
 // Get Answer Key PDF
 router.get("/answerkey/:id", protect, getAnswerKey);
+
+// Get Question Paper PDF
+router.get("/questionpaper/:id", protect, getQuestionPaper);
 
 router.post(
     "/generate",
