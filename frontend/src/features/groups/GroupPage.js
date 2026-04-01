@@ -1,10 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useOutletContext, useNavigate } from 'react-router-dom';
-import { FaUsers, FaGlobe, FaLock, FaTrash, FaDownload, FaEye, FaUserPlus, FaChevronLeft, FaFileUpload } from 'react-icons/fa';
+import { FaUsers, FaGlobe, FaLock, FaTrash, FaDownload, FaEye, FaUserPlus, FaChevronLeft, FaFileUpload, FaSearch } from 'react-icons/fa';
 
 import api from '../../services/api';
 import GroupChat from './GroupChat';
 import InviteModal from './Invitemodal';
+import NoteCard from '../notes/components/NoteCard';
+import NoteSkeleton from '../notes/components/NoteSkeleton';
+import UploadModal from '../notes/UploadModal';
+import { C } from '../../shared/theme';
 import { getSubjectColor, getAvatarColor, getFileIcon, getViewUrl, ROLE_STYLES } from './Constants';
 import '../../styles/GroupPage.css';
 
@@ -29,6 +33,9 @@ const Avatar = ({ name = '', uid = '', size = 32 }) => {
 const NotesTab = ({ groupId, isCreator, user }) => {
     const [notes, setNotes] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [search, setSearch] = useState('');
+    const [isSearchFocused, setIsSearchFocused] = useState(false);
+    const [isUploadOpen, setIsUploadOpen] = useState(false);
 
     useEffect(() => {
         setLoading(true);
@@ -50,46 +57,104 @@ const NotesTab = ({ groupId, isCreator, user }) => {
         }
     };
 
-    if (loading) return <div style={{ textAlign: 'center', padding: '60px 0', color: '#94a3b8', fontSize: 13, fontWeight: 800 }}>SYNCING ASSETS...</div>;
+    const handleDelete = async (id) => {
+        if (!window.confirm("Delete this material permanently?")) return;
+        try {
+            await api.delete(`/notes/${id}`);
+            setNotes(prev => prev.filter(n => n._id !== id));
+        } catch (err) {
+            alert("Failed to delete asset");
+        }
+    };
+
+    const handleView = (note) => {
+        if (!note?.fileUrl) return;
+        const url = note.fileUrl;
+        const mime = (note.fileType || "").toLowerCase();
+        const ext = url.split("?")[0].split(".").pop().toLowerCase();
+
+        const isOffice = ["doc", "docx", "ppt", "pptx", "xls", "xlsx"].includes(ext)
+            || mime.includes("word") || mime.includes("presentation")
+            || mime.includes("sheet") || mime.includes("excel");
+
+        if (isOffice) {
+            window.open(`https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`, "_blank");
+        } else {
+            window.open(url, "_blank");
+        }
+    };
+
+    const handleDownload = (note) => {
+        window.open(note.downloadUrl || note.fileUrl, '_blank');
+    };
+
+    const filteredNotes = useMemo(() => {
+        return notes.filter(n => 
+            n.title?.toLowerCase().includes(search.toLowerCase()) ||
+            n.subject?.toLowerCase().includes(search.toLowerCase())
+        );
+    }, [notes, search]);
 
     return (
         <div className="gp-content-scroller">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                 <h3 className="gp-header__name">Shared Materials</h3>
-                <label className="gp-asset-btn" style={{ background: '#1a7a7a', color: '#fff' }}>
+                <button 
+                    onClick={() => setIsUploadOpen(true)}
+                    className="btn-press"
+                    style={{ 
+                        background: '#111', color: '#fff', padding: '10px 20px', borderRadius: 12, border: 'none', 
+                        fontWeight: 850, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                    }}
+                >
                     <FaFileUpload /> Upload Asset
-                    <input type="file" hidden onChange={e => e.target.files[0] && handleUpload(e.target.files[0])} />
-                </label>
+                </button>
             </div>
 
-            {notes.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '60px 0', color: '#94a3b8' }}>No frequency detected in this asset pool.</div>
+            {/* --- Premium Search Bar --- */}
+            <div className={`gp-search-wrap ${isSearchFocused ? 'active' : ''}`}>
+                <FaSearch style={{ color: C.teal, fontSize: 16 }} />
+                <input 
+                    type="text" 
+                    placeholder="Search shared materials..." 
+                    value={search}
+                    onFocus={() => setIsSearchFocused(true)}
+                    onBlur={() => setIsSearchFocused(false)}
+                    onChange={e => setSearch(e.target.value)}
+                />
+            </div>
+
+            {loading ? (
+                <div className="gp-asset-grid">
+                    {Array(4).fill(0).map((_, i) => <NoteSkeleton key={i} />)}
+                </div>
+            ) : filteredNotes.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '100px 0', border: '2px dashed #e2e8f0', borderRadius: 24, background: '#f8fafc' }}>
+                    <div style={{ fontSize: 40, marginBottom: 12 }}>🔍</div>
+                    <div style={{ color: '#94a3b8', fontWeight: 800 }}>No assets matching frequency detected.</div>
+                </div>
             ) : (
                 <div className="gp-asset-grid">
-                    {notes.map(note => {
-                        const fi = getFileIcon(note.fileType || note.title?.split('.').pop());
-                        return (
-                            <div key={note._id} className="gp-asset-card" onClick={() => note.fileUrl && window.open(getViewUrl(note.fileUrl), '_blank')}>
-                                <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 16 }}>
-                                    <div className="gp-asset-icon-box" style={{ background: fi.bg, color: fi.color }}>
-                                        <span style={{ fontSize: 18 }}>{fi.emoji}</span>
-                                        <span style={{ fontSize: 7, fontWeight: 900, textTransform: 'uppercase' }}>{fi.label}</span>
-                                    </div>
-                                    <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div className="gp-asset-title">{note.title}</div>
-                                        <div className="gp-asset-meta">by {note.authorName}</div>
-                                    </div>
-                                </div>
-                                <div style={{ display: 'flex', gap: 8 }}>
-                                    <button className="gp-asset-btn"><FaEye size={10} /> View</button>
-                                    <a href={note.fileUrl} download className="gp-asset-btn" onClick={e => e.stopPropagation()}>
-                                        <FaDownload size={10} /> Get
-                                    </a>
-                                </div>
-                            </div>
-                        );
-                    })}
+                    {filteredNotes.map((note, i) => (
+                        <NoteCard 
+                            key={note._id}
+                            note={note}
+                            index={i}
+                            onView={handleView}
+                            onDownload={handleDownload}
+                            onDelete={note.authorId === user?.uid ? handleDelete : null}
+                        />
+                    ))}
                 </div>
+            )}
+
+            {isUploadOpen && (
+                <UploadModal 
+                    groupId={groupId}
+                    onClose={() => setIsUploadOpen(false)}
+                    onUpload={(newNote) => setNotes(prev => [newNote, ...prev])}
+                />
             )}
         </div>
     );
@@ -132,8 +197,15 @@ const GroupPage = () => {
                         {group.type === 'Public' ? <FaGlobe size={10} /> : <FaLock size={10} />}
                         {group.type} Hub
                     </div>
-                    <button className="gp-asset-btn" style={{ background: '#f1f5f9' }} onClick={() => setShowInvite(true)}>
-                        <FaUserPlus size={10} /> Invite
+                    <button 
+                        className="btn-press" 
+                        style={{ 
+                            background: '#f1f5f9', color: '#1e293b', border: 'none', borderRadius: 12, padding: '8px 18px',
+                            fontSize: 13, fontWeight: 850, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8
+                        }} 
+                        onClick={() => setShowInvite(true)}
+                    >
+                        <FaUserPlus size={12} /> Invite
                     </button>
                 </div>
             </header>

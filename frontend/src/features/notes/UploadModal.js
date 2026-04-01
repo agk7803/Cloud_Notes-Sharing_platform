@@ -4,11 +4,11 @@ import api from '../../services/api';
 
 const SUBJECTS = ["Machine Learning", "Compiler Design", "Computer Networks", "Software Engineering", "Cloud Computing", "Other"];
 
-const UploadModal = ({ onClose, onUpload }) => {
+const UploadModal = ({ onClose, onUpload, groupId = null }) => {
     const [title, setTitle] = useState('');
     const [subject, setSubject] = useState('');
     const [file, setFile] = useState(null);
-    const [visibility, setVisibility] = useState('private');
+    const [visibility, setVisibility] = useState(groupId ? 'private' : 'private');
     const [loading, setLoading] = useState(false);
     const [fetchedSubjects, setFetchedSubjects] = useState(SUBJECTS);
 
@@ -39,6 +39,10 @@ const UploadModal = ({ onClose, onUpload }) => {
         formData.append('subject', subject);
         formData.append('file', file);
         formData.append('visibility', visibility); // 'private' or 'public'
+
+        if (groupId) {
+            formData.append('sharedGroups', JSON.stringify([groupId]));
+        }
 
         try {
             const res = await api.post('/notes', formData);
@@ -87,25 +91,33 @@ const UploadModal = ({ onClose, onUpload }) => {
                     </div>
 
                     {/* Visibility Section */}
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Visibility</label>
-                        <div className="flex gap-4">
-                            <label className="flex items-center gap-3 cursor-pointer p-4 border rounded-xl flex-1 hover:bg-gray-50 transition-colors">
-                                <input type="radio" value="private" checked={visibility === 'private'} onChange={() => setVisibility('private')} className="accent-[#0d9488] w-5 h-5" />
-                                <div>
-                                    <div className="font-bold text-sm text-gray-800">Private</div>
-                                    <div className="text-xs text-gray-500">Only you can access</div>
-                                </div>
-                            </label>
-                            <label className="flex items-center gap-3 cursor-pointer p-4 border rounded-xl flex-1 hover:bg-gray-50 transition-colors">
-                                <input type="radio" value="public" checked={visibility === 'public'} onChange={() => setVisibility('public')} className="accent-[#0d9488] w-5 h-5" />
-                                <div>
-                                    <div className="font-bold text-sm text-gray-800">Public</div>
-                                    <div className="text-xs text-gray-500">Visible to all users</div>
-                                </div>
-                            </label>
+                    {!groupId && (
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Visibility</label>
+                            <div className="flex gap-4">
+                                <label className="flex items-center gap-3 cursor-pointer p-4 border rounded-xl flex-1 hover:bg-gray-50 transition-colors">
+                                    <input type="radio" value="private" checked={visibility === 'private'} onChange={() => setVisibility('private')} className="accent-[#0d9488] w-5 h-5" />
+                                    <div>
+                                        <div className="font-bold text-sm text-gray-800">Private</div>
+                                        <div className="text-xs text-gray-500">Only you can access</div>
+                                    </div>
+                                </label>
+                                <label className="flex items-center gap-3 cursor-pointer p-4 border rounded-xl flex-1 hover:bg-gray-50 transition-colors">
+                                    <input type="radio" value="public" checked={visibility === 'public'} onChange={() => setVisibility('public')} className="accent-[#0d9488] w-5 h-5" />
+                                    <div>
+                                        <div className="font-bold text-sm text-gray-800">Public</div>
+                                        <div className="text-xs text-gray-500">Visible to all users</div>
+                                    </div>
+                                </label>
+                            </div>
                         </div>
-                    </div>
+                    )}
+
+                    {groupId && (
+                        <div style={{ padding: 12, borderRadius: 12, background: '#f0fdf4', border: '1px solid #bbf7d0', fontSize: 11, fontWeight: 700, color: '#166534', display: 'flex', alignItems: 'center', gap: 8 }}>
+                           <FaLock size={12} /> This material will be exclusive to this Study Hub.
+                        </div>
+                    )}
 
                     <button disabled={loading} type="submit" className="w-full py-4 bg-[#0d9488] text-white font-bold rounded-xl hover:bg-teal-600 transition-colors shadow-lg shadow-teal-200 disabled:opacity-50">
                         {loading ? 'Uploading...' : 'Upload Note'}
