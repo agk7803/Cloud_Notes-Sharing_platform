@@ -85,9 +85,20 @@ exports.generateAssessment = async (req, res) => {
             ? `on the subject "${subject}" ` 
             : "";
 
+        let difficultyInstruction = "";
+        if (difficulty === "easy") {
+            difficultyInstruction = "Focus on basic definitions, direct recall of facts stated explicitly in the text, and simple fundamental concepts.";
+        } else if (difficulty === "medium") {
+            difficultyInstruction = "Focus on conceptual understanding, applying principles from the text to hypothetical scenarios, and moderately analytical questions.";
+        } else if (difficulty === "hard") {
+            difficultyInstruction = "Provide complex problem-solving scenarios, deep analytical questions, critical reasoning, and advanced synthesis of the text. For MCQs, the incorrect options (distractors) must be highly plausible to trick casual readers.";
+        }
+
         const prompt = `
             You are an expert educator. Generate a ${difficulty} difficulty ${type} assessment ${subjectContext}based on the following content:
             "${extractedText}"
+
+            STRICT DIFFICULTY ENFORCEMENT for ${difficulty} level: ${difficultyInstruction}
 
             The assessment should have exactly ${questionsCount} questions.
             
