@@ -27,36 +27,36 @@ export default function CreateGroupModal({ onClose, onCreated }) {
 
     return (
         <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <div className="modal-box cgm-modal-box" onClick={e => e.stopPropagation()}>
 
                 {/* Header */}
-                <div className="modal-header">
+                <div className="cgm-header">
                     <div>
-                        <h2 className="modal-title">Create New Group</h2>
-                        <p className="modal-subtitle">Set up your study group in seconds</p>
+                        <h2 className="cgm-header__title">Create New Group</h2>
+                        <p className="cgm-header__sub">Set up your study hub in seconds</p>
                     </div>
-                    <button className="modal-close" onClick={onClose}>✕</button>
+                    <button className="cgm-close" onClick={onClose}>✕</button>
                 </div>
 
                 {/* Form */}
-                <form className="modal-body" onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label className="form-label">Group Name</label>
+                <form className="cgm-body" onSubmit={handleSubmit}>
+                    <div className="cgm-group">
+                        <label className="cgm-label">Group Name</label>
                         <input
                             required
-                            className="form-input"
+                            className="cgm-input"
                             value={name}
                             onChange={e => setName(e.target.value)}
-                            placeholder="e.g. Cloud Computing Study Circle"
+                            placeholder="e.g. Advanced Cloud Orchestration"
                             maxLength={80}
                         />
                     </div>
 
-                    <div className="form-group">
-                        <label className="form-label">Subject</label>
+                    <div className="cgm-group">
+                        <label className="cgm-label">Subject Category</label>
                         <input
                             required
-                            className="form-input"
+                            className="cgm-input"
                             value={subject}
                             onChange={e => setSubject(e.target.value)}
                             placeholder="e.g. Computer Science"
@@ -64,45 +64,45 @@ export default function CreateGroupModal({ onClose, onCreated }) {
                         />
                     </div>
 
-                    <div className="form-group">
-                        <label className="form-label">Description</label>
+                    <div className="cgm-group">
+                        <label className="cgm-label">Description</label>
                         <textarea
-                            className="form-input form-textarea"
+                            className="cgm-input cgm-textarea"
                             value={description}
                             onChange={e => setDescription(e.target.value)}
-                            placeholder="What will this group study?"
+                            placeholder="Share the purpose of this agora..."
                             rows={3}
                             maxLength={300}
                         />
                     </div>
 
-                    <div className="form-group">
-                        <label className="form-label">Privacy</label>
-                        <div className="form-toggle-row">
+                    <div className="cgm-group">
+                        <label className="cgm-label">Privacy Model</label>
+                        <div className="cgm-privacy-row">
                             {['Public', 'Private'].map(opt => (
                                 <button
                                     key={opt}
                                     type="button"
-                                    className={`form-toggle ${type === opt ? 'form-toggle--active' : ''}`}
+                                    className={`cgm-privacy-btn ${type === opt ? 'cgm-privacy-btn--active' : 'cgm-privacy-btn--inactive'}`}
                                     onClick={() => setType(opt)}
                                 >
                                     {opt === 'Public' ? '🌐' : '🔒'} {opt}
                                 </button>
                             ))}
                         </div>
-                        <p className="form-hint">
+                        <p className="cgm-privacy-hint">
                             {type === 'Public'
-                                ? 'Anyone can discover and join this group'
-                                : 'Members join by invite or approval only'}
+                                ? 'Anyone can discover and join this group freely.'
+                                : 'Members join by invite or administrator approval only.'}
                         </p>
                     </div>
 
-                    {error && <p className="form-error">{error}</p>}
+                    {error && <p className="cgm-error">{error}</p>}
 
-                    <div className="modal-actions">
-                        <button type="button" className="btn-cancel" onClick={onClose}>Cancel</button>
-                        <button type="submit" className="btn-submit" disabled={loading}>
-                            {loading ? 'Creating...' : '✦ Create Group'}
+                    <div className="cgm-actions">
+                        <button type="button" className="cgm-btn-cancel" onClick={onClose}>Cancel</button>
+                        <button type="submit" className={`cgm-btn-submit ${loading ? 'cgm-btn-submit--disabled' : 'cgm-btn-submit--active'}`} disabled={loading}>
+                            {loading ? 'CRAFTING...' : '✦ Create Hub'}
                         </button>
                     </div>
                 </form>

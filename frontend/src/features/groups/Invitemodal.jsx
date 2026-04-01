@@ -37,14 +37,14 @@ export default function InviteModal({ group, onClose }) {
 
     return (
         <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <div className="modal-box" style={{ width: 440 }} onClick={e => e.stopPropagation()}>
 
-                <div className="modal-header">
+                <div className="modal-header" style={{ padding: '24px 28px 16px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between' }}>
                     <div>
-                        <h2 className="modal-title">Invite Members</h2>
-                        <p className="modal-subtitle">to {group.name}</p>
+                        <h2 className="modal-title" style={{ fontWeight: 800, fontSize: 18, color: '#1e293b' }}>Invite Members</h2>
+                        <p className="modal-subtitle" style={{ fontSize: 13, color: '#94a3b8' }}>to {group.name}</p>
                     </div>
-                    <button className="modal-close" onClick={onClose}>✕</button>
+                    <button className="modal-close" onClick={onClose} style={{ background: '#f1f5f9', border: 'none', borderRadius: 8, width: 32, height: 32, cursor: 'pointer' }}>✕</button>
                 </div>
 
                 <div className="modal-body">
