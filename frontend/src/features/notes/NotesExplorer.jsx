@@ -175,7 +175,7 @@ export default function NotesExplorer() {
 
           <h1 className="ne-title">
             Explore <span style={{
-              background: `linear-gradient(135deg, ${C.green}, ${C.teal})`,
+              background: `linear-gradient(135deg, ${C.pink}, ${C.teal})`,
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent'
             }}>Notes</span>

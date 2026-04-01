@@ -9,11 +9,6 @@
     --ne-teal-light: #e8faf0;
     --ne-teal-border: rgba(29, 201, 98, 0.2);
     --ne-teal-deep: #159e4d;
-    --ne-green: #1dc962;
-    --ne-green-light: #f0fdf4;
-    --ne-green-border: #bbf7d0;
-    --ne-sage: #b8e0c8;
-    --ne-sage-light: #e8f5e3;
     --ne-sage-deep: #4a7a42;
     --ne-cream: #e8faf0; /* Mesh Matching */
     --ne-grid-line: rgba(29, 201, 98, 0.08);
@@ -214,19 +209,19 @@
 .ne-btn-load {
     padding: 16px 48px;
     border-radius: 99px;
-    background: linear-gradient(135deg, var(--ne-green) 0%, var(--ne-teal) 100%);
+    background: #111;
     color: #fff;
     font-weight: 900;
     font-size: 15px;
     border: none;
     cursor: pointer;
     transition: all 0.3s;
-    box-shadow: 0 12px 32px rgba(0, 201, 110, 0.25);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
 }
 
 .ne-btn-load:hover {
     transform: translateY(-3px);
-    box-shadow: 0 18px 40px rgba(0, 201, 110, 0.35);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
 }
 
 .ne-btn-load:disabled {

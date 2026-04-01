@@ -31,19 +31,19 @@ export default function LockModal({ onClose, freeUsed = 3 }) {
           Create a free account to unlock unlimited notes, AI assistance, study groups, and assessments.
         </p>
         <div style={{ height: 6, borderRadius: 99, background: C.lavender, marginBottom: 20, overflow: 'hidden' }}>
-          <div style={{ height: '100%', width: '100%', borderRadius: 99, background: `linear-gradient(90deg,${C.green},${C.teal})` }} />
+          <div style={{ height: '100%', width: '100%', borderRadius: 99, background: `linear-gradient(90deg,${C.pink},${C.teal})` }} />
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           <a href="/login" className="btn-press" style={{
             flex: 1, padding: '11px 0', borderRadius: 14, fontWeight: 700,
-            fontSize: 13, color: '#fff', textAlign: 'center', background: `linear-gradient(135deg,${C.green},${C.teal})`,
+            fontSize: 13, color: '#fff', textAlign: 'center', background: `linear-gradient(135deg,${C.pink},${C.teal})`,
             textDecoration: 'none', display: 'block'
           }}>
             Login
           </a>
           <a href="/register" className="btn-press" style={{
             flex: 1, padding: '11px 0', borderRadius: 14, fontWeight: 700,
-            fontSize: 13, color: C.green, textAlign: 'center', border: `2px solid ${C.green}`,
+            fontSize: 13, color: C.pink, textAlign: 'center', border: `2px solid ${C.pink}`,
             textDecoration: 'none', display: 'block'
           }}>
             Sign Up Free

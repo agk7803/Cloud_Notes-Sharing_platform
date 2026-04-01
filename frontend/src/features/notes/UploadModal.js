@@ -66,14 +66,14 @@ const UploadModal = ({ onClose, onUpload }) => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-bold text-gray-700 mb-1">Title</label>
-                        <input required type="text" value={title} onChange={e => setTitle(e.target.value)} className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-[#1dc962] outline-none bg-gray-50" placeholder="Ex: Cloud Architecture Notes" />
+                        <input required type="text" value={title} onChange={e => setTitle(e.target.value)} className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-[#0d9488] outline-none bg-gray-50" placeholder="Ex: Cloud Architecture Notes" />
                     </div>
 
 
 
                     <div>
                         <label className="block text-sm font-bold text-gray-700 mb-1">Subject</label>
-                        <select required value={subject} onChange={e => setSubject(e.target.value)} className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-[#1dc962] outline-none bg-gray-50">
+                        <select required value={subject} onChange={e => setSubject(e.target.value)} className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-[#0d9488] outline-none bg-gray-50">
                             <option value="" disabled>Select Subject</option>
                             {fetchedSubjects.map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
@@ -91,14 +91,14 @@ const UploadModal = ({ onClose, onUpload }) => {
                         <label className="block text-sm font-bold text-gray-700 mb-2">Visibility</label>
                         <div className="flex gap-4">
                             <label className="flex items-center gap-3 cursor-pointer p-4 border rounded-xl flex-1 hover:bg-gray-50 transition-colors">
-                                <input type="radio" value="private" checked={visibility === 'private'} onChange={() => setVisibility('private')} className="accent-[#1dc962] w-5 h-5" />
+                                <input type="radio" value="private" checked={visibility === 'private'} onChange={() => setVisibility('private')} className="accent-[#0d9488] w-5 h-5" />
                                 <div>
                                     <div className="font-bold text-sm text-gray-800">Private</div>
                                     <div className="text-xs text-gray-500">Only you can access</div>
                                 </div>
                             </label>
                             <label className="flex items-center gap-3 cursor-pointer p-4 border rounded-xl flex-1 hover:bg-gray-50 transition-colors">
-                                <input type="radio" value="public" checked={visibility === 'public'} onChange={() => setVisibility('public')} className="accent-[#1dc962] w-5 h-5" />
+                                <input type="radio" value="public" checked={visibility === 'public'} onChange={() => setVisibility('public')} className="accent-[#0d9488] w-5 h-5" />
                                 <div>
                                     <div className="font-bold text-sm text-gray-800">Public</div>
                                     <div className="text-xs text-gray-500">Visible to all users</div>
@@ -107,7 +107,7 @@ const UploadModal = ({ onClose, onUpload }) => {
                         </div>
                     </div>
 
-                    <button disabled={loading} type="submit" className="w-full py-4 bg-[#1dc962] text-white font-bold rounded-xl hover:bg-green-600 transition-colors shadow-lg shadow-green-200 disabled:opacity-50">
+                    <button disabled={loading} type="submit" className="w-full py-4 bg-[#0d9488] text-white font-bold rounded-xl hover:bg-teal-600 transition-colors shadow-lg shadow-teal-200 disabled:opacity-50">
                         {loading ? 'Uploading...' : 'Upload Note'}
                     </button>
                 </form>
