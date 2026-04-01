@@ -27,16 +27,34 @@ const T = {
     sky:        "#dbeafe",
 };
 
-/* ── helper: build viewer URL ── */
-const getViewUrl = (url) => {
-    if (!url) return "";
-    const ext = url.split(".").pop().split("?")[0].toLowerCase();
-    const office = ["doc","docx","ppt","pptx","xls","xlsx"];
-    if (office.includes(ext))
-        return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
-    if (ext === "pdf")
-        return `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
-    return url;
+/* ── helper: open a note file directly in a new tab ── */
+const openFile = (note) => {
+    if (!note?.fileUrl) return;
+
+    const url  = note.fileUrl;
+    const mime = (note.fileType || "").toLowerCase();
+    // Derive extension from URL path (before any query string)
+    const ext  = url.split("?")[0].split(".").pop().toLowerCase();
+
+    const isOffice = ["doc","docx","ppt","pptx","xls","xlsx"].includes(ext)
+        || mime.includes("word") || mime.includes("presentation")
+        || mime.includes("sheet") || mime.includes("excel");
+
+    const isPdf = ext === "pdf" || mime.includes("pdf");
+
+    if (isOffice) {
+        // Microsoft Online Viewer — opens properly in a new tab
+        window.open(
+            `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`,
+            "_blank"
+        );
+    } else if (isPdf) {
+        // Open the raw PDF URL — browser opens it natively in a new tab
+        window.open(url, "_blank");
+    } else {
+        // Images, text, etc. — open directly
+        window.open(url, "_blank");
+    }
 };
 
 /* ── avatar ── */
@@ -251,7 +269,7 @@ const SearchBar = ({ notes }) => {
                     overflow: "hidden",
                 }}>
                     {results.map((note) => (
-                        <div key={note._id} onClick={() => { window.open(getViewUrl(note.fileUrl), "_blank"); setShow(false); }}
+                        <div key={note._id} onClick={() => { openFile(note); setShow(false); }}
                             style={{
                                 padding: "12px 18px", cursor: "pointer",
                                 display: "flex", alignItems: "center", gap: 10,
@@ -308,7 +326,7 @@ const NoteCard = ({ note, index }) => {
 
     return (
         <div
-            onClick={() => window.open(getViewUrl(note.fileUrl), "_blank")}
+            onClick={() => openFile(note)}
             onMouseEnter={() => setHov(true)}
             onMouseLeave={() => setHov(false)}
             style={{
