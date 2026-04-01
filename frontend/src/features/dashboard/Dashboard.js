@@ -250,7 +250,7 @@ const SearchBar = ({ notes }) => {
                     : "0 4px 20px rgba(0,0,0,0.05)",
                 transition: "all 0.3s cubic-bezier(.22,1,.36,1)",
             }}>
-                <FaSearch style={{ color: focused ? T.teal : T.muted, flexShrink: 0, fontSize: 15, transition: "color .2s" }} />
+
                 <input
                     type="text"
                     value={query}
@@ -418,17 +418,44 @@ const AssessmentCard = ({ item }) => (
     </div>
 );
 
-/* ── stat chip ── */
 const StatChip = ({ icon, label, value, bg, color }) => (
-    <div style={{
-        borderRadius: 18, padding: "18px 16px", flex: 1,
-        background: bg, border: "1.5px solid rgba(0,0,0,0.05)",
-        boxShadow: "0 4px 16px rgba(0,0,0,0.04)",
-        display: "flex", flexDirection: "column", gap: 6,
+    <div className="dash-stat-card" style={{
+        borderRadius: 22, padding: "20px 22px", flex: 1, minWidth: 140,
+        background: bg, border: "1px solid rgba(255,255,255,0.5)",
+        boxShadow: "0 4px 16px rgba(0,0,0,0.03)",
+        display: "flex", flexDirection: "column", gap: 16,
+        position: "relative", overflow: "hidden", cursor: "pointer",
+        transition: "all 0.35s cubic-bezier(0.25, 1, 0.5, 1)",
     }}>
-        <div style={{ color, opacity: 0.8, fontSize: 18 }}>{icon}</div>
-        <p style={{ fontSize: 22, fontWeight: 900, color: T.dark, letterSpacing: "-0.5px" }}>{value}</p>
-        <p style={{ fontSize: 11, fontWeight: 700, color: T.muted, textTransform: "uppercase", letterSpacing: "0.6px" }}>{label}</p>
+        {/* Soft decorative background blob inside the card */}
+        <div style={{
+            position: "absolute", top: -15, right: -15,
+            width: 70, height: 70, borderRadius: "50%",
+            background: color, opacity: 0.08, zIndex: 0,
+            transition: "transform 0.3s ease"
+        }} />
+
+        {/* Icon Floating Box */}
+        <div style={{ position: "relative", zIndex: 1, display: "flex", justifyContent: "space-between" }}>
+            <div style={{
+                color: color, background: "rgba(255,255,255,0.75)",
+                width: 42, height: 42, borderRadius: 14,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 18, boxShadow: "0 2px 8px rgba(0,0,0,0.04)"
+            }}>
+                {icon}
+            </div>
+        </div>
+
+        {/* Metrics */}
+        <div style={{ position: "relative", zIndex: 1 }}>
+            <p style={{ fontSize: 28, fontWeight: 900, color: T.dark, letterSpacing: "-1px", lineHeight: 1 }}>
+                {value}
+            </p>
+            <p style={{ fontSize: 11, fontWeight: 800, color: T.muted, textTransform: "uppercase", letterSpacing: "1px", marginTop: 6, opacity: 0.85 }}>
+                {label}
+            </p>
+        </div>
     </div>
 );
 
@@ -460,13 +487,14 @@ const SectionTitle = ({ title, route, routeLabel = "View All" }) => {
 const RightPanel = ({ assessments }) => (
     <aside style={{
         width: 320, flexShrink: 0,
-        padding: "24px 16px 24px 0",
+        padding: "0 16px 24px 0",
         display: "none",  // hidden on smaller screens — controlled via CSS below
         flexDirection: "column",
         gap: 16,
-        position: "sticky", top: 0,
-        height: "100vh",
+        position: "sticky", top: "24px",
+        height: "calc(100vh - 48px)",
         overflowY: "auto",
+        alignSelf: "flex-start",
     }}
         className="dashboard-right-panel"
     >
@@ -530,6 +558,8 @@ export default function Dashboard() {
         <>
             {/* inline CSS for the right panel responsive show + animations */}
             <style>{`
+                html { height: auto; overflow-x: hidden; }
+                body { min-height: 100vh; overflow-x: hidden; }
                 @media (min-width:1100px) {
                     .dashboard-right-panel { display: flex !important; }
                 }
@@ -538,13 +568,20 @@ export default function Dashboard() {
                     to   { opacity:1; transform:translateY(0); }
                 }
                 .dash-fadein { animation: fadeUp 0.45s cubic-bezier(.22,.68,0,1.2) both; }
+                .dash-stat-card:hover { transform: translateY(-6px); box-shadow: 0 14px 28px rgba(0,0,0,0.06) !important; }
+                .dash-stat-card:hover div[style*="border-radius: 50%"] { transform: scale(1.4); }
             `}</style>
 
-            <div style={{ display: "flex", height: "100%", minHeight: "100vh" }}>
+            <div style={{ 
+                display: "grid", 
+                gridTemplateColumns: "1fr auto",
+                minHeight: "100vh", 
+                position: "relative" 
+            }}>
 
                 {/* ── MAIN ── */}
                 <main className="dash-fadein" style={{
-                    flex: 1, padding: "28px 24px 40px",
+                    padding: "28px 24px 40px",
                     maxWidth: 900,
                     minWidth: 0,
                 }}>
