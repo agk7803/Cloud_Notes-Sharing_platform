@@ -204,8 +204,37 @@ const SearchBar = ({ notes }) => {
 
     useEffect(() => {
         if (!query.trim()) { setResults([]); return; }
-        setResults(notes.filter(n => n.title?.toLowerCase().includes(query.toLowerCase())).slice(0, 5));
+        
+        // 1. Find matches in user's personal notes (fast, client-side)
+        const localMatches = notes.filter(n => 
+            n.title?.toLowerCase().includes(query.toLowerCase()) || 
+            n.subject?.toLowerCase().includes(query.toLowerCase())
+        ).slice(0, 3);
+        
+        // Show local matches immediately
+        setResults(localMatches);
+
+        // 2. Fetch global public notes (debounced)
+        const timeoutId = setTimeout(() => {
+            api.get(`/notes/public`, { params: { query: query.trim(), limit: 4 } })
+                .then(res => {
+                    const publicMatches = res.data.notes || [];
+                    // Merge, avoiding duplicates
+                    const merged = [...localMatches];
+                    const localIds = new Set(localMatches.map(n => n._id || n.id));
+                    
+                    for (const pub of publicMatches) {
+                        if (!localIds.has(pub._id || pub.id)) {
+                            merged.push(pub);
+                        }
+                    }
+                    setResults(merged.slice(0, 6)); // cap at 6 total
+                })
+                .catch(console.error);
+        }, 250); 
+        
         setShow(true);
+        return () => clearTimeout(timeoutId);
     }, [query, notes]);
 
     return (
@@ -230,7 +259,7 @@ const SearchBar = ({ notes }) => {
                     onBlur={() => setFocused(false)}
                     onKeyDown={e => {
                         if (e.key === "Enter" && query.trim()) {
-                            navigate(`/search?q=${encodeURIComponent(query.trim())}`);
+                            navigate(`/view?q=${encodeURIComponent(query.trim())}`);
                             setShow(false);
                         }
                     }}
@@ -242,7 +271,7 @@ const SearchBar = ({ notes }) => {
                     }}
                 />
                 <button
-                    onClick={() => { if (query.trim()) { navigate(`/search?q=${encodeURIComponent(query.trim())}`); setShow(false); } }}
+                    onClick={() => { if (query.trim()) { navigate(`/view?q=${encodeURIComponent(query.trim())}`); setShow(false); } }}
                     style={{
                         width: 40, height: 40, borderRadius: 12, border: "none",
                         background: query.trim()

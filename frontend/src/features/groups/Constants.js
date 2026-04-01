@@ -57,7 +57,12 @@ export const getFileIcon = (ext = '') =>
 /** Embeddable preview URL for office/PDF files */
 export const getViewUrl = (fileUrl = '') => {
     const ext = fileUrl.split('.').pop().split('?')[0].toLowerCase();
-    return ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'].includes(ext)
-        ? `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`
-        : `https://docs.google.com/gview?url=${encodeURIComponent(fileUrl)}&embedded=true`;
+    
+    // Microsoft Online Viewer for Office documents
+    if (['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'].includes(ext)) {
+        return `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(fileUrl)}`;
+    }
+    
+    // For PDFs and everything else, let the browser handle it natively
+    return fileUrl;
 };

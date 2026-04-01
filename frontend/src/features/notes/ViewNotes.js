@@ -25,17 +25,20 @@ export default function ViewNotes() {
   const { notes: myAllNotes, addNote, deleteNote, loading: contextLoading } = useNotes();
 
   // State
-  const [activeTab, setActiveTab] = useState('My Notes'); // 'My Notes', 'Public', 'Private'
+  const [activeTab, setActiveTab] = useState(() => {
+    return new URLSearchParams(location.search).get('tab') || 'My Notes';
+  });
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [pubSearchFocused, setPubSearchFocused] = useState(false);
   
   // Public notes fetching
   const [publicNotes, setPublicNotes] = useState([]);
   const [publicLoading, setPublicLoading] = useState(false);
-  const [hasFetchedPublic, setHasFetchedPublic] = useState(false); 
 
   // Filters
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(() => {
+    return new URLSearchParams(location.search).get('q') || '';
+  });
   const [subjectFilter, setSubjectFilter] = useState('');
   const [monthFilter, setMonthFilter] = useState('');
   const [fetchedSubjects, setFetchedSubjects] = useState(SUBJECTS);
@@ -51,19 +54,20 @@ export default function ViewNotes() {
     if (location.state?.subject) setSubjectFilter(location.state.subject);
   }, [location.state]);
 
-  // Fetch global public notes dynamically when active
+  // Fetch global public notes dynamically when active or search changes
   useEffect(() => {
-    if (activeTab === 'Public' && !hasFetchedPublic) {
+    if (activeTab === 'Public') {
       setPublicLoading(true);
-      api.get('/notes/public?limit=100') // fetch public platform notes
-        .then(res => {
-           setPublicNotes(res.data.notes || []);
-           setHasFetchedPublic(true);
-        })
-        .catch(err => console.error("Error fetching public notes:", err))
-        .finally(() => setPublicLoading(false));
+      // Wait for user to stop typing briefly before network spam
+      const t = setTimeout(() => {
+          api.get('/notes/public', { params: { query: search, limit: 100 } })
+            .then(res => setPublicNotes(res.data.notes || []))
+            .catch(err => console.error("Error fetching public notes:", err))
+            .finally(() => setPublicLoading(false));
+      }, 400);
+      return () => clearTimeout(t);
     }
-  }, [activeTab, hasFetchedPublic]);
+  }, [activeTab, search]);
 
   const handleSubmit = (noteData) => {
     // 1. Sync to My Notes context immediately 
@@ -74,7 +78,7 @@ export default function ViewNotes() {
     });
     
     // 2. Sync to local Public cache if applicable (EVEN if uploaded from My Notes tab)
-    if (noteData.visibility === 'public' && hasFetchedPublic) {
+    if (noteData.visibility === 'public') {
       setPublicNotes(prev => [noteData, ...prev]);
     }
     
@@ -90,21 +94,33 @@ export default function ViewNotes() {
   };
 
   // High-authority office/pdf previewer
-  const getViewUrl = (note) => {
-    if (!note?.fileUrl) return "";
-    const ext = note.fileUrl.split('.').pop().split('?')[0].toLowerCase();
-    const officeTypes = ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'];
-    if (officeTypes.includes(ext)) {
-      return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(note.fileUrl)}`;
-    }
-    if (ext === 'pdf') {
-      return `https://docs.google.com/gview?url=${encodeURIComponent(note.fileUrl)}&embedded=true`;
-    }
-    return note.fileUrl;
-  };
-
   const handleView = (note) => {
-     window.open(getViewUrl(note), '_blank');
+    if (!note?.fileUrl) return;
+
+    const url  = note.fileUrl;
+    const mime = (note.fileType || "").toLowerCase();
+    // Derive extension from URL path (before query string)
+    const ext  = url.split("?")[0].split(".").pop().toLowerCase();
+
+    const isOffice = ["doc","docx","ppt","pptx","xls","xlsx"].includes(ext)
+        || mime.includes("word") || mime.includes("presentation")
+        || mime.includes("sheet") || mime.includes("excel");
+
+    const isPdf = ext === "pdf" || mime.includes("pdf");
+
+    if (isOffice) {
+        // Microsoft Online Viewer — opens properly in a new tab
+        window.open(
+            `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`,
+            "_blank"
+        );
+    } else if (isPdf) {
+        // Open the raw PDF URL — browser handles natively
+        window.open(url, "_blank");
+    } else {
+        // Images, text, etc. — open directly
+        window.open(url, "_blank");
+    }
   };
 
   const handleDownload = (note) => {
@@ -129,9 +145,14 @@ export default function ViewNotes() {
 
   // Filter Data via Search/Subject parameters
   const filteredNotes = currentData.filter(note => {
-    const title = (note.title || "").toLowerCase();
-    const subject = (note.subject || "").toLowerCase();
-    const matchesSearch = title.includes(search.toLowerCase()) || subject.includes(search.toLowerCase());
+    // If public tab, we already filtered 'search' via backend API, so we skip client search
+    let matchesSearch = true;
+    if (activeTab !== 'Public') {
+        const title = (note.title || "").toLowerCase();
+        const subject = (note.subject || "").toLowerCase();
+        matchesSearch = title.includes(search.toLowerCase()) || subject.includes(search.toLowerCase());
+    }
+
     const matchesSubject = subjectFilter ? note.subject === subjectFilter : true;
     
     let matchesMonth = true;
