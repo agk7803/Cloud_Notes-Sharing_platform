@@ -15,6 +15,7 @@ const aiRoutes = require("./src/routes/aiRoutes");
 const assessmentRoutes = require("./src/routes/assessmentRoutes");
 const eventRoutes = require("./src/routes/eventRoutes");
 const setupSocket = require('./src/sockets/socketHandler');
+const setupSwagger = require('./src/config/swagger');
 
 
 /* ================= INIT ================= */
@@ -42,6 +43,11 @@ setupSocket(io);
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+
+/* ================= SWAGGER ================= */
+
+setupSwagger(app);
 
 
 /* ================= ROUTES ================= */
