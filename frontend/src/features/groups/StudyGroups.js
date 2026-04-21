@@ -37,11 +37,11 @@ const GroupCard = ({ group, currentUserId, onClick }) => {
                     <FaUsers size={12} /> {group.members?.length || 0} Members
                 </div>
                 {isMember ? (
-                    <button className="sg-join-btn enter" onClick={onClick}>ENTER WORKSPACE</button>
+                    <button className="sg-join-btn enter" onClick={e => { e.stopPropagation(); onClick(); }}>ENTER WORKSPACE</button>
                 ) : group.type === 'Public' ? (
-                    <button className="sg-join-btn join" onClick={onClick}>JOIN HUB</button>
+                    <button className="sg-join-btn join" onClick={e => { e.stopPropagation(); onClick(); }}>JOIN HUB</button>
                 ) : (
-                    <button className="sg-join-btn private" onClick={onClick}>PRIVATE</button>
+                    <button className="sg-join-btn private" onClick={e => { e.stopPropagation(); onClick(); }}>PRIVATE</button>
                 )}
             </div>
         </div>
@@ -82,7 +82,11 @@ const StudyGroups = () => {
                 await api.post(`/groups/${group._id}/join`);
                 navigate(`/groups/${group._id}`);
             } catch (err) {
-                alert(err.response?.data?.message || 'Failed to sync with group frequency');
+                if (err.response?.status === 400 && err.response?.data?.message === 'Already a member') {
+                    navigate(`/groups/${group._id}`);
+                } else {
+                    alert(err.response?.data?.message || 'Failed to sync with group frequency');
+                }
             }
         } else {
             alert('This hub is strictly private. You require an administrative invite.');
