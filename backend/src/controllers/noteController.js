@@ -107,9 +107,7 @@ const getNotes = async (req, res) => {
         }
 
 
-        const notes = await Note.find({
-            authorId: req.user.uid
-        }).sort({ createdAt: -1 });
+        const notes = await Note.find(query).sort({ createdAt: -1 });
 
         console.log("Found notes:", notes.length);
 
@@ -298,11 +296,58 @@ const getNoteSubjects = async (req, res) => {
     }
 };
 
+const getGroupNotes = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Find all notes that are shared with this group
+        const notes = await Note.find({ sharedGroups: id }).sort({ createdAt: -1 });
+
+        // Generate Signed URLs for each note
+        const notesWithSignedUrls = await Promise.all(notes.map(async (note) => {
+            const noteObj = note.toObject();
+            if (note.s3Key) {
+                try {
+                    const ext = getExt(note.fileType);
+                    const safeName = `${sanitize(note.title)}.${ext}`;
+
+                    // Inline
+                    const vCmd = new GetObjectCommand({
+                        Bucket: process.env.AWS_BUCKET_NAME,
+                        Key: note.s3Key,
+                        ResponseContentDisposition: 'inline',
+                        ResponseContentType: note.fileType
+                    });
+                    noteObj.fileUrl = await getSignedUrl(s3, vCmd, { expiresIn: 3600 });
+
+                    // Download
+                    const dCmd = new GetObjectCommand({
+                        Bucket: process.env.AWS_BUCKET_NAME,
+                        Key: note.s3Key,
+                        ResponseContentDisposition: `attachment; filename="${safeName}"`,
+                        ResponseContentType: note.fileType
+                    });
+                    noteObj.downloadUrl = await getSignedUrl(s3, dCmd, { expiresIn: 3600 });
+                } catch (err) {
+                    console.error(`Error signing URLs for group note ${note.id}:`, err);
+                }
+            }
+            return noteObj;
+        }));
+
+        res.json(notesWithSignedUrls);
+    } catch (error) {
+        console.error("Error fetching group notes:", error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
 module.exports = {
     uploadNote,
     getNotes,
     getPublicNotes,
     getNoteCount,
     getNoteSubjects,
+    getGroupNotes,
     deleteNote
 };

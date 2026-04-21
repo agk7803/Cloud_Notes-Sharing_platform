@@ -44,6 +44,9 @@ router.route('/:id/leave')
 router.route('/:id/members')
     .get(getGroupMembers);
 
+const { getGroupNotes } = require('../controllers/noteController');
+router.get('/:id/notes', getGroupNotes);
+
 // Chat Routes
 const { getGroupChats } = require('../controllers/chatController');
 router.get('/:id/chats', getGroupChats);

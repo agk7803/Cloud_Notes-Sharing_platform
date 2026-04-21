@@ -125,12 +125,7 @@ const StudyGroups = () => {
 
                 {/* --- HERO SECTION --- */}
                 <header className="sg-hero">
-                    <div className="sg-hero__tag">Academic Hubs</div>
                     <h1 className="sg-hero__title">Research & Study Groups</h1>
-                    <p className="sg-hero__subtitle">
-                        Connect with specialized knowledge hubs, synchronize with peers, 
-                        and build high-authority academic communities.
-                    </p>
                     <button className="sg-create-btn-premium" onClick={() => setShowCreate(true)}>
                         <FaPlus size={12} /> Create Your Hub
                     </button>
