@@ -8,6 +8,7 @@ import "../landing/Landing.css";
 import {
     signInWithEmailAndPassword,
     signInWithPopup,
+    signInWithRedirect,
     sendPasswordResetEmail,
     RecaptchaVerifier,
     signInWithPhoneNumber,
@@ -56,7 +57,12 @@ function Login() {
             localStorage.setItem("user", JSON.stringify({ ...res.user, token }));
             navigate("/dashboard");
         } catch (err) {
-            alert(err.message);
+            if (err.code === 'auth/popup-blocked') {
+                // Fallback to redirect if popup is blocked
+                await signInWithRedirect(auth, googleProvider);
+            } else {
+                alert(err.message);
+            }
         }
     };
 

@@ -77,7 +77,6 @@ const StudyGroups = () => {
             return;
         }
         if (group.type === 'Public') {
-            if (!window.confirm(`Requesting access to "${group.name}". Proceed?`)) return;
             try {
                 await api.post(`/groups/${group._id}/join`);
                 navigate(`/groups/${group._id}`);
