@@ -148,6 +148,48 @@ const NotesTab = ({ groupId, isCreator, user }) => {
     );
 };
 
+// ─── Restricted Access View ────────────────────────────────────────────────────
+const RestrictedView = ({ group, hasRequested, onJoin }) => (
+    <div style={{ 
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', 
+        height: '100%', padding: '0 40px', textAlign: 'center', background: '#f8fafc' 
+    }}>
+        <div style={{ 
+            fontSize: 48, marginBottom: 24, padding: 24, background: '#fff', borderRadius: 24,
+            boxShadow: '0 12px 24px rgba(0,0,0,0.04)', border: '1px solid #e2e8f0'
+        }}>
+            {hasRequested ? '⏳' : '🔒'}
+        </div>
+        <h2 style={{ fontSize: 24, fontWeight: 900, color: '#1e293b', marginBottom: 12, letterSpacing: '-0.02em' }}>
+            {hasRequested ? 'Access Under Review' : 'Restricted Academic Core'}
+        </h2>
+        <p style={{ fontSize: 15, color: '#64748b', maxWidth: 400, lineHeight: 1.6, marginBottom: 32, fontWeight: 600 }}>
+            {hasRequested 
+                ? 'Your deployment request is currently being reviewed by the administrative faculty of this hub.' 
+                : `This workspace is reserved for authorized personnel. You must submit a formal request to access shared materials and discussions in ${group.name}.`}
+        </p>
+        
+        {hasRequested ? (
+            <div style={{ 
+                padding: '12px 32px', background: '#fef3c7', color: '#92400e', borderRadius: 14, 
+                fontWeight: 900, fontSize: 13, border: '1.5px solid #fde68a'
+            }}>
+                REQUEST PENDING
+            </div>
+        ) : (
+            <button 
+                onClick={onJoin}
+                className="btn-press"
+                style={{ 
+                    padding: '16px 40px', background: '#111', color: '#fff', border: 'none', borderRadius: 14, 
+                    fontWeight: 900, fontSize: 14, cursor: 'pointer', boxShadow: '0 8px 16px rgba(0,0,0,0.1)'
+                }}
+            >
+                REQUEST ACCESS
+            </button>
+        )}
+    </div>
+);
 // ─── Group Page Root ───────────────────────────────────────────────────────────
 const GroupPage = () => {
     const { id: groupId } = useParams();
@@ -164,9 +206,63 @@ const GroupPage = () => {
         api.get(`/groups/${groupId}/members`).then(res => setMembers(res.data)).catch(() => { });
     }, [groupId, navigate]);
 
-    if (!group) return <div className="gp-page" style={{ alignItems: 'center', justifyContent: 'center' }}>Authenticating Hub...</div>;
+    const [requests, setRequests] = useState([]);
+    
+    const myUid = user?.uid || user?.firebaseUid || user?.id || user?._id;
+    const isCreator = (group?.createdBy && myUid && group.createdBy === myUid) || 
+                      (group?.creatorId && myUid && group.creatorId === myUid);
+                      
+    const isMember = group?.isMember === true || 
+                     (group?.members && myUid && group.members.includes(myUid)) ||
+                     isCreator;
 
-    const isCreator = group.creatorId === user?.uid;
+    // Debugging only — remove in production
+    if (group && !isMember && !isCreator && group.type === 'Private') {
+        console.warn("[Hub Access Denied]", {
+            group_name: group.name,
+            group_creator: group.createdBy,
+            current_user_uid: user?.uid,
+            current_user_fuid: user?.firebaseUid,
+            resolved_myUid: myUid,
+            resolved_isCreator: isCreator,
+            resolved_isMember: isMember
+        });
+    }
+
+    useEffect(() => {
+        if (isCreator) {
+            api.get(`/groups/${groupId}/requests`).then(res => setRequests(res.data)).catch(() => { });
+        }
+    }, [groupId, isCreator]);
+
+    const handleManageRequest = async (userId, action) => {
+        try {
+            await api.post(`/groups/${groupId}/manage-request`, { userId, action });
+            setRequests(prev => prev.filter(r => r.firebaseUid !== userId));
+            if (action === 'approve') {
+                // Fetch members again to update list
+                api.get(`/groups/${groupId}/members`).then(res => setMembers(res.data));
+            }
+        } catch (err) {
+            alert(`Failed to ${action} request`);
+        }
+    };
+
+    const handleRequestInPage = async () => {
+        try {
+            await api.post(`/groups/${groupId}/request`);
+            setGroup(prev => ({ ...prev, hasRequested: true }));
+            alert('Access request submitted.');
+        } catch (err) {
+            alert(err.response?.data?.message || 'Request failed');
+        }
+    };
+
+    if (!group) return (
+        <div className="gp-page" style={{ alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: 13, fontWeight: 800 }}>
+            Authenticating Hub...
+        </div>
+    );
 
     return (
         <div className="gp-page">
@@ -202,34 +298,75 @@ const GroupPage = () => {
                 <div className="gp-tabs">
                     <button className={`gp-tab ${activeTab === 'chat' ? 'active' : ''}`} onClick={() => setActiveTab('chat')}>Discussions</button>
                     <button className={`gp-tab ${activeTab === 'notes' ? 'active' : ''}`} onClick={() => setActiveTab('notes')}>Shared Materials</button>
-                    <button className={`gp-tab ${activeTab === 'members' ? 'active' : ''}`} onClick={() => setActiveTab('members')}>Members</button>
+                    <button className={`gp-tab ${activeTab === 'members' ? 'active' : ''}`} onClick={() => setActiveTab('members')}>
+                        Members {isCreator && requests.length > 0 && <span className="gp-badge">{requests.length}</span>}
+                    </button>
                 </div>
             </div>
 
             {/* --- CONTENT AREA --- */}
             <main className="gp-body">
-                {activeTab === 'notes' && <NotesTab groupId={groupId} isCreator={isCreator} user={user} />}
-                {activeTab === 'chat' && <GroupChat groupId={groupId} user={user} />}
-                {activeTab === 'members' && (
-                    <div className="gp-content-scroller">
-                        <div style={{ maxWidth: 800 }}>
-                            <div style={{ fontSize: 11, fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 20 }}>Group Members · {members.length}</div>
-                            {members.map(m => (
-                                <div key={m.firebaseUid} className="gp-member-item">
-                                    <Avatar name={m.name} uid={m.firebaseUid} size={36} />
-                                    <div style={{ flex: 1 }}>
-                                        <div style={{ fontWeight: 850, fontSize: 13, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 6 }}>
-                                            {m.name} {(m.firebaseUid === user?.uid) && <span style={{ fontSize: 9, padding: '2px 6px', background: '#e0f5f5', color: '#1a7a7a', borderRadius: 4 }}>YOU</span>}
+                {(!isMember && !isCreator && group.type === 'Private') ? (
+                    <RestrictedView 
+                        group={group} 
+                        hasRequested={group.hasRequested} 
+                        onJoin={handleRequestInPage} 
+                    />
+                ) : (
+                    <>
+                        {activeTab === 'notes' && <NotesTab groupId={groupId} isCreator={isCreator} user={user} />}
+                        {activeTab === 'chat' && <GroupChat groupId={groupId} user={user} />}
+                        {activeTab === 'members' && (
+                            <div className="gp-content-scroller">
+                                <div style={{ maxWidth: 800 }}>
+                                    <div style={{ fontSize: 11, fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 20 }}>Group Members · {members.length}</div>
+                                    {members.map(m => (
+                                        <div key={m.firebaseUid} className="gp-member-item">
+                                            <Avatar name={m.name} uid={m.firebaseUid} size={36} />
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{ fontWeight: 850, fontSize: 13, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                    {m.name} {(m.firebaseUid === user?.uid) && <span style={{ fontSize: 9, padding: '2px 6px', background: '#e0f5f5', color: '#1a7a7a', borderRadius: 4 }}>YOU</span>}
+                                                </div>
+                                                <div style={{ fontSize: 11, color: '#64748b' }}>{m.email}</div>
+                                            </div>
+                                            <div style={{ padding: '4px 12px', background: '#f8fafc', borderRadius: 8, fontSize: 10, fontWeight: 900, color: '#1a7a7a', textTransform: 'uppercase', border: '1px solid #e2e8f0' }}>
+                                                {m.role || (m.firebaseUid === group.createdBy ? 'Creator' : 'Member')}
+                                            </div>
                                         </div>
-                                        <div style={{ fontSize: 11, color: '#64748b' }}>{m.email}</div>
-                                    </div>
-                                    <div style={{ padding: '4px 12px', background: '#f8fafc', borderRadius: 8, fontSize: 10, fontWeight: 900, color: '#1a7a7a', textTransform: 'uppercase', border: '1px solid #e2e8f0' }}>
-                                        {m.role || 'Member'}
-                                    </div>
+                                    ))}
+
+                                    {isCreator && requests.length > 0 && (
+                                        <>
+                                            <div style={{ fontSize: 11, fontWeight: 900, color: '#f59e0b', textTransform: 'uppercase', marginTop: 40, marginBottom: 20 }}>Pending Access Requests · {requests.length}</div>
+                                            {requests.map(r => (
+                                                <div key={r.firebaseUid} className="gp-member-item" style={{ borderLeft: '3px solid #f59e0b' }}>
+                                                    <Avatar name={r.name} uid={r.firebaseUid} size={36} />
+                                                    <div style={{ flex: 1 }}>
+                                                        <div style={{ fontWeight: 850, fontSize: 13, color: '#1e293b' }}>{r.name}</div>
+                                                        <div style={{ fontSize: 11, color: '#64748b' }}>{r.email}</div>
+                                                    </div>
+                                                    <div style={{ display: 'flex', gap: 8 }}>
+                                                        <button 
+                                                            onClick={() => handleManageRequest(r.firebaseUid, 'approve')}
+                                                            style={{ padding: '6px 12px', background: '#10b981', color: '#fff', border: 'none', borderRadius: 8, fontSize: 10, fontWeight: 900, cursor: 'pointer' }}
+                                                        >
+                                                            APPROVE
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleManageRequest(r.firebaseUid, 'reject')}
+                                                            style={{ padding: '6px 12px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: 8, fontSize: 10, fontWeight: 900, cursor: 'pointer' }}
+                                                        >
+                                                            REJECT
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </>
+                                    )}
                                 </div>
-                            ))}
-                        </div>
-                    </div>
+                            </div>
+                        )}
+                    </>
                 )}
             </main>
 

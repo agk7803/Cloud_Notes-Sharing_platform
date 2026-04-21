@@ -6,7 +6,11 @@ const {
     getGroupById,
     joinGroup,
     leaveGroup,
-    getGroupMembers
+    getGroupMembers,
+    requestToJoin,
+    manageJoinRequest,
+    inviteUser,
+    getGroupRequests
 } = require('../controllers/groupController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -21,6 +25,18 @@ router.route('/:id')
 
 router.route('/:id/join')
     .post(joinGroup);
+
+router.route('/:id/request')
+    .post(requestToJoin);
+
+router.route('/:id/manage-request')
+    .post(manageJoinRequest);
+
+router.route('/:id/invite')
+    .post(inviteUser);
+
+router.route('/:id/requests')
+    .get(getGroupRequests);
 
 router.route('/:id/leave')
     .post(leaveGroup);

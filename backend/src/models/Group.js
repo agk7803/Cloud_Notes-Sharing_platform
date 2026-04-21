@@ -16,6 +16,9 @@ const groupSchema = mongoose.Schema({
     members: [{
         type: String // Array of Firebase UIDs
     }],
+    requests: [{
+        type: String // Array of Firebase UIDs for pending requests
+    }],
     notes: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Note'

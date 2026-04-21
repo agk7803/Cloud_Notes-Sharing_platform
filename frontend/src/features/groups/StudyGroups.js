@@ -9,7 +9,8 @@ import '../../styles/StudyGroups.css';
 
 // ─── Professional Group Card Component ─────────────────────────────────────────
 const GroupCard = ({ group, currentUserId, onClick }) => {
-    const isMember = group.members?.includes(currentUserId);
+    const isMember = group.isMember;
+    const hasRequested = group.hasRequested;
     const sc = getSubjectColor(group.subject);
 
     return (
@@ -38,10 +39,12 @@ const GroupCard = ({ group, currentUserId, onClick }) => {
                 </div>
                 {isMember ? (
                     <button className="sg-join-btn enter" onClick={e => { e.stopPropagation(); onClick(); }}>ENTER WORKSPACE</button>
+                ) : hasRequested ? (
+                    <button className="sg-join-btn pending" onClick={e => { e.stopPropagation(); }} style={{ background: '#fef3c7', color: '#92400e', cursor: 'default' }}>PENDING</button>
                 ) : group.type === 'Public' ? (
                     <button className="sg-join-btn join" onClick={e => { e.stopPropagation(); onClick(); }}>JOIN HUB</button>
                 ) : (
-                    <button className="sg-join-btn private" onClick={e => { e.stopPropagation(); onClick(); }}>PRIVATE</button>
+                    <button className="sg-join-btn join" onClick={e => { e.stopPropagation(); onClick(); }}>REQUEST ACCESS</button>
                 )}
             </div>
         </div>
@@ -88,7 +91,20 @@ const StudyGroups = () => {
                 }
             }
         } else {
-            alert('This hub is strictly private. You require an administrative invite.');
+            // Private Group - Request Access
+            try {
+                await api.post(`/groups/${group._id}/request`);
+                alert('Access request submitted to administrative faculty.');
+                // Refresh list to update status
+                const [resAll, resMe] = await Promise.all([
+                    api.get('/groups'),
+                    api.get('/groups?filter=my')
+                ]);
+                setGroups(resAll.data || []);
+                setMyGroups(resMe.data || []);
+            } catch (err) {
+                alert(err.response?.data?.message || 'Request failed');
+            }
         }
     };
 
