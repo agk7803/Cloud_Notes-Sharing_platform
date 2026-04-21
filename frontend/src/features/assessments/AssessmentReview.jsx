@@ -36,7 +36,7 @@ export default function AssessmentReview() {
         <div className="ar-error">Result not found.</div>
     );
 
-    const { assessmentId: assessment, answers, score, totalQuestions, percentage } = result;
+    const { assessmentId: assessment, answers, score, percentage } = result;
 
     return (
         <div className="ar-root">

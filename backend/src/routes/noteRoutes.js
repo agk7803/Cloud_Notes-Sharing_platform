@@ -13,6 +13,6 @@ router.route('/')
     .post(protect, upload.single('file'), uploadNote);
 
 router.route('/:id')
-    .delete(deleteNote);
+    .delete(protect, deleteNote);
 
 module.exports = router;

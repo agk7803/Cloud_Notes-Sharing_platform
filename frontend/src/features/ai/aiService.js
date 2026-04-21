@@ -1,10 +1,10 @@
-import axios from "axios";
-
-export const sendAcademicMessage = async (message) => {
-  const response = await axios.post(
-    "http://localhost:5050/api/academic-chat",
-    { message }
-  );
-
-  return response.data;
-};
+import api from "../../services/api";
+ 
+ export const sendAcademicMessage = async (message) => {
+   const response = await api.post(
+     "/academic-chat",
+     { message }
+   );
+ 
+   return response.data;
+ };

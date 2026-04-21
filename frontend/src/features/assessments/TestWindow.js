@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaClock, FaCheck, FaTimes, FaFlag, FaChevronRight, FaChevronLeft, FaSave, FaTrophy } from 'react-icons/fa';
+import { FaClock, FaCheck, FaFlag, FaChevronRight, FaChevronLeft, FaSave } from 'react-icons/fa';
 import { doc, getDoc, updateDoc, increment } from 'firebase/firestore';
 import { db, auth } from '../../services/firebase';
 import '../../styles/TestWindow.css';

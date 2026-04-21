@@ -224,6 +224,9 @@ router.delete("/:id", protect, async (req, res) => {
             return res.status(404).json({ message: "Assessment not found" });
         }
 
+        if (assessment.createdBy !== req.user.uid) {
+            return res.status(403).json({ message: "Unauthorized deletion" });
+        }
         await assessment.deleteOne();
         res.json({ message: "Assessment deleted successfully" });
 

@@ -123,7 +123,8 @@ export default function Assessments() {
         return;
       }
       const token = await user.getIdToken();
-      const url = `http://localhost:5050/api/assessments/answerkey/${testId}?token=${token}${download ? "&download=true" : ""}`;
+      const apiBase = process.env.REACT_APP_API_BASE_URL || "http://localhost:5050/api";
+      const url = `${apiBase}/assessments/answerkey/${testId}?token=${token}${download ? "&download=true" : ""}`;
       window.open(url, "_blank");
     } catch (error) {
       console.error("Error opening answer key:", error);
@@ -140,7 +141,8 @@ export default function Assessments() {
         return;
       }
       const token = await user.getIdToken();
-      const url = `http://localhost:5050/api/assessments/questionpaper/${testId}?token=${token}${download ? "&download=true" : ""}`;
+      const apiBase = process.env.REACT_APP_API_BASE_URL || "http://localhost:5050/api";
+      const url = `${apiBase}/assessments/questionpaper/${testId}?token=${token}${download ? "&download=true" : ""}`;
       window.open(url, "_blank");
     } catch (error) {
       console.error("Error opening question paper:", error);
